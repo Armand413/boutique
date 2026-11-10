@@ -1,0 +1,98 @@
+/*
+ * Jetons du design system (Annexe A.2). Source unique des couleurs : toute paire
+ * texte/fond est vérifiée WCAG AA par tests/unit/contrast.test.ts.
+ * Sémantique fixe : success = vert, warning = orange, danger = rouge, info = bleu.
+ */
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --surface-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
+  --border: #e2e8f0;
+  --input: #64748b;
+  --ring: #4338ca;
+
+  --primary: #4338ca;
+  --primary-hover: #3730a3;
+  --primary-foreground: #ffffff;
+  --primary-soft: #e0e7ff;
+  --primary-soft-foreground: #312e81;
+
+  --success: #15803d;
+  --success-foreground: #ffffff;
+  --success-soft: #dcfce7;
+  --success-soft-foreground: #14532d;
+
+  --warning: #c2410c;
+  --warning-foreground: #ffffff;
+  --warning-soft: #ffedd5;
+  --warning-soft-foreground: #7c2d12;
+
+  --danger: #b91c1c;
+  --danger-foreground: #ffffff;
+  --danger-soft: #fee2e2;
+  --danger-soft-foreground: #7f1d1d;
+
+  --info: #1d4ed8;
+  --info-foreground: #ffffff;
+  --info-soft: #dbeafe;
+  --info-soft-foreground: #1e3a8a;
+
+  --sidebar: #0f172a;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-muted-foreground: #94a3b8;
+  --sidebar-active: #1e293b;
+  --sidebar-active-foreground: #ffffff;
+
+  --overlay: rgb(15 23 42 / 0.6);
+  color-scheme: light;
+}
+
+.dark {
+  --background: #0b1120;
+  --foreground: #e2e8f0;
+  --surface: #131c2e;
+  --surface-foreground: #e2e8f0;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --border: #273449;
+  --input: #64748b;
+  --ring: #a5b4fc;
+
+  --primary: #818cf8;
+  --primary-hover: #a5b4fc;
+  --primary-foreground: #0b1120;
+  --primary-soft: #1e1b4b;
+  --primary-soft-foreground: #c7d2fe;
+
+  --success: #4ade80;
+  --success-foreground: #0b1120;
+  --success-soft: #052e16;
+  --success-soft-foreground: #bbf7d0;
+
+  --warning: #fb923c;
+  --warning-foreground: #0b1120;
+  --warning-soft: #431407;
+  --warning-soft-foreground: #fed7aa;
+
+  --danger: #f87171;
+  --danger-foreground: #0b1120;
+  --danger-soft: #450a0a;
+  --danger-soft-foreground: #fecaca;
+
+  --info: #60a5fa;
+  --info-foreground: #0b1120;
+  --info-soft: #172554;
+  --info-soft-foreground: #bfdbfe;
+
+  --sidebar: #070b14;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-muted-foreground: #94a3b8;
+  --sidebar-active: #1e293b;
+  --sidebar-active-foreground: #ffffff;
+
+  --overlay: rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
