@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+    "jsx": "react-jsx",
+    "tsBuildInfoFile": "./node_modules/.cache/tsconfig.web.tsbuildinfo",
+    "paths": {
+      "@shared/*": ["./src/shared/*"],
+      "@renderer/*": ["./src/renderer/*"]
+    }
+  },
+  "include": [
+    "src/renderer/**/*",
+    "src/shared/**/*",
+    "src/preload/api.d.ts",
+    "tests/unit/renderer/**/*"
+  ]
+}
