@@ -1,9 +1,15 @@
 /** Codes d'erreur renvoyés à l'interface : jamais de pile ni de détail technique. */
 export const IPC_ERROR_CODES = [
   'VALIDATION_ERROR',
+  'UNAUTHENTICATED',
+  'SESSION_LOCKED',
+  'PASSWORD_CHANGE_REQUIRED',
   'FORBIDDEN',
+  'INVALID_CREDENTIALS',
+  'ACCOUNT_LOCKED',
   'NOT_FOUND',
   'CONFLICT',
+  'UNAVAILABLE',
   'UNKNOWN_CHANNEL',
   'INTERNAL_ERROR',
 ] as const;
