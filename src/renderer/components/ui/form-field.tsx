@@ -1,7 +1,15 @@
-import { forwardRef, useId, useState, type InputHTMLAttributes, type ReactNode } from 'react';
+import {
+  forwardRef,
+  useId,
+  useState,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type TextareaHTMLAttributes,
+} from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Input, Label } from './basic';
 import { Button } from './button';
+import { Select, type SelectOption } from './radix';
 import { cn } from '../../lib/cn';
 
 interface FieldShellProps {
@@ -116,3 +124,104 @@ export function FormError({ message }: { message: string | null }) {
     </p>
   );
 }
+
+export interface TextAreaFieldProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label: string;
+  hint?: string | undefined;
+  error?: string | undefined;
+}
+
+export const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
+  ({ label, hint, error, id, className, ...props }, ref) => {
+    const generated = useId();
+    const fieldId = id ?? generated;
+    return (
+      <FieldShell id={fieldId} label={label} hint={hint} error={error}>
+        <textarea
+          ref={ref}
+          id={fieldId}
+          rows={3}
+          aria-invalid={error !== undefined}
+          aria-describedby={describedBy(fieldId, hint, error)}
+          className={cn(
+            'border-input bg-surface text-surface-foreground placeholder:text-muted-foreground aria-[invalid=true]:border-danger w-full rounded-md border px-3 py-2 text-base',
+            className,
+          )}
+          {...props}
+        />
+      </FieldShell>
+    );
+  },
+);
+TextAreaField.displayName = 'TextAreaField';
+
+export interface SelectFieldProps {
+  label: string;
+  value: string;
+  options: readonly SelectOption[];
+  onValueChange: (value: string) => void;
+  disabled?: boolean;
+  hint?: string | undefined;
+  error?: string | undefined;
+}
+
+/** Liste de choix avec son libellé (relié par aria-labelledby) et une aide facultative. */
+export function SelectField({
+  label,
+  value,
+  options,
+  onValueChange,
+  disabled,
+  hint,
+  error,
+}: SelectFieldProps) {
+  const labelId = useId();
+  const hintId = useId();
+  return (
+    <div className="flex flex-col gap-2">
+      <Label id={labelId}>{label}</Label>
+      <Select
+        aria-labelledby={labelId}
+        value={value}
+        options={options}
+        onValueChange={onValueChange}
+        {...(disabled === undefined ? {} : { disabled })}
+      />
+      {hint !== undefined && error === undefined && (
+        <p id={hintId} className="text-muted-foreground text-sm">
+          {hint}
+        </p>
+      )}
+      {error !== undefined && error !== '' && (
+        <p role="alert" className="text-danger text-sm font-medium">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export interface CheckboxFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
+  label: string;
+}
+
+/** Case à cocher native (clavier et lecteurs d'écran) avec son libellé cliquable. */
+export const CheckboxField = forwardRef<HTMLInputElement, CheckboxFieldProps>(
+  ({ label, id, className, ...props }, ref) => {
+    const generated = useId();
+    const fieldId = id ?? generated;
+    return (
+      <div className={cn('flex items-center gap-3', className)}>
+        <input
+          ref={ref}
+          id={fieldId}
+          type="checkbox"
+          className="accent-primary size-5 shrink-0"
+          {...props}
+        />
+        <Label htmlFor={fieldId}>{label}</Label>
+      </div>
+    );
+  },
+);
+CheckboxField.displayName = 'CheckboxField';

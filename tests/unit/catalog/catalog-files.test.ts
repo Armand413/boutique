@@ -287,9 +287,9 @@ describe('étiquettes et photo', () => {
     const png = join(h.test.directory, 'vraie.png');
     writeFileSync(png, Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex'));
     h.dialogs.open = png;
-    expect(await h.files.chooseImage(admin, product.id)).toEqual({ hasImage: true });
+    expect(await h.files.chooseImage(admin, product.id)).toEqual({ hasImage: true, changed: true });
     expect(h.files.image(h.as('seller'), product.id).dataUrl).toMatch(/^data:image\/png;base64,/);
-    expect(h.files.clearImage(admin, product.id)).toEqual({ hasImage: false });
+    expect(h.files.clearImage(admin, product.id)).toEqual({ hasImage: false, changed: true });
     expect(h.files.image(admin, product.id).dataUrl).toBeNull();
   });
 });

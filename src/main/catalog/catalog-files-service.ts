@@ -76,14 +76,17 @@ export class CatalogFilesService {
     this.now = dependencies.clock ?? Date.now;
   }
 
-  async chooseImage(actor: Session, productId: number): Promise<{ hasImage: boolean }> {
+  async chooseImage(
+    actor: Session,
+    productId: number,
+  ): Promise<{ hasImage: boolean; changed: boolean }> {
     requirePermission(actor, 'product.edit');
     const product = this.products.existingProduct(productId);
     const source = await this.dialogs.openFile({
       title: 'Photo du produit',
       filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp'] }],
     });
-    if (source === null) return { hasImage: product.imagePath !== null };
+    if (source === null) return { hasImage: product.imagePath !== null, changed: false };
     const stored = this.images.importImage(productId, source);
     this.db.transaction(() => {
       setProductImage(this.db, productId, stored);
@@ -95,13 +98,13 @@ export class CatalogFilesService {
       });
     })();
     this.images.remove(product.imagePath);
-    return { hasImage: true };
+    return { hasImage: true, changed: true };
   }
 
-  clearImage(actor: Session, productId: number): { hasImage: boolean } {
+  clearImage(actor: Session, productId: number): { hasImage: boolean; changed: boolean } {
     requirePermission(actor, 'product.edit');
     const product = this.products.existingProduct(productId);
-    if (product.imagePath === null) return { hasImage: false };
+    if (product.imagePath === null) return { hasImage: false, changed: false };
     this.db.transaction(() => {
       setProductImage(this.db, productId, null);
       appendAudit(this.db, {
@@ -112,7 +115,7 @@ export class CatalogFilesService {
       });
     })();
     this.images.remove(product.imagePath);
-    return { hasImage: false };
+    return { hasImage: false, changed: true };
   }
 
   image(actor: Session, productId: number): { dataUrl: string | null } {

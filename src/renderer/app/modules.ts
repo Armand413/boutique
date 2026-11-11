@@ -1,6 +1,7 @@
 import {
   Info,
   LayoutPanelTop,
+  Package,
   ScrollText,
   Settings,
   UserRound,
@@ -25,6 +26,7 @@ export interface ModuleEntry {
  * Modules de la barre latérale (A.3). Un module n'apparaît ici que lorsqu'il est livré.
  */
 export const MODULES: readonly ModuleEntry[] = [
+  { route: 'products', labelKey: 'nav.products', icon: Package, permission: 'product.view' },
   { route: 'users', labelKey: 'nav.users', icon: Users, permission: 'user.manage' },
   { route: 'audit', labelKey: 'nav.audit', icon: ScrollText, permission: 'audit.view' },
   { route: 'account', labelKey: 'nav.account', icon: UserRound },

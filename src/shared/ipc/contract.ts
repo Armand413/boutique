@@ -84,7 +84,7 @@ const SESSION: IpcAccess = { kind: 'session' };
 const needs = (permission: Permission): IpcAccess => ({ kind: 'session', permission });
 
 const noInput = z.undefined();
-const hasImage = z.strictObject({ hasImage: z.boolean() });
+const hasImage = z.strictObject({ hasImage: z.boolean(), changed: z.boolean() });
 const nothing = z.null();
 
 /**

@@ -12,6 +12,10 @@ import { AuditPage } from '../pages/audit/AuditPage';
 import { AppearancePage } from '../pages/settings/AppearancePage';
 import { SettingsPage } from '../pages/settings/SettingsPage';
 import { UsersPage } from '../pages/users/UsersPage';
+import { BrandsPage } from '../pages/products/BrandsPage';
+import { CategoriesPage } from '../pages/products/CategoriesPage';
+import { ProductDetailPage } from '../pages/products/ProductDetailPage';
+import { ProductsPage } from '../pages/products/ProductsPage';
 import { usePreferences } from '../stores/preferences';
 import { useRouter } from '../stores/router';
 import { useSession } from '../stores/session';
@@ -31,6 +35,10 @@ const PAGES: Readonly<Record<Exclude<RouteName, 'dev.gallery'>, ComponentType>> 
   users: UsersPage,
   audit: AuditPage,
   account: AccountPage,
+  products: ProductsPage,
+  'products.detail': ProductDetailPage,
+  'products.categories': CategoriesPage,
+  'products.brands': BrandsPage,
 };
 
 /** Écran refusé si la session n'a pas la permission (le service le refuserait aussi). */

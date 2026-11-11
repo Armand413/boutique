@@ -17,6 +17,10 @@ export const ROUTES = {
   users: { labelKey: 'nav.users', parent: null },
   audit: { labelKey: 'nav.audit', parent: null },
   account: { labelKey: 'nav.account', parent: null },
+  products: { labelKey: 'nav.products', parent: null },
+  'products.detail': { labelKey: 'nav.products.detail', parent: 'products' },
+  'products.categories': { labelKey: 'nav.products.categories', parent: 'products' },
+  'products.brands': { labelKey: 'nav.products.brands', parent: 'products' },
   'dev.gallery': { labelKey: 'nav.dev.gallery', parent: null },
 } as const satisfies Record<string, { labelKey: TranslationKey; parent: string | null }>;
 

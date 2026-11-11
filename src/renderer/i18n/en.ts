@@ -1,7 +1,9 @@
+import { catalogEn } from './catalog-en';
 import type { TranslationKey } from './fr';
 
 /** English translation: the type forces every French key to exist here. */
 export const en: Readonly<Record<TranslationKey, string>> = {
+  ...catalogEn,
   'app.name': 'Shop Manager',
   'app.skipToContent': 'Skip to main content',
 
@@ -17,7 +19,7 @@ export const en: Readonly<Record<TranslationKey, string>> = {
   'nav.breadcrumb': 'Breadcrumb',
 
   'search.open': 'Search or go to…',
-  'search.placeholder': 'Type a screen name…',
+  'search.placeholder': 'Screen, product, barcode, IMEI…',
   'search.title': 'Quick search',
   'search.description': 'Use the arrow keys to choose, Enter to open, Escape to close.',
   'search.empty': 'No results for “{query}”.',

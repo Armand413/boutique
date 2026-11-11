@@ -1,5 +1,8 @@
+import { catalogFr } from './catalog-fr';
+
 /** Textes de l'interface en français (langue par défaut). */
 export const fr = {
+  ...catalogFr,
   'app.name': 'Boutique Gestion',
   'app.skipToContent': 'Aller au contenu principal',
 
@@ -15,7 +18,7 @@ export const fr = {
   'nav.breadcrumb': 'Fil d’Ariane',
 
   'search.open': 'Rechercher ou aller à…',
-  'search.placeholder': 'Tapez le nom d’un écran…',
+  'search.placeholder': 'Écran, produit, code-barres, IMEI…',
   'search.title': 'Recherche rapide',
   'search.description': 'Utilisez les flèches pour choisir, Entrée pour ouvrir, Échap pour fermer.',
   'search.empty': 'Aucun résultat pour « {query} ».',
