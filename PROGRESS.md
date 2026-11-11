@@ -331,7 +331,48 @@
 - Thread des rapports dans l'application installée (archive asar) : à vérifier au packaging (phase 10).
 - Temps de calcul sur gros volume (100 000 ventes) : mesuré au test de charge de la phase 9.
 
-## Phase 8 — Sauvegarde/restauration, paramètres, anti-fraude : à faire
+## Phase 8 — Sauvegarde/restauration, paramètres, anti-fraude : terminée (11/11/2026)
 
-Sauvegardes chiffrées et restauration, écrans de paramètres (boutique, impressions, plafonds, double contrôle),
-alertes anti-fraude et rapport d'activités sensibles.
+### Fait
+
+- Sauvegardes chiffrées (`src/main/backup`) : format `.bgsauv` (AES-256-GCM, clé Argon2id du mot de passe du
+  propriétaire, base + clé + séquestre), copie cohérente par `VACUUM INTO` dans le thread en lecture seule (D70, D71).
+- Sauvegarde automatique quotidienne avec rétention, `VACUUM` mensuel ; sauvegarde manuelle vers une clé USB ou un
+  disque ; rappel de copie externe ; historique (`backup_log`, empreinte SHA-256) (D72).
+- Restauration guidée depuis les paramètres ou depuis l'assistant de premier lancement / l'écran d'erreur (nouveau
+  poste) : vérification complète avant remplacement, copie de sécurité, base remplacée mise de côté (D73).
+- Paramètres par section : boutique (logo, coordonnées, mentions légales sur tous les documents), devise, dates et
+  factures, taux de taxe, impression (imprimante réseau ou simulateur, ticket d'essai, étiquettes), sécurité
+  (verrouillage, plafonds de remise, double contrôle) et seuils anti-fraude ; apparence (déjà livrée) (D74).
+- Anti-fraude : rapport « Activités sensibles » réservé à l'administrateur, tuile du tableau de bord, alerte à la
+  connexion (D75).
+- 19 canaux IPC validés par Zod ; droits vérifiés dans les services (`settings.manage`, `backup.manage`, `audit.view`).
+
+### Vérifications de fin de phase
+
+| Contrôle            | Résultat                                                                                                                                                                                                                                  |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run typecheck` | 0 erreur                                                                                                                                                                                                                                  |
+| `npm run lint`      | 0 erreur, 0 avertissement                                                                                                                                                                                                                 |
+| `npm test`          | 255 tests verts (9 pour les sauvegardes, les paramètres et l’anti-fraude)                                                                                                                                                                 |
+| `npm run test:e2e`  | 37 tests verts sur l’application compilée (+ 1 capture ignorée hors demande)                                                                                                                                                              |
+| WCAG AA             | axe-core clair et sombre : paramètres (sommaire, boutique, devise, taxes, impression, sécurité), sauvegardes, restauration, activités sensibles                                                                                           |
+| Sécurité            | revue faite (pas de sous-agent `security-reviewer` disponible) : chemins jamais fournis par l'interface, sauvegarde modifiée refusée, restauration sans session limitée aux postes sans boutique ouverte, paramètres de dérivation bornés |
+| `npm audit`         | 0 faille en production, aucune critique                                                                                                                                                                                                   |
+
+### Corrigé pendant la phase
+
+- La sauvegarde en ligne de SQLite refuse une base chiffrée : copie par `VACUUM INTO` (D71).
+- Paramètres Argon2id d'un en-tête de sauvegarde bornés (un en-tête modifié pouvait bloquer la restauration).
+- Pourcentage des remises inhabituelles affiché au format français.
+- Test e2e du clavier : le rappel de sauvegarde affiché à la connexion prenait la touche Échap destinée à la palette.
+
+### Reste à valider / limites
+
+- Imprimante réseau réelle (ticket d'essai) : simulateur seulement.
+- DPAPI réel testé par les e2e sur ce poste ; restauration sur un autre compte Windows à refaire à la recette.
+
+## Phase 9 — Durcissement sécurité, optimisation, tests de bout en bout, seed de démonstration, charge : à faire
+
+Revue de sécurité complète, seed de démonstration (20 marques, 2 000 produits, 5 000 ventes), test de charge
+(50 000 produits, 100 000 ventes, 500 000 mouvements), mesures des temps cibles.

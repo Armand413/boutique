@@ -153,6 +153,12 @@ test('respecte les règles WCAG AA sur les écrans livrés', async () => {
 
 test('se navigue entièrement au clavier : lien d’évitement et palette Ctrl+K', async () => {
   const { page } = launched;
+  // L'administrateur reçoit à la connexion le rappel des sauvegardes : on le ferme d'abord, sinon
+  // la notification, arrivée par-dessus la palette, prendrait la touche Échap.
+  const notifications = page.getByRole('region', { name: /Notifications/ });
+  await expect(notifications.getByText(/sauvegardes automatiques sont arrêtées/)).toBeVisible();
+  await notifications.getByRole('button', { name: 'Fermer' }).click();
+  await expect(notifications.getByText(/sauvegardes automatiques sont arrêtées/)).toHaveCount(0);
   // Point de départ de la navigation au clavier : le début du document.
   await page.evaluate(() => {
     document.body.tabIndex = -1;

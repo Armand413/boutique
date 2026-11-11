@@ -17,9 +17,10 @@ export const BACKUP_EXTENSION = 'bgsauv';
 
 export const kdfSchema = z.strictObject({
   algorithm: z.literal('argon2id'),
-  memoryCost: z.number().int().min(8192).max(1_048_576),
-  timeCost: z.number().int().min(1).max(20),
-  parallelism: z.number().int().min(1).max(16),
+  // Bornes : un en-tête modifié ne doit pas pouvoir bloquer le poste pendant la dérivation.
+  memoryCost: z.number().int().min(8192).max(262_144),
+  timeCost: z.number().int().min(1).max(10),
+  parallelism: z.number().int().min(1).max(8),
   salt: z.base64(),
 });
 export type KdfInfo = z.infer<typeof kdfSchema>;
