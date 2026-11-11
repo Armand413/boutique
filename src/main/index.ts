@@ -16,6 +16,7 @@ import { createHandlers } from './ipc/handlers';
 import { safeStorageProtector } from './security/safe-storage';
 import { PreferencesService } from './services/preferences-service';
 import { AppRuntime } from './system/runtime';
+import { electronFileDialogs } from './files/file-dialogs';
 
 const devServerUrl = app.isPackaged ? undefined : process.env.ELECTRON_RENDERER_URL;
 const isDevelopment = devServerUrl !== undefined;
@@ -75,6 +76,7 @@ async function start(): Promise<void> {
   const runtime = new AppRuntime({
     dataDirectory: join(app.getPath('userData'), 'donnees'),
     protector: safeStorageProtector,
+    dialogs: electronFileDialogs,
     ...testIdleLockOverride(),
   });
   const status = await runtime.start();

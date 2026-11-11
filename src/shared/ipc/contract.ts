@@ -23,6 +23,34 @@ import {
   userIdInputSchema,
   userSummarySchema,
 } from '../schemas/auth';
+import {
+  attributeDefinitionSchema,
+  brandSchema,
+  catalogReferencesSchema,
+  categorySchema,
+  createProductInputSchema,
+  exportInputSchema,
+  exportOutputSchema,
+  importAnalysisSchema,
+  importCommitInputSchema,
+  importCommitOutputSchema,
+  kitComponentsInputSchema,
+  labelsInputSchema,
+  productDetailSchema,
+  productIdInputSchema,
+  productImageOutputSchema,
+  productSearchInputSchema,
+  productSearchOutputSchema,
+  saveAttributeInputSchema,
+  saveBrandInputSchema,
+  saveCategoryInputSchema,
+  saveVariantInputSchema,
+  savedFileOutputSchema,
+  serialLookupInputSchema,
+  serialLookupSchema,
+  setProductActiveInputSchema,
+  updateProductInputSchema,
+} from '../schemas/catalog';
 
 export const appInfoSchema = z.strictObject({
   name: z.string().min(1),
@@ -56,6 +84,7 @@ const SESSION: IpcAccess = { kind: 'session' };
 const needs = (permission: Permission): IpcAccess => ({ kind: 'session', permission });
 
 const noInput = z.undefined();
+const hasImage = z.strictObject({ hasImage: z.boolean() });
 const nothing = z.null();
 
 /**
@@ -130,6 +159,101 @@ export const ipcContract = {
     access: needs('audit.view'),
   },
   'audit:verify': { input: noInput, output: auditVerificationSchema, access: needs('audit.view') },
+  'catalog:references': {
+    input: noInput,
+    output: catalogReferencesSchema,
+    access: needs('product.view'),
+  },
+  'brands:save': {
+    input: saveBrandInputSchema,
+    output: brandSchema,
+    access: needs('settings.manage'),
+  },
+  'categories:save': {
+    input: saveCategoryInputSchema,
+    output: categorySchema,
+    access: needs('settings.manage'),
+  },
+  'attributes:save': {
+    input: saveAttributeInputSchema,
+    output: attributeDefinitionSchema,
+    access: needs('settings.manage'),
+  },
+  'products:search': {
+    input: productSearchInputSchema,
+    output: productSearchOutputSchema,
+    access: needs('product.view'),
+  },
+  'products:get': {
+    input: productIdInputSchema,
+    output: productDetailSchema,
+    access: needs('product.view'),
+  },
+  'products:create': {
+    input: createProductInputSchema,
+    output: productDetailSchema,
+    access: needs('product.edit'),
+  },
+  'products:update': {
+    input: updateProductInputSchema,
+    output: productDetailSchema,
+    access: needs('product.edit'),
+  },
+  'products:setActive': {
+    input: setProductActiveInputSchema,
+    output: productDetailSchema,
+    access: needs('product.edit'),
+  },
+  'products:chooseImage': {
+    input: productIdInputSchema,
+    output: hasImage,
+    access: needs('product.edit'),
+  },
+  'products:clearImage': {
+    input: productIdInputSchema,
+    output: hasImage,
+    access: needs('product.edit'),
+  },
+  'products:image': {
+    input: productIdInputSchema,
+    output: productImageOutputSchema,
+    access: needs('product.view'),
+  },
+  'variants:save': {
+    input: saveVariantInputSchema,
+    output: productDetailSchema,
+    access: needs('product.edit'),
+  },
+  'kits:setComponents': {
+    input: kitComponentsInputSchema,
+    output: productDetailSchema,
+    access: needs('product.edit'),
+  },
+  'serials:find': {
+    input: serialLookupInputSchema,
+    output: z.array(serialLookupSchema),
+    access: needs('product.view'),
+  },
+  'catalog:export': {
+    input: exportInputSchema,
+    output: exportOutputSchema,
+    access: needs('export.run'),
+  },
+  'catalog:importAnalyze': {
+    input: noInput,
+    output: importAnalysisSchema,
+    access: needs('product.edit'),
+  },
+  'catalog:importCommit': {
+    input: importCommitInputSchema,
+    output: importCommitOutputSchema,
+    access: needs('product.edit'),
+  },
+  'labels:generate': {
+    input: labelsInputSchema,
+    output: savedFileOutputSchema,
+    access: needs('product.view'),
+  },
 } as const satisfies Record<IpcChannel, { input: z.ZodType; output: z.ZodType; access: IpcAccess }>;
 
 export type IpcContract = typeof ipcContract;

@@ -15,10 +15,16 @@ import { seedSystem } from '../db/seed';
 import type { Db } from '../db/types';
 import { logger } from '../logging/logger';
 import { SetupService } from './setup-service';
+import { CatalogFilesService } from '../catalog/catalog-files-service';
+import { ImageStore } from '../catalog/image-store';
+import { ProductService } from '../catalog/product-service';
+import { ReferenceService } from '../catalog/reference-service';
+import type { FileDialogs } from '../files/file-dialogs';
 
 export interface RuntimeOptions {
   dataDirectory: string;
   protector: KeyProtector;
+  dialogs: FileDialogs;
   idleLockSecondsOverride?: number;
 }
 
@@ -29,6 +35,9 @@ export interface Services {
   users: UserService;
   setup: SetupService;
   audit: AuditService;
+  references: ReferenceService;
+  products: ProductService;
+  catalogFiles: CatalogFilesService;
 }
 
 /**
@@ -236,6 +245,7 @@ export class AppRuntime {
 
   private createServices(db: Db, key: Buffer): Services {
     const sessions = new SessionManager();
+    const products = new ProductService(db);
     return {
       db,
       sessions,
@@ -251,6 +261,14 @@ export class AppRuntime {
       users: new UserService(db),
       setup: new SetupService(db, this.keyStore, key),
       audit: new AuditService(db),
+      references: new ReferenceService(db),
+      products,
+      catalogFiles: new CatalogFilesService({
+        db,
+        products,
+        dialogs: this.options.dialogs,
+        images: new ImageStore(join(this.options.dataDirectory, 'images')),
+      }),
     };
   }
 }
