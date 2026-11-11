@@ -204,6 +204,10 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
     'warranty:list': ({ scope, limit }, context) =>
       services().warranty.list(actor(context), scope, limit),
     'warranty:expiring': (_input, context) => services().warranty.expiring(actor(context)),
+    'dashboard:get': (_input, context) => services().reports.dashboard(actor(context)),
+    'reports:run': (request, context) => services().reports.run(actor(context), request),
+    'reports:export': ({ request, format }, context) =>
+      services().reports.export(actor(context), request, format),
     'sales:units': ({ variantId }, context) =>
       services().sales.availableUnits(actor(context), variantId),
     'documents:saveQuote': ({ quoteId }, context) =>

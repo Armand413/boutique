@@ -28,7 +28,12 @@ export default defineConfig({
     build: {
       outDir: 'out/main',
       externalizeDeps: true,
-      rolldownOptions: { input: { index: resolve(__dirname, 'src/main/index.ts') } },
+      rolldownOptions: {
+        input: {
+          index: resolve(__dirname, 'src/main/index.ts'),
+          'report-worker': resolve(__dirname, 'src/main/reports/report-worker.ts'),
+        },
+      },
     },
   },
   preload: {

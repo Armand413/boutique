@@ -1,8 +1,14 @@
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { InlineExecutor } from '../../../src/main/reports/report-executor';
+import { ReportService } from '../../../src/main/reports/report-service';
 import { localDay } from '../../../src/main/reports/period';
 import { dashboard, runReport } from '../../../src/main/reports/report-queries';
 import type { ReportContext } from '../../../src/main/reports/report-kit';
 import type { ReportRequest } from '../../../src/shared/schemas/reports';
+import { fakeDialogs } from '../auth/harness';
 import { createSalesHarness, variant, type SalesHarness } from '../sales/harness';
 
 let h: SalesHarness;
@@ -72,9 +78,9 @@ describe('ventes et marges', () => {
     });
 
     const report = run({ kind: 'sales', period, groupBy: 'product' });
-    const byName = Object.fromEntries(report.rows.map((row) => [row.label, row]));
+    const byName = new Map(report.rows.map((row) => [row.label, row]));
     // 2 câbles gardés : 23 600 TTC, dont 3 600 de TVA ; coût 2 × 1 000.
-    expect(byName['Câble USB-C']).toMatchObject({
+    expect(byName.get('Câble USB-C')).toMatchObject({
       quantity: 2,
       revenue_ttc: 23_600,
       revenue: 20_000,
@@ -83,7 +89,7 @@ describe('ventes et marges', () => {
       margin_rate: 90,
     });
     // Kit sans TVA : coût = 2 panneaux à 1 000.
-    expect(byName['Kit solaire']).toMatchObject({ quantity: 1, revenue: 200_000, cost: 2000 });
+    expect(byName.get('Kit solaire')).toMatchObject({ quantity: 1, revenue: 200_000, cost: 2000 });
     expect(report.totals).toMatchObject({ sales_count: 1, revenue_ttc: 223_600, margin: 216_000 });
     expect(report.summary.find((item) => item.key === 'margin')?.value).toBe(216_000);
 
@@ -207,5 +213,49 @@ describe('rotation, stock et suivis', () => {
     const report = run({ kind: 'movements', period, movementType: null }, { ...full, limit: 1 });
     expect(report.rows).toHaveLength(1);
     expect(report.truncated).toBe(true);
+  });
+});
+
+describe('service des rapports', () => {
+  it('vérifie les droits, sert le vendeur sans coûts et trace chaque export', async () => {
+    const { cable } = seed();
+    h.sales.checkout(
+      h.manager,
+      h.checkoutInput({
+        lines: [{ variantId: cable, quantity: 1, discount: null }],
+        payments: cash(11_800),
+      }),
+    );
+    const dir = mkdtempSync(join(tmpdir(), 'rapports-'));
+    const { dialogs, state } = fakeDialogs({ save: join(dir, 'ventes.xlsx') });
+    const service = new ReportService(h.test.db, new InlineExecutor(h.test.db), dialogs);
+    const request = { kind: 'sales', period, groupBy: 'family' } as const;
+    try {
+      const seller = h.as('seller');
+      await expect(service.run(seller, request)).rejects.toThrow(/droit/);
+      const board = await service.dashboard(seller);
+      expect(board.month.margin).toBeNull();
+      expect(board.latestSales[0]?.total).toBe(11_800);
+      expect((await service.dashboard(h.manager)).month.margin).toBe(9000);
+
+      expect(await service.export(h.manager, request, 'xlsx')).toEqual({ saved: true });
+      expect(existsSync(join(dir, 'ventes.xlsx'))).toBe(true);
+      state.save = join(dir, 'ventes.pdf');
+      await service.export(h.manager, { kind: 'cash', period }, 'pdf');
+      expect(readFileSync(join(dir, 'ventes.pdf')).subarray(0, 4).toString()).toBe('%PDF');
+      state.save = join(dir, 'ventes.csv');
+      await service.export(h.manager, request, 'csv');
+      expect(readFileSync(join(dir, 'ventes.csv'), 'utf8')).toContain('Marge');
+      state.save = null;
+      expect(await service.export(h.manager, request, 'csv')).toEqual({ saved: false });
+      const exported = h.test.db
+        .prepare("SELECT details FROM audit_log WHERE action = 'report.exported'")
+        .pluck()
+        .all() as string[];
+      expect(exported).toHaveLength(3);
+      expect(JSON.parse(exported[0] ?? '{}')).toMatchObject({ kind: 'sales', format: 'xlsx' });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

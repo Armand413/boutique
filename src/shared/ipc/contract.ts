@@ -138,6 +138,12 @@ import {
   warrantyLookupInputSchema,
   warrantyLookupSchema,
 } from '../schemas/inventory';
+import {
+  dashboardSchema,
+  reportExportInputSchema,
+  reportRequestSchema,
+  reportResultSchema,
+} from '../schemas/reports';
 
 export const appInfoSchema = z.strictObject({
   name: z.string().min(1),
@@ -670,6 +676,21 @@ export const ipcContract = {
     input: noInput,
     output: z.array(expiringSchema),
     access: needs('warranty.manage'),
+  },
+  'dashboard:get': {
+    input: noInput,
+    output: dashboardSchema,
+    access: needs('dashboard.view'),
+  },
+  'reports:run': {
+    input: reportRequestSchema,
+    output: reportResultSchema,
+    access: needs('report.view'),
+  },
+  'reports:export': {
+    input: reportExportInputSchema,
+    output: z.strictObject({ saved: z.boolean() }),
+    access: needs('export.run'),
   },
 } as const satisfies Record<IpcChannel, { input: z.ZodType; output: z.ZodType; access: IpcAccess }>;
 

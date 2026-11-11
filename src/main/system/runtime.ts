@@ -31,12 +31,16 @@ import { DocumentService } from '../printing/document-service';
 import { InventoryReport } from '../inventory/inventory-report';
 import { InventoryService } from '../inventory/inventory-service';
 import { WarrantyService } from '../warranty/warranty-service';
+import { WorkerExecutor } from '../reports/report-executor';
+import { ReportService } from '../reports/report-service';
 
 export interface RuntimeOptions {
   dataDirectory: string;
   protector: KeyProtector;
   dialogs: FileDialogs;
   idleLockSecondsOverride?: number;
+  /** Script du thread des rapports (bundle `report-worker.js` à côté du processus principal). */
+  reportWorkerScript?: string;
 }
 
 export interface Services {
@@ -60,6 +64,7 @@ export interface Services {
   inventories: InventoryService;
   inventoryReport: InventoryReport;
   warranty: WarrantyService;
+  reports: ReportService;
 }
 
 /**
@@ -145,7 +150,10 @@ export class AppRuntime {
   }
 
   close(): void {
-    if (this.services !== null) closeDatabase(this.services.db);
+    if (this.services !== null) {
+      void this.services.reports.close();
+      closeDatabase(this.services.db);
+    }
     this.services = null;
   }
 
@@ -305,6 +313,15 @@ export class AppRuntime {
       inventories,
       inventoryReport: new InventoryReport(db, inventories, this.options.dialogs),
       warranty: new WarrantyService(db),
+      reports: new ReportService(
+        db,
+        new WorkerExecutor(
+          this.options.reportWorkerScript ?? join(__dirname, 'report-worker.js'),
+          this.databaseFile,
+          key,
+        ),
+        this.options.dialogs,
+      ),
       documents: new DocumentService({
         db,
         dialogs: this.options.dialogs,

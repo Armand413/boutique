@@ -464,9 +464,10 @@ export async function writeRows(
   format: 'xlsx' | 'csv',
   header: readonly string[],
   rows: readonly (string | number | null)[][],
+  sheetName = 'Catalogue',
 ): Promise<void> {
   const workbook = new ExcelJS.Workbook();
-  const sheet = workbook.addWorksheet('Catalogue');
+  const sheet = workbook.addWorksheet(sheetName);
   sheet.addRow([...header]);
   sheet.getRow(1).font = { bold: true };
   for (const row of rows) {

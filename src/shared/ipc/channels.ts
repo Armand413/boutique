@@ -111,6 +111,9 @@ export const IPC_CHANNELS = [
   'warranty:update',
   'warranty:list',
   'warranty:expiring',
+  'dashboard:get',
+  'reports:run',
+  'reports:export',
 ] as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[number];
