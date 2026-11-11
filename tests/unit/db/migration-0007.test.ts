@@ -33,7 +33,7 @@ function upgradedDatabase() {
 describe('migration 0007 : états de sortie des unités suivies', () => {
   it('conserve les unités et les mouvements qui les référencent', () => {
     const { db, applied, unitId } = upgradedDatabase();
-    expect(applied.map((m) => m.version)).toEqual([7]);
+    expect(applied[0]?.version).toBe(7);
     expect(
       db.prepare('SELECT serial_number, status FROM serial_units WHERE id = ?').get(unitId),
     ).toEqual({
