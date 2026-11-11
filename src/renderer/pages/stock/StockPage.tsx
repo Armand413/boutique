@@ -149,7 +149,12 @@ function LevelsTab({
           <p className="text-muted-foreground text-sm" role="status">
             {t('stock.count', { count: state.data.total })}
           </p>
-          <Card className="overflow-x-auto">
+          <Card
+            className="overflow-x-auto"
+            role="region"
+            tabIndex={0}
+            aria-label={t('stock.tab.levels')}
+          >
             <table className="w-full text-left text-sm">
               <thead className="bg-muted text-muted-foreground">
                 <tr>
@@ -321,7 +326,12 @@ function MovementsTab({ locations, version }: { locations: readonly Location[]; 
         <p className="text-muted-foreground py-6 text-sm">{t('stock.movements.empty')}</p>
       )}
       {items !== null && items.length > 0 && (
-        <Card className="overflow-x-auto">
+        <Card
+          className="overflow-x-auto"
+          role="region"
+          tabIndex={0}
+          aria-label={t('stock.tab.movements')}
+        >
           <table className="w-full text-left text-sm">
             <thead className="bg-muted text-muted-foreground">
               <tr>
@@ -570,7 +580,11 @@ export function StockPage() {
       {state.status === 'loading' && <LoadingState label={t('state.loading')} rows={5} />}
       {state.status === 'error' && <ErrorBlock message={state.message} onRetry={reload} />}
       {state.status === 'ready' && (
-        <Tabs defaultValue="levels" className="flex flex-col gap-4">
+        <Tabs
+          key={lowStock ? 'low-stock' : 'all'}
+          defaultValue="levels"
+          className="flex flex-col gap-4"
+        >
           <TabsList>
             <TabsTrigger value="levels">{t('stock.tab.levels')}</TabsTrigger>
             <TabsTrigger value="movements">{t('stock.tab.movements')}</TabsTrigger>

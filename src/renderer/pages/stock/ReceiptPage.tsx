@@ -14,6 +14,7 @@ import { PageHeader } from '../../layout/AppShell';
 import { invoke } from '../../lib/ipc';
 import { useRemote } from '../../lib/use-remote';
 import { useRouter } from '../../stores/router';
+import { useStockEvents } from '../../stores/stock-events';
 import { moneyText, parseOptionalMoney } from '../products/catalog-ui';
 import {
   parseQuantity,
@@ -47,6 +48,7 @@ export function ReceiptPage() {
   );
   const { state, reload } = useRemote(loader);
   const { error, submit } = useSubmit();
+  const stockChanged = useStockEvents((state) => state.changed);
   const [supplierId, setSupplierId] = useState(
     presetSupplier === undefined ? NONE : String(presetSupplier),
   );
@@ -139,6 +141,7 @@ export function ReceiptPage() {
     );
     setSaving(false);
     if (result !== null) {
+      stockChanged();
       toast.success(t('receipt.saved', { number: result.value.receipt.number }));
       navigate('suppliers.detail', { supplierId: result.value.receipt.supplierId });
     }

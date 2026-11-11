@@ -57,8 +57,9 @@ export const stockFr = {
   'stock.next': 'Page suivante',
   'stock.loadMore': 'Afficher les mouvements plus anciens',
   'stock.error': 'Impossible de charger le stock.',
-  'stock.empty.title': 'Aucun article en stock',
-  'stock.empty.description': 'Enregistrez une entrée de marchandise pour alimenter le stock.',
+  'stock.empty.title': 'Aucun article stocké',
+  'stock.empty.description':
+    'Ajoutez des produits au catalogue, puis enregistrez une entrée de marchandise.',
   'stock.noMatch': 'Aucun article ne correspond à ces critères.',
   'stock.movements.empty': 'Aucun mouvement enregistré.',
   'stock.valuation.units': 'Articles en stock',

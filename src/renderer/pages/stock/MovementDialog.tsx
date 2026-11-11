@@ -15,6 +15,7 @@ import { FormError, SelectField, TextAreaField, TextField } from '../../componen
 import { toast } from '../../components/ui/toast';
 import { useT } from '../../i18n';
 import { invoke } from '../../lib/ipc';
+import { useStockEvents } from '../../stores/stock-events';
 import { parseQuantity, parseSerialLines, rowName, UnitPicker, VariantPicker } from './stock-ui';
 
 type ExitType = (typeof MANUAL_EXIT_TYPES)[number] | 'adjustment';
@@ -35,6 +36,7 @@ interface MovementDialogProps {
 export function MovementDialog({ mode, locations, onOpenChange, onDone }: MovementDialogProps) {
   const t = useT();
   const { error, submit } = useSubmit();
+  const stockChanged = useStockEvents((state) => state.changed);
   const active = locations.filter((location) => location.isActive);
   const defaultLocation = String(
     active.find((location) => location.isDefault)?.id ?? active[0]?.id ?? '',
@@ -117,6 +119,7 @@ export function MovementDialog({ mode, locations, onOpenChange, onDone }: Moveme
     });
     setSaving(false);
     if (result !== null) {
+      stockChanged();
       toast.success(
         t(
           mode.kind === 'exit'

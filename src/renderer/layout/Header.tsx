@@ -7,6 +7,7 @@ import { useHotkey } from '../hotkeys/hotkeys';
 import { useT } from '../i18n';
 import { useRouter } from '../stores/router';
 import { useSession } from '../stores/session';
+import { useStockEvents } from '../stores/stock-events';
 import { invoke } from '../lib/ipc';
 
 /** Indicateur permanent des alertes de stock (A.3), relu à chaque changement d'écran. */
@@ -15,6 +16,7 @@ function StockAlerts() {
   const canView = useSession((state) => state.session?.permissions.includes('stock.view') ?? false);
   const current = useRouter((state) => state.current);
   const navigate = useRouter((state) => state.navigate);
+  const version = useStockEvents((state) => state.version);
   const [count, setCount] = useState(0);
   useEffect(() => {
     if (!canView) return;
@@ -30,7 +32,7 @@ function StockAlerts() {
     return () => {
       active = false;
     };
-  }, [canView, current]);
+  }, [canView, current, version]);
   if (!canView || count === 0) return null;
   return (
     <Button
