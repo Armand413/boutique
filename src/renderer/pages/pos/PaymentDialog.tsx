@@ -20,6 +20,7 @@ import { errorMessage, invoke } from '../../lib/ipc';
 import { useStockEvents } from '../../stores/stock-events';
 import { cartLines, usePos } from '../../stores/pos';
 import { parseOptionalMoney } from '../products/catalog-ui';
+import { CustomerDialog } from './PosDialogs';
 import { today } from '../stock/stock-ui';
 
 type NonCash = 'card' | 'mobile_money' | 'transfer' | 'cheque';
@@ -101,12 +102,10 @@ export { DocumentButtons };
 export function PaymentDialog({
   total,
   onOpenChange,
-  onChooseCustomer,
   onFinished,
 }: {
   total: number;
   onOpenChange: (open: boolean) => void;
-  onChooseCustomer: () => void;
   onFinished: () => void;
 }) {
   const t = useT();
@@ -128,6 +127,8 @@ export function PaymentDialog({
   const [deliveryDate, setDeliveryDate] = useState(today());
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState<{ sale: SaleDetail; change: number } | null>(null);
+  // Le choix du client s'ouvre par-dessus : les montants saisis sont conservés.
+  const [choosingCustomer, setChoosingCustomer] = useState(false);
 
   const otherAmounts = NON_CASH.map((method) => ({
     method,
@@ -303,7 +304,7 @@ export function PaymentDialog({
               {pos.customer === null ? (
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm">{t('pay.creditCustomer')}</p>
-                  <Button size="sm" variant="secondary" onClick={onChooseCustomer}>
+                  <Button size="sm" variant="secondary" onClick={() => setChoosingCustomer(true)}>
                     {t('pos.chooseCustomer')}
                   </Button>
                 </div>
@@ -372,6 +373,16 @@ export function PaymentDialog({
             </Button>
           </DialogFooter>
         </form>
+        {choosingCustomer && (
+          <CustomerDialog
+            onOpenChange={() => setChoosingCustomer(false)}
+            onChoose={(customer) => {
+              pos.setCustomer(customer);
+              if (address === '') setAddress(customer.address ?? '');
+              setChoosingCustomer(false);
+            }}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

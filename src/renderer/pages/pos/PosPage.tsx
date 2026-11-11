@@ -45,7 +45,7 @@ type SessionState =
 
 type PosDialog =
   | { kind: 'pay' | 'held' | 'close' | 'newSale' }
-  | { kind: 'customer'; thenPay: boolean }
+  | { kind: 'customer' }
   | { kind: 'move'; direction: 'in' | 'out' }
   | {
       kind: 'units';
@@ -583,7 +583,7 @@ export function PosPage() {
         <Badge tone="info">{t('pos.fromQuote', { number: pos.quote.number })}</Badge>
       )}
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-6">
-        <section className="flex flex-col gap-3" aria-label={t('pos.searchLabel')}>
+        <div className="flex flex-col gap-3">
           <Label htmlFor="pos-search">{t('pos.searchLabel')}</Label>
           <Input
             ref={searchRef}
@@ -627,7 +627,7 @@ export function PosPage() {
               );
             })}
           </ul>
-        </section>
+        </div>
         <Card>
           <CardContent className="flex flex-col gap-4 pt-6">
             <div className="flex items-center justify-between gap-2">
@@ -635,11 +635,7 @@ export function PosPage() {
                 <ShoppingCart className="size-5" aria-hidden="true" />
                 {t('pos.cart')}
               </h2>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setDialog({ kind: 'customer', thenPay: false })}
-              >
+              <Button size="sm" variant="secondary" onClick={() => setDialog({ kind: 'customer' })}>
                 <UserRound aria-hidden="true" />
                 {pos.customer === null ? t('pos.chooseCustomer') : pos.customer.fullName}
               </Button>
@@ -784,8 +780,8 @@ export function PosPage() {
           onOpenChange={() => setDialog(null)}
           onChoose={(customer) => {
             pos.setCustomer(customer);
-            setDialog(dialog.thenPay ? { kind: 'pay' } : null);
-            if (!dialog.thenPay) focusSearch();
+            setDialog(null);
+            focusSearch();
           }}
         />
       )}
@@ -832,7 +828,6 @@ export function PosPage() {
             setDialog(null);
             focusSearch();
           }}
-          onChooseCustomer={() => setDialog({ kind: 'customer', thenPay: true })}
           onFinished={() => {
             pos.clear();
             setDialog(null);
