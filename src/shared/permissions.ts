@@ -50,7 +50,6 @@ const MANAGER: readonly Permission[] = [
   ...SELLER,
   'product.edit',
   'price.edit',
-  'price.override',
   'cost.view',
   'stock.adjust',
   'inventory.manage',

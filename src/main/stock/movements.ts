@@ -3,7 +3,7 @@ import type { MovementType } from '@shared/schemas/stock';
 import type { Db } from '../db/types';
 
 export type MovementReference = {
-  type: 'goods_receipt' | 'transfer' | 'manual';
+  type: 'goods_receipt' | 'transfer' | 'manual' | 'sale' | 'sale_return';
   id: number;
 } | null;
 
