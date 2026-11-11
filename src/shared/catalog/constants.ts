@@ -49,8 +49,13 @@ export function allowedTrackingModes(type: ProductType): readonly TrackingMode[]
   return TRACKING_MODES;
 }
 
-/** Mode de suivi retenu pour un type, en partant du mode souhaité (ou de celui de la catégorie). */
+/**
+ * Mode de suivi retenu pour un type, en partant du mode souhaité ou de celui de la catégorie.
+ * L'IMEI proposé par une famille (Téléphonie) ne vaut que pour les téléphones : un accessoire de
+ * cette famille n'est pas suivi par défaut.
+ */
 export function coerceTrackingMode(type: ProductType, wanted: TrackingMode): TrackingMode {
+  if (wanted === 'imei' && type !== 'phone') return 'none';
   const allowed = allowedTrackingModes(type);
   return allowed.includes(wanted) ? wanted : (allowed[0] ?? 'none');
 }
