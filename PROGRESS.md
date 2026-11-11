@@ -199,7 +199,56 @@
 - Avoirs fournisseurs non gérés : un retour ne réduit pas le solde (D48).
 - Ventes, retours clients et inventaire créeront leurs mouvements par `applyMovement` (phases 5 et 6).
 
-## Phase 5 — Caisse, paiements, devis, livraisons, clients : à faire
+## Phase 5 — Caisse, ventes, clients, devis, échéances, livraisons : terminée (11/11/2026)
 
-Caisse au clavier et au scanner, paiements, crédits et échéanciers, devis, kits et services à la vente, livraisons,
-clients, tickets, factures, clôture de caisse.
+### Fait
+
+- **Décisions du client** : prix TTC (D51), plafonds de remise 10 % / 30 % / libre (D52), annulation seulement pendant
+  la session de caisse (D53). Migration 0008 qui porte ces deux dernières règles dans la base.
+- **Vente en une transaction** (D54) : kits éclatés en composants, services sans stock, une ligne par unité suivie avec
+  fin de garantie, remise par ligne et globale répartie, plafonds par rôle et prix minimum, paiements mixtes, crédit
+  avec échéances et plafond client, livraison, facture sans trou, conversion de devis. Validation < 500 ms (test).
+- **Caisse** au clavier et au scanner : F2, F4, F8, Échap, signal sonore ; recherche par nom, code-barres, référence,
+  IMEI ou numéro de série ; choix des unités au scanner ; client trouvé ou créé à la volée ; monnaie à rendre ;
+  paniers en attente (D56) ; ouverture avec fond, entrées et sorties d'espèces avec motif, clôture avec totaux par
+  moyen de paiement et écart.
+- **Documents** : ticket ESC/POS 58/80 mm (imprimante réseau ou simulateur, D55) et PDF ; facture A4 avec TVA comprise,
+  bon de garantie, bon de livraison, devis.
+- **Ventes** : historique filtré, détail (numéros, garanties, paiements, échéances, retours, marge avec `cost.view`),
+  réimpression, retour article par article (remise en stock ou rebut, remboursement ou avoir, D58), annulation.
+- **Clients** : fiche, historique, dette, remboursement imputé aux ventes et échéances les plus anciennes.
+- **Devis** : création, envoi, acceptation, réservation des unités, expiration automatique, PDF, conversion (D57).
+- **Échéancier** (en retard, à venir, toutes) et **Livraisons** (à livrer, livrées, annulées).
+- Droits contrôlés dans les services ; journal d'audit de chaque vente, annulation, retour, paiement et mouvement
+  d'espèces.
+
+### Vérifications de fin de phase
+
+| Contrôle            | Résultat                                                                                        |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| `npm run typecheck` | 0 erreur                                                                                        |
+| `npm run lint`      | 0 erreur, 0 avertissement                                                                       |
+| `npm test`          | 229 tests verts (21 pour les ventes et les documents)                                           |
+| `npm run test:e2e`  | 29 tests verts sur l’application compilée (+ 1 capture ignorée hors demande)                    |
+| WCAG AA             | axe-core clair et sombre : caisse (vide, panier), encaissement, clôture, détail de vente, devis |
+| `npm audit`         | 0 en production ; 15 modérées en dev (D13), aucune critique                                     |
+
+### Corrigé pendant la phase
+
+- Le gérant contournait son plafond de remise par sa permission de dérogation (D52).
+- Une unité vendue doit recevoir état, ligne de vente et date en une seule écriture (contrainte de la base).
+- Le choix du client depuis l'encaissement effaçait les montants saisis.
+- Contrôles d'accessibilité instables pendant les transitions de couleurs (D59).
+- Tests e2e fragiles sous charge : assistant d'installation rempli avant d'être prêt, notification déjà disparue.
+
+### Reste à valider / limites
+
+- Imprimante thermique réelle (ESC/POS) et tiroir-caisse : simulateur seulement (D55) ; adresse de l'imprimante et
+  plafonds de remise à régler dans les Paramètres (phase 8).
+- Lecteur de codes-barres réel : testé par saisie clavier + Entrée.
+- Une annulation n'efface pas les paiements par carte ou mobile money déjà comptés dans la session : le remboursement de
+  ces moyens se fait hors caisse (seules les espèces sortent du tiroir).
+
+## Phase 6 — Inventaire, garantie et SAV : à faire
+
+Inventaire (périmètre, comptage au scanner, écarts, validation), réclamations de garantie par numéro de série.
