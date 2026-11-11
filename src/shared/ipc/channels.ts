@@ -94,6 +94,23 @@ export const IPC_CHANNELS = [
   'documents:saveSale',
   'documents:saveQuote',
   'sales:units',
+  'inventory:list',
+  'inventory:get',
+  'inventory:create',
+  'inventory:setCount',
+  'inventory:scan',
+  'inventory:removeScan',
+  'inventory:zeroUncounted',
+  'inventory:finish',
+  'inventory:resume',
+  'inventory:validate',
+  'inventory:cancel',
+  'inventory:export',
+  'warranty:lookup',
+  'warranty:open',
+  'warranty:update',
+  'warranty:list',
+  'warranty:expiring',
 ] as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[number];

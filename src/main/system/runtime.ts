@@ -28,6 +28,9 @@ import { FollowupService } from '../sales/followup-service';
 import { QuoteService, expireQuotes } from '../sales/quote-service';
 import { SaleService } from '../sales/sale-service';
 import { DocumentService } from '../printing/document-service';
+import { InventoryReport } from '../inventory/inventory-report';
+import { InventoryService } from '../inventory/inventory-service';
+import { WarrantyService } from '../warranty/warranty-service';
 
 export interface RuntimeOptions {
   dataDirectory: string;
@@ -54,6 +57,9 @@ export interface Services {
   quotes: QuoteService;
   followups: FollowupService;
   documents: DocumentService;
+  inventories: InventoryService;
+  inventoryReport: InventoryReport;
+  warranty: WarrantyService;
 }
 
 /**
@@ -265,6 +271,7 @@ export class AppRuntime {
     const customers = new CustomerService(db);
     const quotes = new QuoteService(db);
     expireQuotes(db);
+    const inventories = new InventoryService(db);
     return {
       db,
       sessions,
@@ -295,6 +302,9 @@ export class AppRuntime {
       sales: new SaleService(db),
       quotes,
       followups: new FollowupService(db),
+      inventories,
+      inventoryReport: new InventoryReport(db, inventories, this.options.dialogs),
+      warranty: new WarrantyService(db),
       documents: new DocumentService({
         db,
         dialogs: this.options.dialogs,

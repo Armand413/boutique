@@ -119,6 +119,25 @@ import {
   sessionListInputSchema,
   ticketTextSchema,
 } from '../schemas/sales';
+import {
+  claimListInputSchema,
+  claimSchema,
+  createInventoryInputSchema,
+  expiringSchema,
+  inventoryDetailSchema,
+  inventoryExportInputSchema,
+  inventoryIdInputSchema,
+  inventoryListInputSchema,
+  inventorySummarySchema,
+  openClaimInputSchema,
+  removeScanInputSchema,
+  scanInputSchema,
+  scanResultSchema,
+  setCountInputSchema,
+  updateClaimInputSchema,
+  warrantyLookupInputSchema,
+  warrantyLookupSchema,
+} from '../schemas/inventory';
 
 export const appInfoSchema = z.strictObject({
   name: z.string().min(1),
@@ -566,6 +585,91 @@ export const ipcContract = {
     input: saleUnitsInputSchema,
     output: z.array(saleUnitSchema),
     access: needs('pos.use'),
+  },
+  'inventory:list': {
+    input: inventoryListInputSchema,
+    output: z.array(inventorySummarySchema),
+    access: needs('inventory.manage'),
+  },
+  'inventory:get': {
+    input: inventoryIdInputSchema,
+    output: inventoryDetailSchema,
+    access: needs('inventory.manage'),
+  },
+  'inventory:create': {
+    input: createInventoryInputSchema,
+    output: inventoryDetailSchema,
+    access: needs('inventory.manage'),
+  },
+  'inventory:setCount': {
+    input: setCountInputSchema,
+    output: inventoryDetailSchema,
+    access: needs('inventory.manage'),
+  },
+  'inventory:scan': {
+    input: scanInputSchema,
+    output: scanResultSchema,
+    access: needs('inventory.manage'),
+  },
+  'inventory:removeScan': {
+    input: removeScanInputSchema,
+    output: inventoryDetailSchema,
+    access: needs('inventory.manage'),
+  },
+  'inventory:zeroUncounted': {
+    input: inventoryIdInputSchema,
+    output: inventoryDetailSchema,
+    access: needs('inventory.manage'),
+  },
+  'inventory:finish': {
+    input: inventoryIdInputSchema,
+    output: inventoryDetailSchema,
+    access: needs('inventory.manage'),
+  },
+  'inventory:resume': {
+    input: inventoryIdInputSchema,
+    output: inventoryDetailSchema,
+    access: needs('inventory.manage'),
+  },
+  'inventory:validate': {
+    input: inventoryIdInputSchema,
+    output: inventoryDetailSchema,
+    access: needs('inventory.validate'),
+  },
+  'inventory:cancel': {
+    input: inventoryIdInputSchema,
+    output: inventoryDetailSchema,
+    access: needs('inventory.manage'),
+  },
+  'inventory:export': {
+    input: inventoryExportInputSchema,
+    output: z.strictObject({ saved: z.boolean() }),
+    access: needs('inventory.manage'),
+  },
+  'warranty:lookup': {
+    input: warrantyLookupInputSchema,
+    output: warrantyLookupSchema,
+    access: needs('warranty.manage'),
+  },
+  'warranty:open': {
+    input: openClaimInputSchema,
+    output: claimSchema,
+    access: needs('warranty.manage'),
+  },
+  'warranty:update': {
+    input: updateClaimInputSchema,
+    output: claimSchema,
+    access: needs('warranty.manage'),
+  },
+  'warranty:list': {
+    input: claimListInputSchema,
+    output: z.array(claimSchema),
+    access: needs('warranty.manage'),
+  },
+  'warranty:expiring': {
+    input: noInput,
+    output: z.array(expiringSchema),
+    access: needs('warranty.manage'),
   },
 } as const satisfies Record<IpcChannel, { input: z.ZodType; output: z.ZodType; access: IpcAccess }>;
 

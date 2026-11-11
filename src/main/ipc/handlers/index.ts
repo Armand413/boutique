@@ -175,6 +175,35 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
       services().documents.printTicket(actor(context), saleId),
     'documents:saveSale': ({ saleId, kind }, context) =>
       services().documents.saveSaleDocument(actor(context), saleId, kind),
+    'inventory:list': ({ limit }, context) => services().inventories.list(actor(context), limit),
+    'inventory:get': ({ inventoryId }, context) =>
+      services().inventories.detail(actor(context), inventoryId),
+    'inventory:create': (input, context) => services().inventories.create(actor(context), input),
+    'inventory:setCount': ({ inventoryId, lineId, counted, note }, context) =>
+      services().inventories.setCount(actor(context), inventoryId, lineId, counted, note),
+    'inventory:scan': ({ inventoryId, code }, context) =>
+      services().inventories.scan(actor(context), inventoryId, code),
+    'inventory:removeScan': ({ inventoryId, unitId }, context) =>
+      services().inventories.removeScan(actor(context), inventoryId, unitId),
+    'inventory:zeroUncounted': ({ inventoryId }, context) =>
+      services().inventories.zeroUncounted(actor(context), inventoryId),
+    'inventory:finish': ({ inventoryId }, context) =>
+      services().inventories.finishCounting(actor(context), inventoryId),
+    'inventory:resume': ({ inventoryId }, context) =>
+      services().inventories.resumeCounting(actor(context), inventoryId),
+    'inventory:validate': ({ inventoryId }, context) =>
+      services().inventories.validate(actor(context), inventoryId),
+    'inventory:cancel': ({ inventoryId }, context) =>
+      services().inventories.cancel(actor(context), inventoryId),
+    'inventory:export': ({ inventoryId, format }, context) =>
+      services().inventoryReport.export(actor(context), inventoryId, format),
+    'warranty:lookup': ({ serial }, context) => services().warranty.lookup(actor(context), serial),
+    'warranty:open': ({ serialUnitId, issue, supplierId }, context) =>
+      services().warranty.open(actor(context), serialUnitId, issue, supplierId),
+    'warranty:update': (input, context) => services().warranty.update(actor(context), input),
+    'warranty:list': ({ scope, limit }, context) =>
+      services().warranty.list(actor(context), scope, limit),
+    'warranty:expiring': (_input, context) => services().warranty.expiring(actor(context)),
     'sales:units': ({ variantId }, context) =>
       services().sales.availableUnits(actor(context), variantId),
     'documents:saveQuote': ({ quoteId }, context) =>
