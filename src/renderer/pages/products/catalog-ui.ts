@@ -8,7 +8,7 @@ import {
   type ProductType,
 } from '@shared/catalog/constants';
 import { categoryPath } from '@shared/catalog/tree';
-import { DEFAULT_CURRENCY, parseMoney } from '@shared/format/money';
+import { activeCurrency, parseMoney } from '@shared/format/money';
 import type { Permission } from '@shared/permissions';
 import type { AttributeDefinition, AttributeValue, Category } from '@shared/schemas/catalog';
 import type { SelectOption } from '../../components/ui/radix';
@@ -96,7 +96,7 @@ export function parseOptionalMoney(text: string): number | null | undefined {
 /** Montant prérempli dans un champ (unités de la devise, relu par parseMoney). */
 export function moneyText(amount: number | null): string {
   if (amount === null) return '';
-  const { decimals } = DEFAULT_CURRENCY;
+  const { decimals } = activeCurrency();
   return decimals === 0
     ? String(amount)
     : (amount / 10 ** decimals).toFixed(decimals).replace('.', ',');

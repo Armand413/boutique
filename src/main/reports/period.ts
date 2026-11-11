@@ -39,6 +39,7 @@ export function currentPeriods(now: Date): {
   week: { from: string; to: string };
   month: { from: string; to: string };
   last30: { from: string; to: string };
+  last7: { from: string; to: string };
 } {
   const today = localDay(now);
   const weekday = (now.getDay() + 6) % 7;
@@ -47,6 +48,7 @@ export function currentPeriods(now: Date): {
     week: { from: addDays(today, -weekday), to: today },
     month: { from: `${today.slice(0, 7)}-01`, to: today },
     last30: { from: addDays(today, -29), to: today },
+    last7: { from: addDays(today, -6), to: today },
   };
 }
 

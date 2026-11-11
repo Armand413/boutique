@@ -1,4 +1,9 @@
-import type { Dashboard, ReportRequest, ReportResult } from '@shared/schemas/reports';
+import {
+  ADMIN_REPORTS,
+  type Dashboard,
+  type ReportRequest,
+  type ReportResult,
+} from '@shared/schemas/reports';
 import { appendAudit } from '../audit/audit-log';
 import { requirePermission } from '../auth/authorization';
 import type { Session } from '../auth/session';
@@ -32,12 +37,13 @@ export class ReportService {
       type: 'dashboard',
       canSeeCost: actor.permissions.has('cost.view'),
       canSeeStock: actor.permissions.has('stock.view'),
+      canSeeAudit: actor.permissions.has('audit.view'),
       nowIso: this.clock().toISOString(),
     });
   }
 
   async run(actor: Session, request: ReportRequest): Promise<ReportResult> {
-    requirePermission(actor, 'report.view');
+    this.authorize(actor, request);
     return await this.compute(actor, request, DISPLAY_LIMIT);
   }
 
@@ -47,7 +53,7 @@ export class ReportService {
     request: ReportRequest,
     format: ExportFormat,
   ): Promise<{ saved: boolean }> {
-    requirePermission(actor, 'report.view');
+    this.authorize(actor, request);
     requirePermission(actor, 'export.run');
     const result = await this.compute(actor, request, null);
     const path = await this.dialogs.saveFile({
@@ -69,6 +75,12 @@ export class ReportService {
       },
     });
     return { saved: true };
+  }
+
+  /** Rapports : `report.view` ; activités sensibles : en plus `audit.view` (administrateur, B.4b). */
+  private authorize(actor: Session, request: ReportRequest): void {
+    requirePermission(actor, 'report.view');
+    if (ADMIN_REPORTS.includes(request.kind)) requirePermission(actor, 'audit.view');
   }
 
   close(): Promise<void> {

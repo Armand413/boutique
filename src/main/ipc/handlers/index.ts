@@ -218,6 +218,21 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
     'backup:restore': (input, context) => runtime.restoreBackup(input, actor(context)),
     'system:chooseBackup': () => runtime.chooseBackup(null),
     'system:restoreBackup': (input) => runtime.restoreBackup(input, null),
+    'settings:get': (_input, context) => services().settings.all(actor(context)),
+    'settings:public': () => services().settings.publicSettings(),
+    'settings:saveShop': (input, context) => services().settings.saveShop(actor(context), input),
+    'settings:saveRegional': (input, context) =>
+      services().settings.saveRegional(actor(context), input),
+    'settings:savePrinter': (input, context) =>
+      services().settings.savePrinter(actor(context), input),
+    'settings:saveSecurity': (input, context) =>
+      services().settings.saveSecurity(actor(context), input),
+    'settings:saveFraud': (input, context) => services().settings.saveFraud(actor(context), input),
+    'settings:saveTaxRate': (input, context) =>
+      services().settings.saveTaxRate(actor(context), input),
+    'settings:chooseLogo': (_input, context) => services().settings.chooseLogo(actor(context)),
+    'settings:removeLogo': (_input, context) => services().settings.removeLogo(actor(context)),
+    'settings:testPrint': (_input, context) => services().documents.printTest(actor(context)),
     'sales:units': ({ variantId }, context) =>
       services().sales.availableUnits(actor(context), variantId),
     'documents:saveQuote': ({ quoteId }, context) =>

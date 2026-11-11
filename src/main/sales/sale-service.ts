@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { AppError } from '@shared/ipc/errors';
 import { nowIsoUtc } from '@shared/format/date';
 import type {
@@ -24,6 +25,7 @@ import { defaultLocation, describeLines, priceCart, toPreview, type PricedCart }
 import { openSessionId, recordPayment } from './payments';
 import { finishQuoteConversion, expireQuotes } from './quote-service';
 import { readSaleDetail, listSales } from './sale-queries';
+import { getSetting } from '../settings/settings-repository';
 import { applySaleStock, cartFromLines, insertSaleLines, releaseUnit } from './sale-lines';
 
 /** Numéro suivant d'une séquence annuelle sans trou (factures). */
@@ -37,7 +39,8 @@ function nextInvoiceNumber(db: Db, year: number): string {
       .pluck()
       .get(year) ?? 0;
   db.prepare('UPDATE invoice_sequences SET last_number = ? WHERE year = ?').run(last + 1, year);
-  return `FAC-${String(year)}-${String(last + 1).padStart(6, '0')}`;
+  const prefix = getSetting(db, 'invoice.prefix', z.string().regex(/^[A-Z0-9]{1,8}$/));
+  return `${prefix}-${String(year)}-${String(last + 1).padStart(6, '0')}`;
 }
 
 function nextReturnNumber(db: Db, year: number): string {

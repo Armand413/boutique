@@ -34,7 +34,7 @@ const KINDS: readonly ImageKind[] = [
   },
 ];
 
-const STORED_NAME = /^produit-\d+-[0-9a-f]{12}\.(png|jpg|webp)$/;
+const STORED_NAME = /^(produit-\d+|logo)-[0-9a-f]{12}\.(png|jpg|webp)$/;
 
 /** Photos des produits, copiées dans le dossier de données (jamais lues ailleurs). */
 export class ImageStore {
@@ -42,6 +42,15 @@ export class ImageStore {
 
   /** Copie l'image choisie ; renvoie le nom enregistré dans products.image_path. */
   importImage(productId: number, sourcePath: string): string {
+    return this.importAs(`produit-${String(productId)}`, sourcePath);
+  }
+
+  /** Logo de la boutique (paramètres, 4.11). */
+  importLogo(sourcePath: string): string {
+    return this.importAs('logo', sourcePath);
+  }
+
+  private importAs(prefix: string, sourcePath: string): string {
     const size = statSync(sourcePath).size;
     if (size > MAX_IMAGE_BYTES) {
       throw new AppError('VALIDATION_ERROR', 'Image trop lourde : 2 Mo au maximum.');
@@ -52,7 +61,7 @@ export class ImageStore {
       throw new AppError('VALIDATION_ERROR', 'Format d’image non reconnu : PNG, JPEG ou WebP.');
     }
     mkdirSync(this.directory, { recursive: true });
-    const name = `produit-${String(productId)}-${randomBytes(6).toString('hex')}.${kind.extension}`;
+    const name = `${prefix}-${randomBytes(6).toString('hex')}.${kind.extension}`;
     writeFileSync(join(this.directory, name), bytes);
     return name;
   }

@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { ChartColumn, ChevronLeft, ChevronRight, FileDown } from 'lucide-react';
 import {
+  ADMIN_REPORTS,
   MOVEMENT_TYPES,
   PERIOD_REPORTS,
   PRODUCT_ORDERS,
@@ -74,11 +75,15 @@ function toRequest(filters: Filters): ReportRequest | null {
       return { kind: 'balances' };
     case 'followups':
       return { kind: 'followups' };
+    case 'sensitive':
+      return { kind: 'sensitive', period };
   }
 }
 
 function FilterBar({ filters, onChange }: { filters: Filters; onChange: (next: Filters) => void }) {
   const t = useT();
+  const canAudit = useCan('audit.view');
+  const kinds = REPORT_KINDS.filter((kind) => canAudit || !ADMIN_REPORTS.includes(kind));
   const set = (patch: Partial<Filters>) => onChange({ ...filters, ...patch });
   const withPeriod = PERIOD_REPORTS.includes(filters.kind);
   return (
@@ -87,7 +92,7 @@ function FilterBar({ filters, onChange }: { filters: Filters; onChange: (next: F
         <SelectField
           label={t('reports.kind')}
           value={filters.kind}
-          options={REPORT_KINDS.map((kind) => ({ value: kind, label: t(`reports.kind.${kind}`) }))}
+          options={kinds.map((kind) => ({ value: kind, label: t(`reports.kind.${kind}`) }))}
           onValueChange={(value) => set({ kind: value as ReportKind })}
         />
         {filters.kind === 'sales' && (

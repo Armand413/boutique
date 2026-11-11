@@ -1,6 +1,7 @@
 import type { Dashboard, ReportRequest, ReportResult } from '@shared/schemas/reports';
 import type { Db } from '../db/types';
 import { balancesReport, cashReport, followupsReport } from './finance-reports';
+import { sensitiveReport, sensitiveRows } from './fraud-report';
 import { currentPeriods, daysOf, utcBounds } from './period';
 import type { ReportContext } from './report-kit';
 import { productsReport, salesReport } from './sales-reports';
@@ -23,12 +24,15 @@ export function runReport(db: Db, request: ReportRequest, context: ReportContext
       return cashReport(db, request, context);
     case 'followups':
       return followupsReport(db, context);
+    case 'sensitive':
+      return sensitiveReport(db, request, context);
   }
 }
 
 export interface DashboardContext {
   canSeeCost: boolean;
   canSeeStock: boolean;
+  canSeeAudit: boolean;
   now: Date;
 }
 
@@ -132,6 +136,9 @@ export function dashboard(db: Db, context: DashboardContext): Dashboard {
     month: periodTotals(db, periods.month, context.canSeeCost),
     lowStock: context.canSeeStock ? count(db, 'SELECT count(*) FROM v_low_stock') : null,
     overdueInstallments: count(db, 'SELECT count(*) FROM v_overdue_installments'),
+    sensitive: context.canSeeAudit
+      ? sensitiveRows(db, { from: periods.last7.from, to: periods.last7.to }).length
+      : null,
     openClaims: count(
       db,
       "SELECT count(*) FROM warranty_claims WHERE status NOT IN ('closed', 'rejected')",

@@ -34,10 +34,16 @@ function center(text: string, width: number): string {
  * Contenu du ticket de caisse, ligne par ligne (aperçu à l'écran, simulateur, impression).
  * Prix TTC : la TVA comprise est indiquée en pied de ticket.
  */
-export function ticketLines(sale: SaleDetail, shopName: string, width: TicketWidth): string[] {
+export function ticketLines(
+  sale: SaleDetail,
+  shopName: string,
+  width: TicketWidth,
+  extra: { header?: string[]; footer?: string[] } = {},
+): string[] {
   const rule = '-'.repeat(width);
   const lines: string[] = [
     center(shopName, width),
+    ...(extra.header ?? []).map((line) => center(line, width)),
     center(`Ticket ${sale.invoiceNumber ?? ''}`, width),
   ];
   if (sale.completedAt !== null) lines.push(center(formatDateTime(sale.completedAt), width));
@@ -80,6 +86,7 @@ export function ticketLines(sale: SaleDetail, shopName: string, width: TicketWid
     if (sale.dueDate !== null) lines.push(`Échéance finale : ${sale.dueDate}`.slice(0, width));
   }
   lines.push(rule, center('Merci de votre visite', width));
+  for (const line of extra.footer ?? []) lines.push(center(line, width));
   return lines;
 }
 
@@ -89,6 +96,7 @@ export function escposTicket(
   shopName: string,
   width: TicketWidth,
   target: string,
+  extra: { header?: string[]; footer?: string[] } = {},
 ): ThermalPrinter {
   const printer = new ThermalPrinter({
     type: PrinterTypes.EPSON,
@@ -97,7 +105,7 @@ export function escposTicket(
     characterSet: CharacterSet.PC858_EURO,
     removeSpecialCharacters: false,
   });
-  const lines = ticketLines(sale, shopName, width);
+  const lines = ticketLines(sale, shopName, width, extra);
   printer.alignCenter();
   printer.bold(true);
   printer.println(lines[0] ?? shopName);
@@ -108,6 +116,33 @@ export function escposTicket(
     printer.alignCenter();
     printer.code128(sale.invoiceNumber);
   }
+  printer.cut();
+  return printer;
+}
+
+/** Ticket d'essai (paramètres, 4.11) : vérifie l'adresse, la largeur et les accents de l'imprimante. */
+export function escposTestTicket(
+  shopName: string,
+  width: TicketWidth,
+  target: string,
+  header: string[],
+): ThermalPrinter {
+  const printer = new ThermalPrinter({
+    type: PrinterTypes.EPSON,
+    interface: target,
+    width,
+    characterSet: CharacterSet.PC858_EURO,
+    removeSpecialCharacters: false,
+  });
+  printer.alignCenter();
+  printer.bold(true);
+  printer.println(shopName.slice(0, width));
+  printer.bold(false);
+  for (const line of header) printer.println(line.slice(0, width));
+  printer.println('-'.repeat(width));
+  printer.println('Ticket d’essai : éèàçù €'.slice(0, width));
+  printer.println(`Largeur : ${String(width)} caractères`.slice(0, width));
+  printer.println(formatDateTime(new Date().toISOString()));
   printer.cut();
   return printer;
 }

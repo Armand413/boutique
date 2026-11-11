@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { AppError } from '@shared/ipc/errors';
 import type { DOCUMENT_KINDS } from '@shared/schemas/sales';
 import { appendAudit } from '../audit/audit-log';
+import { requirePermission } from '../auth/authorization';
 import type { Session } from '../auth/session';
 import type { Db } from '../db/types';
 import type { FileDialogs } from '../files/file-dialogs';
@@ -12,7 +13,9 @@ import { readSaleDetail } from '../sales/sale-queries';
 import type { QuoteService } from '../sales/quote-service';
 import type { CustomerService } from '../sales/customer-service';
 import { getSetting } from '../settings/settings-repository';
-import { escposTicket, ticketLines, type TicketWidth } from './receipt';
+import { escposTestTicket, escposTicket, ticketLines, type TicketWidth } from './receipt';
+import { contactLines, readShopIdentity, type ShopIdentity } from './shop-identity';
+import type { ImageStore } from '../catalog/image-store';
 import { deliveryNotePdf, invoicePdf, quotePdf, ticketPdf, warrantyPdf } from './sale-documents';
 
 type DocumentKind = (typeof DOCUMENT_KINDS)[number];
@@ -44,6 +47,8 @@ export interface DocumentServiceDependencies {
   customers: CustomerService;
   /** Dossier du simulateur d'imprimante (tickets ESC/POS écrits en fichiers). */
   simulatorDirectory: string;
+  /** Logo de la boutique (facultatif dans les tests). */
+  images?: ImageStore;
 }
 
 /**
@@ -56,7 +61,13 @@ export class DocumentService {
 
   ticketText(actor: Session, saleId: number): string[] {
     this.requireSaleAccess(actor);
-    return ticketLines(readSaleDetail(this.deps.db, saleId, false), this.shopName(), this.width());
+    const shop = this.shop();
+    return ticketLines(
+      readSaleDetail(this.deps.db, saleId, false),
+      shop.name,
+      this.width(),
+      this.ticketExtra(shop),
+    );
   }
 
   async printTicket(actor: Session, saleId: number): Promise<{ simulated: boolean }> {
@@ -68,7 +79,8 @@ export class DocumentService {
       mkdirSync(this.deps.simulatorDirectory, { recursive: true });
       target = join(this.deps.simulatorDirectory, `${sale.invoiceNumber ?? String(saleId)}.escpos`);
     }
-    const printer = escposTicket(sale, this.shopName(), this.width(), target);
+    const shop = this.shop();
+    const printer = escposTicket(sale, shop.name, this.width(), target, this.ticketExtra(shop));
     try {
       await printer.execute();
     } catch (error) {
@@ -88,6 +100,28 @@ export class DocumentService {
     return { simulated: configured === null };
   }
 
+  /** Ticket d'essai depuis les paramètres ; simulateur si aucune imprimante n'est réglée. */
+  async printTest(actor: Session): Promise<{ simulated: boolean }> {
+    requirePermission(actor, 'settings.manage');
+    const configured = getSetting(this.deps.db, 'printer.receipt', printerSetting);
+    let target = configured;
+    if (target === null) {
+      mkdirSync(this.deps.simulatorDirectory, { recursive: true });
+      target = join(this.deps.simulatorDirectory, 'ticket-essai.escpos');
+    }
+    const shop = this.shop();
+    try {
+      await escposTestTicket(shop.name, this.width(), target, contactLines(shop)).execute();
+    } catch (error) {
+      logger.warn('Ticket d’essai impossible', { error });
+      throw new AppError(
+        'UNAVAILABLE',
+        'L’imprimante de tickets ne répond pas : vérifiez son adresse, qu’elle est allumée et reliée au réseau.',
+      );
+    }
+    return { simulated: configured === null };
+  }
+
   async saveSaleDocument(
     actor: Session,
     saleId: number,
@@ -99,7 +133,7 @@ export class DocumentService {
     if (kind === 'delivery_note' && sale.delivery === null) {
       throw new AppError('VALIDATION_ERROR', 'Cette vente n’a pas de livraison.');
     }
-    const buffer = await RENDERERS[kind](sale, { name: this.shopName() });
+    const buffer = await RENDERERS[kind](sale, this.shop());
     return this.save(
       actor,
       buffer,
@@ -114,7 +148,7 @@ export class DocumentService {
     const quote = this.deps.quotes.get(actor, quoteId);
     const customer =
       quote.customerId === null ? null : this.deps.customers.get(actor, quote.customerId);
-    const buffer = await quotePdf(quote, { name: this.shopName() }, customer);
+    const buffer = await quotePdf(quote, this.shop(), customer);
     return this.save(actor, buffer, `devis-${quote.quote.number}.pdf`, 'quote', quoteId, 'quote');
   }
 
@@ -149,9 +183,15 @@ export class DocumentService {
     }
   }
 
-  private shopName(): string {
-    const name = getSetting(this.deps.db, 'shop.name', z.string());
-    return name === '' ? 'Boutique' : name;
+  private shop(): ShopIdentity {
+    return readShopIdentity(this.deps.db, this.deps.images ?? null);
+  }
+
+  private ticketExtra(shop: ShopIdentity): { header: string[]; footer: string[] } {
+    return {
+      header: contactLines(shop),
+      footer: typeof shop.legal === 'string' ? [shop.legal] : [],
+    };
   }
 
   private width(): TicketWidth {

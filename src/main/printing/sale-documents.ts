@@ -4,10 +4,9 @@ import { formatMoney } from '@shared/format/money';
 import type { QuoteDetail, SaleDetail } from '@shared/schemas/sales';
 import { MM, plain, renderPdf } from './pdf';
 import { ticketLines } from './receipt';
+import { contactLines, shopBlock, withLegalFooter, type ShopIdentity } from './shop-identity';
 
-export interface ShopIdentity {
-  name: string;
-}
+export type { ShopIdentity };
 
 const money = (value: number): string => plain(formatMoney(value));
 
@@ -27,7 +26,7 @@ function header(
 ): Content {
   return {
     columns: [
-      { text: shop.name, style: 'shop' },
+      shopBlock(shop),
       {
         stack: [
           { text: title, style: 'title' },
@@ -160,7 +159,7 @@ export function invoicePdf(sale: SaleDetail, shop: ShopIdentity): Promise<Buffer
       { text: 'Prix toutes taxes comprises.', fontSize: 8, margin: [0, 24, 0, 0] },
     ],
   };
-  return renderPdf(document);
+  return renderPdf(withLegalFooter(document, shop));
 }
 
 /** Bon de garantie : une ligne par appareil suivi, avec sa date de fin de garantie. */
@@ -202,7 +201,7 @@ export function warrantyPdf(sale: SaleDetail, shop: ShopIdentity): Promise<Buffe
       },
     ],
   };
-  return renderPdf(document);
+  return renderPdf(withLegalFooter(document, shop));
 }
 
 /** Bon de livraison : adresse, articles (sans prix) et signature. */
@@ -243,12 +242,15 @@ export function deliveryNotePdf(sale: SaleDetail, shop: ShopIdentity): Promise<B
       },
     ],
   };
-  return renderPdf(document);
+  return renderPdf(withLegalFooter(document, shop));
 }
 
 /** Ticket au format rouleau 80 mm en PDF (si aucune imprimante thermique n'est configurée). */
 export function ticketPdf(sale: SaleDetail, shop: ShopIdentity): Promise<Buffer> {
-  const lines = ticketLines(sale, shop.name, 48);
+  const lines = ticketLines(sale, shop.name, 48, {
+    header: contactLines(shop),
+    footer: typeof shop.legal === 'string' ? [shop.legal] : [],
+  });
   return renderPdf({
     info: { title: `Ticket ${sale.invoiceNumber ?? ''}`, creator: 'Boutique Gestion' },
     // Courier 7 pt : environ 8,5 pt par ligne, plus les marges.
@@ -320,5 +322,5 @@ export function quotePdf(
       },
     ],
   };
-  return renderPdf(document);
+  return renderPdf(withLegalFooter(document, shop));
 }

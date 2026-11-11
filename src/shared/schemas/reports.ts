@@ -10,11 +10,21 @@ export const REPORT_KINDS = [
   'movements',
   'cash',
   'followups',
+  'sensitive',
 ] as const;
 export type ReportKind = (typeof REPORT_KINDS)[number];
 
 /** Rapports qui portent sur une période (les autres décrivent l'état présent). */
-export const PERIOD_REPORTS: readonly ReportKind[] = ['sales', 'products', 'movements', 'cash'];
+export const PERIOD_REPORTS: readonly ReportKind[] = [
+  'sales',
+  'products',
+  'movements',
+  'cash',
+  'sensitive',
+];
+
+/** Rapport d'activités sensibles (B.4b) : administrateur seulement (`audit.view`). */
+export const ADMIN_REPORTS: readonly ReportKind[] = ['sensitive'];
 
 export const SALES_GROUPS = [
   'day',
@@ -62,6 +72,7 @@ export const reportRequestSchema = z.discriminatedUnion('kind', [
   }),
   z.strictObject({ kind: z.literal('cash'), period }),
   z.strictObject({ kind: z.literal('followups') }),
+  z.strictObject({ kind: z.literal('sensitive'), period }),
 ]);
 export type ReportRequest = z.infer<typeof reportRequestSchema>;
 
@@ -76,7 +87,7 @@ export const COLUMN_TYPES = [
 ] as const;
 
 /** Familles de codes traduits à l'affichage (colonne `enum`) : la valeur est un code stable. */
-export const ENUM_KEYS = ['movement', 'party', 'followup', 'payment'] as const;
+export const ENUM_KEYS = ['movement', 'party', 'followup', 'payment', 'fraud'] as const;
 export type EnumKey = (typeof ENUM_KEYS)[number];
 
 export const reportColumnSchema = z.strictObject({
@@ -132,6 +143,8 @@ export const dashboardSchema = z.strictObject({
   lowStock: z.number().int().nullable(),
   overdueInstallments: z.number().int(),
   openClaims: z.number().int(),
+  /** Activités sensibles des 7 derniers jours (administrateur seulement). */
+  sensitive: z.number().int().nullable(),
   days: z.array(
     z.strictObject({ day, revenueTtc: z.number().int(), margin: z.number().int().nullable() }),
   ),

@@ -1,4 +1,4 @@
-import { DEFAULT_CURRENCY, formatMoney, type CurrencyConfig } from '@shared/format/money';
+import { activeCurrency, formatMoney, type CurrencyConfig } from '@shared/format/money';
 import { cn } from '../../lib/cn';
 
 interface MoneyProps {
@@ -9,7 +9,7 @@ interface MoneyProps {
 }
 
 /** Affichage d'un montant avec chiffres tabulaires (A.2). */
-export function Money({ amount, currency = DEFAULT_CURRENCY, className }: MoneyProps) {
+export function Money({ amount, currency = activeCurrency(), className }: MoneyProps) {
   return (
     <span className={cn('tabular whitespace-nowrap', className)}>
       {formatMoney(amount, currency)}

@@ -11,7 +11,13 @@ export type ReportTask =
       nowIso: string;
       limit: number | null;
     }
-  | { type: 'dashboard'; canSeeCost: boolean; canSeeStock: boolean; nowIso: string }
+  | {
+      type: 'dashboard';
+      canSeeCost: boolean;
+      canSeeStock: boolean;
+      canSeeAudit: boolean;
+      nowIso: string;
+    }
   /** Copie cohérente de la base (`VACUUM INTO`), chiffrée avec la même clé, vers `path`. */
   | { type: 'snapshot'; path: string };
 
@@ -37,7 +43,12 @@ export function executeTask(db: Db, task: ReportTask): ReportResult | Dashboard 
   if (task.type === 'snapshot') return snapshot(db, task.path);
   const now = new Date(task.nowIso);
   if (task.type === 'dashboard') {
-    return dashboard(db, { canSeeCost: task.canSeeCost, canSeeStock: task.canSeeStock, now });
+    return dashboard(db, {
+      canSeeCost: task.canSeeCost,
+      canSeeStock: task.canSeeStock,
+      canSeeAudit: task.canSeeAudit,
+      now,
+    });
   }
   return runReport(db, task.request, { canSeeCost: task.canSeeCost, now, limit: task.limit });
 }

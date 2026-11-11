@@ -128,7 +128,12 @@ describe('ventes et marges', () => {
         expect(text).not.toContain(key);
       }
     }
-    const board = dashboard(h.test.db, { canSeeCost: false, canSeeStock: true, now: new Date() });
+    const board = dashboard(h.test.db, {
+      canSeeCost: false,
+      canSeeStock: true,
+      canSeeAudit: false,
+      now: new Date(),
+    });
     expect(board.today).toEqual({ count: 1, revenueTtc: 11_800, margin: null });
     expect(board.days.every((point) => point.margin === null)).toBe(true);
   });

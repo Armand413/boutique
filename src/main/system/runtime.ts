@@ -39,6 +39,7 @@ import { InventoryService } from '../inventory/inventory-service';
 import { WarrantyService } from '../warranty/warranty-service';
 import { WorkerExecutor, type ReportExecutor } from '../reports/report-executor';
 import { ReportService } from '../reports/report-service';
+import { SettingsService } from '../settings/settings-service';
 
 export interface RuntimeOptions {
   dataDirectory: string;
@@ -76,6 +77,7 @@ export interface Services {
   warranty: WarrantyService;
   reports: ReportService;
   backups: BackupService;
+  settings: SettingsService;
 }
 
 /**
@@ -411,6 +413,7 @@ export class AppRuntime {
     const quotes = new QuoteService(db);
     expireQuotes(db);
     const inventories = new InventoryService(db);
+    const images = new ImageStore(join(this.options.dataDirectory, 'images'));
     const executor =
       this.options.executorFactory?.(db, this.databaseFile, key) ??
       new WorkerExecutor(
@@ -440,7 +443,7 @@ export class AppRuntime {
         db,
         products,
         dialogs: this.options.dialogs,
-        images: new ImageStore(join(this.options.dataDirectory, 'images')),
+        images,
       }),
       stock: new StockService(db),
       suppliers: new SupplierService(db),
@@ -453,6 +456,7 @@ export class AppRuntime {
       inventoryReport: new InventoryReport(db, inventories, this.options.dialogs),
       warranty: new WarrantyService(db),
       reports: new ReportService(db, executor, this.options.dialogs),
+      settings: new SettingsService(db, images, this.options.dialogs),
       backups: new BackupService({
         db,
         executor,
@@ -470,6 +474,7 @@ export class AppRuntime {
         quotes,
         customers,
         simulatorDirectory: join(this.options.dataDirectory, 'tickets-simules'),
+        images,
       }),
     };
   }

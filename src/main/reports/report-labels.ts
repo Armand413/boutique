@@ -9,6 +9,7 @@ export const KIND_TITLES: Readonly<Record<ReportKind, string>> = {
   movements: 'Journal des mouvements de stock',
   cash: 'Rapport de caisse',
   followups: 'Devis et échéances',
+  sensitive: 'Activités sensibles',
 };
 
 const GROUP_TITLES: Readonly<Record<string, string>> = {
@@ -79,6 +80,9 @@ export const COLUMN_LABELS: Readonly<Record<string, string>> = {
   amount: 'Montant',
   remaining: 'Reste dû',
   days: 'Jours restants',
+  category: 'Alerte',
+  reference: 'Référence',
+  detail: 'Détail',
 };
 
 export const ENUM_LABELS: Readonly<Record<EnumKey, Readonly<Record<string, string>>>> = {
@@ -98,6 +102,13 @@ export const ENUM_LABELS: Readonly<Record<EnumKey, Readonly<Record<string, strin
   },
   party: { customer: 'Client', supplier: 'Fournisseur' },
   followup: { quote: 'Devis', installment: 'Échéance' },
+  fraud: {
+    cancellation: 'Vente annulée',
+    discount: 'Remise inhabituelle',
+    below_cost: 'Vente sous le coût',
+    adjustments: 'Ajustements répétés',
+    cash_difference: 'Écart de caisse',
+  },
   payment: {
     cash: 'Espèces',
     card: 'Carte',

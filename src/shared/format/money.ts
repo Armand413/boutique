@@ -13,6 +13,17 @@ export interface CurrencyConfig {
 
 export const DEFAULT_CURRENCY: CurrencyConfig = { code: 'XOF', symbol: 'FCFA', decimals: 0 };
 
+let active: CurrencyConfig = DEFAULT_CURRENCY;
+
+/** Devise de la boutique (paramètres, 4.11) : utilisée par défaut pour l'affichage et la saisie. */
+export function setActiveCurrency(currency: CurrencyConfig): void {
+  active = { ...currency };
+}
+
+export function activeCurrency(): CurrencyConfig {
+  return active;
+}
+
 export function assertMinorAmount(amount: number): void {
   if (!Number.isSafeInteger(amount)) {
     throw new RangeError(`Montant invalide : ${String(amount)} n'est pas un entier exact.`);
@@ -22,7 +33,7 @@ export function assertMinorAmount(amount: number): void {
 /** Formate un montant entier (ex. 125000) en texte (ex. « 125 000 FCFA »). */
 export function formatMoney(
   amount: number,
-  currency: CurrencyConfig = DEFAULT_CURRENCY,
+  currency: CurrencyConfig = active,
   locale = 'fr-FR',
 ): string {
   assertMinorAmount(amount);
@@ -38,10 +49,7 @@ export function formatMoney(
 }
 
 /** Convertit une saisie utilisateur (« 12 500 », « 12,50 ») en entier ; null si invalide. */
-export function parseMoney(
-  input: string,
-  currency: CurrencyConfig = DEFAULT_CURRENCY,
-): number | null {
+export function parseMoney(input: string, currency: CurrencyConfig = active): number | null {
   const compact = input.replace(/[\s\u00a0\u202f]/g, '').replace(',', '.');
   const pattern =
     currency.decimals === 0 ? /^-?\d+$/ : new RegExp(`^-?\\d+(\\.\\d{1,${currency.decimals}})?$`);

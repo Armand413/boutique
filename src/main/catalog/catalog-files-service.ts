@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { AppError } from '@shared/ipc/errors';
-import { DEFAULT_CURRENCY } from '@shared/format/money';
+import { activeCurrency } from '@shared/format/money';
 import { categoryPath, variantLabel } from '@shared/catalog/tree';
 import type { ImportAnalysis, LabelsInput } from '@shared/schemas/catalog';
 import { appendAudit } from '../audit/audit-log';
@@ -51,7 +51,7 @@ export interface CatalogFilesDependencies {
 
 /** Montant en unités de la devise (« 125000 », « 12.50 »), relu tel quel par l'import. */
 function majorUnits(amount: number): string {
-  const decimals = DEFAULT_CURRENCY.decimals;
+  const decimals = activeCurrency().decimals;
   return decimals === 0 ? String(amount) : (amount / 10 ** decimals).toFixed(decimals);
 }
 

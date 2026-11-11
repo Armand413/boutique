@@ -146,6 +146,16 @@ import {
   restoreInputSchema,
 } from '../schemas/backup';
 import {
+  allSettingsSchema,
+  fraudSettingsSchema,
+  printerSettingsSchema,
+  publicSettingsSchema,
+  regionalSettingsSchema,
+  securitySettingsSchema,
+  shopSettingsSchema,
+  taxRateInputSchema,
+} from '../schemas/settings';
+import {
   dashboardSchema,
   reportExportInputSchema,
   reportRequestSchema,
@@ -728,6 +738,53 @@ export const ipcContract = {
   // Restauration sans session : refusée par le service dès qu'une boutique configurée est ouverte.
   'system:chooseBackup': { input: noInput, output: backupPreviewSchema.nullable(), access: PUBLIC },
   'system:restoreBackup': { input: restoreInputSchema, output: systemStatusSchema, access: PUBLIC },
+  'settings:get': { input: noInput, output: allSettingsSchema, access: needs('settings.manage') },
+  'settings:public': { input: noInput, output: publicSettingsSchema, access: SESSION },
+  'settings:saveShop': {
+    input: shopSettingsSchema,
+    output: allSettingsSchema,
+    access: needs('settings.manage'),
+  },
+  'settings:saveRegional': {
+    input: regionalSettingsSchema,
+    output: allSettingsSchema,
+    access: needs('settings.manage'),
+  },
+  'settings:savePrinter': {
+    input: printerSettingsSchema,
+    output: allSettingsSchema,
+    access: needs('settings.manage'),
+  },
+  'settings:saveSecurity': {
+    input: securitySettingsSchema,
+    output: allSettingsSchema,
+    access: needs('settings.manage'),
+  },
+  'settings:saveFraud': {
+    input: fraudSettingsSchema,
+    output: allSettingsSchema,
+    access: needs('settings.manage'),
+  },
+  'settings:saveTaxRate': {
+    input: taxRateInputSchema,
+    output: allSettingsSchema,
+    access: needs('settings.manage'),
+  },
+  'settings:chooseLogo': {
+    input: noInput,
+    output: allSettingsSchema.nullable(),
+    access: needs('settings.manage'),
+  },
+  'settings:removeLogo': {
+    input: noInput,
+    output: allSettingsSchema,
+    access: needs('settings.manage'),
+  },
+  'settings:testPrint': {
+    input: noInput,
+    output: z.strictObject({ simulated: z.boolean() }),
+    access: needs('settings.manage'),
+  },
 } as const satisfies Record<IpcChannel, { input: z.ZodType; output: z.ZodType; access: IpcAccess }>;
 
 export type IpcContract = typeof ipcContract;

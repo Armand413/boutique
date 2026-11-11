@@ -122,6 +122,17 @@ export const IPC_CHANNELS = [
   'backup:restore',
   'system:chooseBackup',
   'system:restoreBackup',
+  'settings:get',
+  'settings:public',
+  'settings:saveShop',
+  'settings:saveRegional',
+  'settings:savePrinter',
+  'settings:saveSecurity',
+  'settings:saveFraud',
+  'settings:saveTaxRate',
+  'settings:chooseLogo',
+  'settings:removeLogo',
+  'settings:testPrint',
 ] as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[number];
