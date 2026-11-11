@@ -125,6 +125,11 @@ export class KeyStore {
     writeAtomic(this.escrowPath, JSON.stringify(escrow, null, 2));
   }
 
+  /** Remet le séquestre venu d'une sauvegarde restaurée (il protège la clé restaurée). */
+  restoreEscrow(content: string): void {
+    writeAtomic(this.escrowPath, content);
+  }
+
   /** Retrouve la clé de la base grâce à la clé de récupération ; échoue si la clé est fausse. */
   async recoverKey(recoveryKey: string): Promise<Buffer> {
     const canonical = normalizeRecoveryKey(recoveryKey);

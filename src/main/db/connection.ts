@@ -22,18 +22,23 @@ function assertKey(key: Buffer): void {
  * Ouvre (ou crée) la base chiffrée SQLCipher v4 (AES-256) avec une clé brute de 256 bits,
  * puis applique les réglages imposés à chaque ouverture (E.1).
  * La clé n'apparaît que dans le PRAGMA, jamais dans un journal.
+ * `readonly` : connexion ouverte en lecture seule par SQLite (thread des rapports et des copies) ;
+ * aucune écriture n'y est possible et les réglages d'écriture ne s'appliquent pas.
  */
-export function openDatabase(file: string, key: Buffer): Db {
+export function openDatabase(file: string, key: Buffer, options: { readonly?: boolean } = {}): Db {
   assertKey(key);
-  const db = new Database(file);
+  const readonly = options.readonly === true;
+  const db = new Database(file, { readonly, fileMustExist: readonly });
   try {
     db.pragma("cipher = 'sqlcipher'");
     db.pragma('legacy = 4');
     db.pragma(`key = "x'${key.toString('hex')}'"`);
     verifyKey(db);
     db.pragma('foreign_keys = ON');
-    db.pragma('journal_mode = WAL');
-    db.pragma('synchronous = FULL');
+    if (!readonly) {
+      db.pragma('journal_mode = WAL');
+      db.pragma('synchronous = FULL');
+    }
     db.pragma('busy_timeout = 5000');
     registerSqlFunctions(db);
     return db;

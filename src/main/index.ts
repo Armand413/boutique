@@ -54,6 +54,22 @@ function testIdleLockOverride(): { idleLockSecondsOverride?: number } {
   return { idleLockSecondsOverride: seconds };
 }
 
+const FIRST_BACKUP_DELAY_MS = 2 * 60_000;
+const BACKUP_CHECK_INTERVAL_MS = 60 * 60_000;
+
+/** Sauvegarde automatique (4.10) : vérifiée deux minutes après le démarrage, puis toutes les heures. */
+function scheduleAutomaticBackups(runtime: AppRuntime): void {
+  const run = (): void => {
+    runtime.runAutomaticBackup().catch((error: unknown) => {
+      logger.error('Sauvegarde automatique impossible', {
+        message: error instanceof Error ? error.message : 'inconnue',
+      });
+    });
+  };
+  setTimeout(run, FIRST_BACKUP_DELAY_MS).unref();
+  setInterval(run, BACKUP_CHECK_INTERVAL_MS).unref();
+}
+
 function focusMainWindow(): void {
   const [window] = BrowserWindow.getAllWindows();
   if (window === undefined) return;
@@ -77,11 +93,13 @@ async function start(): Promise<void> {
     dataDirectory: join(app.getPath('userData'), 'donnees'),
     protector: safeStorageProtector,
     dialogs: electronFileDialogs,
+    appVersion: app.getVersion(),
     ...testIdleLockOverride(),
   });
   const status = await runtime.start();
   logger.info('Base de données', { state: status.state });
   app.on('will-quit', () => runtime.close());
+  scheduleAutomaticBackups(runtime);
 
   const preferences = new PreferencesService(join(app.getPath('userData'), 'preferences.json'));
   registerIpc(createHandlers({ preferences, runtime }), createAuthorizer(runtime), trustedOrigins);

@@ -114,6 +114,14 @@ export const IPC_CHANNELS = [
   'dashboard:get',
   'reports:run',
   'reports:export',
+  'backup:status',
+  'backup:saveSettings',
+  'backup:setPassword',
+  'backup:run',
+  'backup:choose',
+  'backup:restore',
+  'system:chooseBackup',
+  'system:restoreBackup',
 ] as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[number];

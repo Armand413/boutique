@@ -139,6 +139,13 @@ import {
   warrantyLookupSchema,
 } from '../schemas/inventory';
 import {
+  backupPasswordInputSchema,
+  backupPreviewSchema,
+  backupSettingsInputSchema,
+  backupStatusSchema,
+  restoreInputSchema,
+} from '../schemas/backup';
+import {
   dashboardSchema,
   reportExportInputSchema,
   reportRequestSchema,
@@ -692,6 +699,35 @@ export const ipcContract = {
     output: z.strictObject({ saved: z.boolean() }),
     access: needs('export.run'),
   },
+  'backup:status': { input: noInput, output: backupStatusSchema, access: needs('backup.manage') },
+  'backup:saveSettings': {
+    input: backupSettingsInputSchema,
+    output: backupStatusSchema,
+    access: needs('backup.manage'),
+  },
+  'backup:setPassword': {
+    input: backupPasswordInputSchema,
+    output: backupStatusSchema,
+    access: needs('backup.manage'),
+  },
+  'backup:run': {
+    input: noInput,
+    output: z.strictObject({ saved: z.boolean() }),
+    access: needs('backup.manage'),
+  },
+  'backup:choose': {
+    input: noInput,
+    output: backupPreviewSchema.nullable(),
+    access: needs('backup.manage'),
+  },
+  'backup:restore': {
+    input: restoreInputSchema,
+    output: systemStatusSchema,
+    access: needs('backup.manage'),
+  },
+  // Restauration sans session : refusée par le service dès qu'une boutique configurée est ouverte.
+  'system:chooseBackup': { input: noInput, output: backupPreviewSchema.nullable(), access: PUBLIC },
+  'system:restoreBackup': { input: restoreInputSchema, output: systemStatusSchema, access: PUBLIC },
 } as const satisfies Record<IpcChannel, { input: z.ZodType; output: z.ZodType; access: IpcAccess }>;
 
 export type IpcContract = typeof ipcContract;

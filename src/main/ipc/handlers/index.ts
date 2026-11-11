@@ -208,6 +208,16 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
     'reports:run': (request, context) => services().reports.run(actor(context), request),
     'reports:export': ({ request, format }, context) =>
       services().reports.export(actor(context), request, format),
+    'backup:status': (_input, context) => services().backups.status(actor(context)),
+    'backup:saveSettings': (input, context) =>
+      services().backups.saveSettings(actor(context), input),
+    'backup:setPassword': ({ currentPassword, password }, context) =>
+      services().backups.setPassword(actor(context), currentPassword, password),
+    'backup:run': (_input, context) => services().backups.backupNow(actor(context)),
+    'backup:choose': (_input, context) => runtime.chooseBackup(actor(context)),
+    'backup:restore': (input, context) => runtime.restoreBackup(input, actor(context)),
+    'system:chooseBackup': () => runtime.chooseBackup(null),
+    'system:restoreBackup': (input) => runtime.restoreBackup(input, null),
     'sales:units': ({ variantId }, context) =>
       services().sales.availableUnits(actor(context), variantId),
     'documents:saveQuote': ({ quoteId }, context) =>

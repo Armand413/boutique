@@ -1,7 +1,13 @@
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync, renameSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { AppError } from '@shared/ipc/errors';
 import type { SystemStatus } from '@shared/schemas/auth';
+import type { BackupPreview, RestoreInput } from '@shared/schemas/backup';
+import type { Session } from '../auth/session';
+import { BACKUP_EXTENSION } from '../backup/backup-format';
+import { BackupSecretStore } from '../backup/backup-secret';
+import { BackupService } from '../backup/backup-service';
+import { RestoreTokens, prepareRestore, previewBackup } from '../backup/restore';
 import { appendAudit, verifyAuditChain } from '../audit/audit-log';
 import { AuditService } from '../audit/audit-service';
 import { AuthService } from '../auth/auth-service';
@@ -31,7 +37,7 @@ import { DocumentService } from '../printing/document-service';
 import { InventoryReport } from '../inventory/inventory-report';
 import { InventoryService } from '../inventory/inventory-service';
 import { WarrantyService } from '../warranty/warranty-service';
-import { WorkerExecutor } from '../reports/report-executor';
+import { WorkerExecutor, type ReportExecutor } from '../reports/report-executor';
 import { ReportService } from '../reports/report-service';
 
 export interface RuntimeOptions {
@@ -41,6 +47,10 @@ export interface RuntimeOptions {
   idleLockSecondsOverride?: number;
   /** Script du thread des rapports (bundle `report-worker.js` à côté du processus principal). */
   reportWorkerScript?: string;
+  /** Exécuteur des rapports et copies (tests : dans le processus) ; par défaut, le thread. */
+  executorFactory?: (db: Db, file: string, key: Buffer) => ReportExecutor;
+  /** Version de l'application, inscrite dans chaque sauvegarde. */
+  appVersion?: string;
 }
 
 export interface Services {
@@ -65,6 +75,7 @@ export interface Services {
   inventoryReport: InventoryReport;
   warranty: WarrantyService;
   reports: ReportService;
+  backups: BackupService;
 }
 
 /**
@@ -82,6 +93,8 @@ export class AppRuntime {
   readonly databaseFile: string;
   readonly backupDirectory: string;
   private readonly keyStore: KeyStore;
+  private readonly backupSecrets: BackupSecretStore;
+  private readonly restoreTokens = new RestoreTokens();
 
   constructor(private readonly options: RuntimeOptions) {
     this.databaseFile = join(options.dataDirectory, 'boutique.db');
@@ -89,6 +102,10 @@ export class AppRuntime {
     this.keyStore = new KeyStore(
       join(options.dataDirectory, 'boutique.key'),
       join(options.dataDirectory, 'boutique.key.recovery'),
+      options.protector,
+    );
+    this.backupSecrets = new BackupSecretStore(
+      join(options.dataDirectory, 'boutique.backup.key'),
       options.protector,
     );
   }
@@ -147,6 +164,120 @@ export class AppRuntime {
     }
     logger.warn('Clé de la base récupérée grâce à la clé de récupération');
     return this.getStatus();
+  }
+
+  /** Restauration sans session : base absente, non configurée, verrouillée ou en erreur. */
+  restoreOpenToAll(): boolean {
+    const status = this.getStatus();
+    return status.state !== 'ready' || !status.setupCompleted;
+  }
+
+  /** Choix du fichier à restaurer (fenêtre du processus principal) et aperçu de son en-tête. */
+  async chooseBackup(actor: Session | null): Promise<BackupPreview | null> {
+    this.assertRestoreAllowed(actor);
+    const path = await this.options.dialogs.openFile({
+      title: 'Choisir une sauvegarde à restaurer',
+      filters: [{ name: 'Sauvegarde Boutique Gestion', extensions: [BACKUP_EXTENSION] }],
+    });
+    if (path === null) return null;
+    return previewBackup(path, this.restoreTokens.issue(path));
+  }
+
+  /**
+   * Restauration guidée (4.10, B.7) : sauvegarde vérifiée à part, copie de sécurité de la base
+   * courante, remplacement, clé remise sous DPAPI, réouverture (migrations comprises). Toutes les
+   * sessions sont fermées : on se reconnecte avec les comptes de la sauvegarde.
+   */
+  async restoreBackup(input: RestoreInput, actor: Session | null): Promise<SystemStatus> {
+    this.assertRestoreAllowed(actor);
+    const services = this.services;
+    if (!this.restoreOpenToAll() && services !== null && actor !== null) {
+      if (input.currentPassword === null) {
+        throw new AppError('VALIDATION_ERROR', 'Saisissez votre mot de passe pour confirmer.');
+      }
+      await services.auth.confirmPassword(actor.userId, input.currentPassword);
+      if (!this.backupSecrets.has()) {
+        throw new AppError(
+          'CONFLICT',
+          'Définissez d’abord le mot de passe des sauvegardes : la base actuelle sera sauvegardée avant d’être remplacée.',
+        );
+      }
+    }
+    const prepared = await prepareRestore(
+      this.restoreTokens.take(input.token),
+      input.password,
+      this.options.dataDirectory,
+    );
+    const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15);
+    try {
+      if (services !== null && this.backupSecrets.has()) {
+        await services.backups.createBackup(
+          'safety',
+          join(this.backupDirectory, `avant-restauration-${stamp}.${BACKUP_EXTENSION}`),
+        );
+      }
+      await this.closeForReplacement();
+      this.setAsideDatabase(stamp);
+      renameSync(prepared.temporaryFile, this.databaseFile);
+    } catch (error) {
+      rmSync(prepared.temporaryFile, { force: true });
+      throw error;
+    }
+    await this.keyStore.saveKey(prepared.databaseKey);
+    if (prepared.escrow !== null) this.keyStore.restoreEscrow(prepared.escrow);
+    if (!this.backupSecrets.has()) {
+      await this.backupSecrets.adopt(prepared.header.kdf, prepared.wrappingKey);
+    }
+    this.status = this.prepare(
+      openDatabase(this.databaseFile, prepared.databaseKey),
+      prepared.databaseKey,
+    );
+    if (this.services !== null) {
+      appendAudit(this.services.db, {
+        userId: null,
+        action: 'backup.restored',
+        details: {
+          backupCreatedAt: prepared.header.createdAt,
+          kind: prepared.header.kind,
+          restoredBy: actor?.username ?? null,
+        },
+      });
+    }
+    logger.warn('Sauvegarde restaurée', { backupCreatedAt: prepared.header.createdAt });
+    return this.getStatus();
+  }
+
+  /** Sauvegarde automatique quotidienne, appelée par le minuteur du processus principal. */
+  async runAutomaticBackup(): Promise<void> {
+    if (this.services === null || this.restoreOpenToAll()) return;
+    await this.services.backups.runAutomatic();
+  }
+
+  private assertRestoreAllowed(actor: Session | null): void {
+    if (this.restoreOpenToAll()) return;
+    if (!actor?.permissions.has('backup.manage')) {
+      throw new AppError('FORBIDDEN', 'Vous n’avez pas le droit d’effectuer cette opération.');
+    }
+  }
+
+  private async closeForReplacement(): Promise<void> {
+    const services = this.services;
+    this.services = null;
+    if (services === null) return;
+    await services.reports.close();
+    closeDatabase(services.db);
+  }
+
+  /** La base remplacée est mise de côté (jamais effacée), avec ses fichiers WAL éventuels. */
+  private setAsideDatabase(stamp: string): void {
+    if (!existsSync(this.databaseFile)) return;
+    mkdirSync(this.backupDirectory, { recursive: true });
+    const target = join(this.backupDirectory, `base-remplacee-${stamp}.db`);
+    for (const suffix of ['', '-wal', '-shm']) {
+      if (existsSync(`${this.databaseFile}${suffix}`)) {
+        renameSync(`${this.databaseFile}${suffix}`, `${target}${suffix}`);
+      }
+    }
   }
 
   close(): void {
@@ -280,18 +411,26 @@ export class AppRuntime {
     const quotes = new QuoteService(db);
     expireQuotes(db);
     const inventories = new InventoryService(db);
+    const executor =
+      this.options.executorFactory?.(db, this.databaseFile, key) ??
+      new WorkerExecutor(
+        this.options.reportWorkerScript ?? join(__dirname, 'report-worker.js'),
+        this.databaseFile,
+        key,
+      );
+    const auth = new AuthService({
+      db,
+      sessions,
+      keyStore: this.keyStore,
+      databaseKey: key,
+      ...(this.options.idleLockSecondsOverride === undefined
+        ? {}
+        : { idleLockSecondsOverride: this.options.idleLockSecondsOverride }),
+    });
     return {
       db,
       sessions,
-      auth: new AuthService({
-        db,
-        sessions,
-        keyStore: this.keyStore,
-        databaseKey: key,
-        ...(this.options.idleLockSecondsOverride === undefined
-          ? {}
-          : { idleLockSecondsOverride: this.options.idleLockSecondsOverride }),
-      }),
+      auth,
       users: new UserService(db),
       setup: new SetupService(db, this.keyStore, key),
       audit: new AuditService(db),
@@ -313,15 +452,18 @@ export class AppRuntime {
       inventories,
       inventoryReport: new InventoryReport(db, inventories, this.options.dialogs),
       warranty: new WarrantyService(db),
-      reports: new ReportService(
+      reports: new ReportService(db, executor, this.options.dialogs),
+      backups: new BackupService({
         db,
-        new WorkerExecutor(
-          this.options.reportWorkerScript ?? join(__dirname, 'report-worker.js'),
-          this.databaseFile,
-          key,
-        ),
-        this.options.dialogs,
-      ),
+        executor,
+        secrets: this.backupSecrets,
+        databaseKey: key,
+        escrowPath: this.keyStore.escrowPath,
+        directory: this.backupDirectory,
+        dialogs: this.options.dialogs,
+        appVersion: this.options.appVersion ?? '0.0.0',
+        confirmPassword: (userId, password) => auth.confirmPassword(userId, password),
+      }),
       documents: new DocumentService({
         db,
         dialogs: this.options.dialogs,

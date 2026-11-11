@@ -6,7 +6,8 @@ import { executeTask, type ReportTask, type WorkerReply } from './report-tasks';
 
 /**
  * Thread des rapports (5.1 : rapports lourds hors du processus qui sert l'interface et la caisse).
- * Il ouvre sa propre connexion à la base chiffrée, en lecture seule (`query_only`), avec la clé
+ * Il ouvre sa propre connexion à la base chiffrée, en lecture seule (ouverture SQLite en lecture
+ * seule, plus `query_only`), avec la clé
  * reçue en mémoire, effacée aussitôt l'ouverture faite (D65). Aucune écriture n'est possible ici.
  */
 interface WorkerInput {
@@ -17,7 +18,7 @@ interface WorkerInput {
 function open(input: WorkerInput): Db {
   const key = Buffer.from(input.key);
   try {
-    const db = openDatabase(input.file, key);
+    const db = openDatabase(input.file, key, { readonly: true });
     db.pragma('query_only = ON');
     return db;
   } finally {

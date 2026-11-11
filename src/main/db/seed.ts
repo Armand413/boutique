@@ -31,6 +31,11 @@ export const DEFAULT_SETTINGS: Readonly<Record<string, unknown>> = {
   // Imprimante de tickets : null = simulateur (fichier) ; « tcp://adresse:9100 » pour une imprimante réseau (D55).
   'printer.receipt': null,
   'printer.receipt_width': 48,
+  // Sauvegardes (4.10, D70) : quotidienne, 7 copies gardées, rappel de copie externe après 7 jours.
+  'backup.auto_enabled': true,
+  'backup.keep': 7,
+  'backup.reminder_days': 7,
+  'maintenance.last_vacuum': null,
 };
 
 function seedRolesAndPermissions(db: Db): void {

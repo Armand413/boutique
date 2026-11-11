@@ -99,6 +99,14 @@ export class AuthService {
     return this.infoOrThrow();
   }
 
+  /** Confirme le mot de passe de l'utilisateur connecté avant une opération sensible (sauvegardes). */
+  async confirmPassword(userId: number, password: string): Promise<void> {
+    const user = this.activeUser(userId);
+    if (!(await verifySecret(user.passwordHash, password))) {
+      throw new AppError('INVALID_CREDENTIALS', 'Mot de passe actuel incorrect.');
+    }
+  }
+
   async changePassword(currentPassword: string, newPassword: string): Promise<SessionInfo> {
     const session = requireSession(this.deps.sessions, { allowPasswordChange: true });
     if (session.method !== 'password') {
