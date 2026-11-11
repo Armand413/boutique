@@ -2,6 +2,8 @@ import {
   Info,
   LayoutPanelTop,
   Package,
+  Truck,
+  Warehouse,
   ScrollText,
   Settings,
   UserRound,
@@ -27,6 +29,8 @@ export interface ModuleEntry {
  */
 export const MODULES: readonly ModuleEntry[] = [
   { route: 'products', labelKey: 'nav.products', icon: Package, permission: 'product.view' },
+  { route: 'stock', labelKey: 'nav.stock', icon: Warehouse, permission: 'stock.view' },
+  { route: 'suppliers', labelKey: 'nav.suppliers', icon: Truck, permission: 'supplier.manage' },
   { route: 'users', labelKey: 'nav.users', icon: Users, permission: 'user.manage' },
   { route: 'audit', labelKey: 'nav.audit', icon: ScrollText, permission: 'audit.view' },
   { route: 'account', labelKey: 'nav.account', icon: UserRound },

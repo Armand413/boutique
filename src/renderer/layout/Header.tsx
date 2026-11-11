@@ -1,10 +1,48 @@
-import { ArrowLeft, ChevronRight, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, ChevronRight, Search, TriangleAlert } from 'lucide-react';
 import { breadcrumbOf, routeDefinition } from '../app/routes';
 import { Button } from '../components/ui/button';
 import { Kbd } from '../components/ui/basic';
 import { useHotkey } from '../hotkeys/hotkeys';
 import { useT } from '../i18n';
 import { useRouter } from '../stores/router';
+import { useSession } from '../stores/session';
+import { invoke } from '../lib/ipc';
+
+/** Indicateur permanent des alertes de stock (A.3), relu à chaque changement d'écran. */
+function StockAlerts() {
+  const t = useT();
+  const canView = useSession((state) => state.session?.permissions.includes('stock.view') ?? false);
+  const current = useRouter((state) => state.current);
+  const navigate = useRouter((state) => state.navigate);
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!canView) return;
+    let active = true;
+    invoke('stock:alerts').then(
+      ({ lowStock }) => {
+        if (active) setCount(lowStock);
+      },
+      () => {
+        if (active) setCount(0);
+      },
+    );
+    return () => {
+      active = false;
+    };
+  }, [canView, current]);
+  if (!canView || count === 0) return null;
+  return (
+    <Button
+      variant="secondary"
+      className="border-warning text-foreground"
+      onClick={() => navigate('stock', { lowStock: true })}
+    >
+      <TriangleAlert className="text-warning" aria-hidden="true" />
+      {t('stock.alerts', { count })}
+    </Button>
+  );
+}
 
 interface HeaderProps {
   onOpenSearch: () => void;
@@ -59,6 +97,7 @@ export function Header({ onOpenSearch }: HeaderProps) {
           })}
         </ol>
       </nav>
+      <StockAlerts />
       <Button
         variant="secondary"
         onClick={onOpenSearch}

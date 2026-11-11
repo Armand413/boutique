@@ -4,7 +4,7 @@ import { AppGate } from '../auth/AppGate';
 import { EmptyState, LoadingState } from '../components/states/states';
 import { Toaster } from '../components/ui/toast';
 import { TooltipProvider } from '../components/ui/radix';
-import { useT } from '../i18n';
+import { translate, useT } from '../i18n';
 import { AppShell } from '../layout/AppShell';
 import { AboutPage } from '../pages/AboutPage';
 import { AccountPage } from '../pages/account/AccountPage';
@@ -16,6 +16,13 @@ import { BrandsPage } from '../pages/products/BrandsPage';
 import { CategoriesPage } from '../pages/products/CategoriesPage';
 import { ProductDetailPage } from '../pages/products/ProductDetailPage';
 import { ProductsPage } from '../pages/products/ProductsPage';
+import { LocationsPage } from '../pages/stock/LocationsPage';
+import { ReceiptPage } from '../pages/stock/ReceiptPage';
+import { StockPage } from '../pages/stock/StockPage';
+import { SupplierDetailPage } from '../pages/suppliers/SupplierDetailPage';
+import { SuppliersPage } from '../pages/suppliers/SuppliersPage';
+import { toast } from '../components/ui/toast';
+import { errorMessage, invoke } from '../lib/ipc';
 import { usePreferences } from '../stores/preferences';
 import { useRouter } from '../stores/router';
 import { useSession } from '../stores/session';
@@ -39,6 +46,11 @@ const PAGES: Readonly<Record<Exclude<RouteName, 'dev.gallery'>, ComponentType>> 
   'products.detail': ProductDetailPage,
   'products.categories': CategoriesPage,
   'products.brands': BrandsPage,
+  stock: StockPage,
+  'stock.receipt': ReceiptPage,
+  'stock.locations': LocationsPage,
+  suppliers: SuppliersPage,
+  'suppliers.detail': SupplierDetailPage,
 };
 
 /** Écran refusé si la session n'a pas la permission (le service le refuserait aussi). */
@@ -101,8 +113,29 @@ function AuditAlert() {
   );
 }
 
+/** Alertes de stock bas affichées à l'ouverture de session (4.3), pour qui peut voir le stock. */
+function useStockAlertOnLogin(): void {
+  const userId = useSession((state) => state.session?.user.id ?? null);
+  const canView = useSession((state) => state.session?.permissions.includes('stock.view') ?? false);
+  useEffect(() => {
+    if (userId === null || !canView) return;
+    invoke('stock:alerts').then(
+      ({ lowStock }) => {
+        // Traduit au moment de l'alerte : un changement de langue ne la relance pas.
+        const language = usePreferences.getState().preferences.language;
+        if (lowStock > 0)
+          toast.warning(translate(language, 'stock.alerts.login', { count: lowStock }));
+      },
+      (error: unknown) => {
+        toast.error(errorMessage(error));
+      },
+    );
+  }, [userId, canView]);
+}
+
 function AuthenticatedApp() {
   useResetRouterOnUserChange();
+  useStockAlertOnLogin();
   return (
     <AppShell>
       <AuditAlert />

@@ -6,6 +6,9 @@ const MAX_HISTORY = 50;
 /** Paramètres d'un écran (par exemple le produit affiché par la fiche produit). */
 export interface RouteParams {
   productId?: number;
+  supplierId?: number;
+  /** Écran Stock ouvert sur les articles sous le seuil d'alerte. */
+  lowStock?: boolean;
 }
 
 interface HistoryEntry {
@@ -24,7 +27,7 @@ export interface RouterState {
 }
 
 function sameParams(a: RouteParams, b: RouteParams): boolean {
-  return a.productId === b.productId;
+  return a.productId === b.productId && a.supplierId === b.supplierId && a.lowStock === b.lowStock;
 }
 
 /** Routeur en mémoire : l'application n'a pas d'URL visible, seulement une pile d'écrans. */
