@@ -19,6 +19,20 @@ function isIpcResult(value: unknown): value is IpcResult<unknown> {
   );
 }
 
+/** Erreurs qui signifient que la session a changé (fermée, verrouillée, mot de passe à changer). */
+const SESSION_ERRORS: ReadonlySet<IpcErrorCode> = new Set([
+  'UNAUTHENTICATED',
+  'SESSION_LOCKED',
+  'PASSWORD_CHANGE_REQUIRED',
+]);
+
+let sessionListener: (() => void) | null = null;
+
+/** Appelé quand le processus principal signale un changement de session (pour rafraîchir l'écran). */
+export function onSessionInvalidated(listener: (() => void) | null): void {
+  sessionListener = listener;
+}
+
 type InvokeArgs<C extends IpcChannel> = IpcInput<C> extends undefined ? [] : [input: IpcInput<C>];
 
 /** Appel typé d'un canal IPC : renvoie les données ou lève une IpcClientError. */
@@ -30,7 +44,10 @@ export async function invoke<C extends IpcChannel>(
   if (!isIpcResult(result)) {
     throw new IpcClientError('INTERNAL_ERROR', 'Réponse inattendue du processus principal.');
   }
-  if (!result.ok) throw new IpcClientError(result.error.code, result.error.message);
+  if (!result.ok) {
+    if (SESSION_ERRORS.has(result.error.code)) sessionListener?.();
+    throw new IpcClientError(result.error.code, result.error.message);
+  }
   return result.data as IpcOutput<C>;
 }
 

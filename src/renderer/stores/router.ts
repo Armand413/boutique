@@ -8,6 +8,8 @@ export interface RouterState {
   history: RouteName[];
   navigate: (route: RouteName) => void;
   back: () => void;
+  /** Retour à l'écran d'accueil sans historique (changement d'utilisateur). */
+  reset: () => void;
 }
 
 /** Routeur en mémoire : l'application n'a pas d'URL visible, seulement une pile d'écrans. */
@@ -21,6 +23,7 @@ export function createRouterStore(initial: RouteName = DEFAULT_ROUTE) {
           ? state
           : { current: route, history: [...state.history, state.current].slice(-MAX_HISTORY) },
       ),
+    reset: () => set({ current: initial, history: [] }),
     back: () =>
       set((state) => {
         const previous = state.history.at(-1);

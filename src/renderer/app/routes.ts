@@ -14,6 +14,9 @@ export const ROUTES = {
   settings: { labelKey: 'nav.settings', parent: null },
   'settings.appearance': { labelKey: 'nav.settings.appearance', parent: 'settings' },
   about: { labelKey: 'nav.about', parent: null },
+  users: { labelKey: 'nav.users', parent: null },
+  audit: { labelKey: 'nav.audit', parent: null },
+  account: { labelKey: 'nav.account', parent: null },
   'dev.gallery': { labelKey: 'nav.dev.gallery', parent: null },
 } as const satisfies Record<string, { labelKey: TranslationKey; parent: string | null }>;
 

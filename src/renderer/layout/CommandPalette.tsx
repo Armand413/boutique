@@ -8,8 +8,7 @@ import { Input } from '../components/ui/basic';
 import { useT, type Translate } from '../i18n';
 import { cn } from '../lib/cn';
 import { useRouter } from '../stores/router';
-
-const NO_PERMISSIONS: ReadonlySet<Permission> = new Set();
+import { useSession } from '../stores/session';
 
 export function normalizeSearch(text: string): string {
   return text
@@ -24,9 +23,9 @@ interface Command {
   label: string;
 }
 
-function buildCommands(t: Translate): Command[] {
+function buildCommands(t: Translate, granted: ReadonlySet<Permission>): Command[] {
   const allowedTopLevel = new Set(
-    visibleModules(MODULES, NO_PERMISSIONS, import.meta.env.DEV).map((m) => m.route),
+    visibleModules(MODULES, granted, import.meta.env.DEV).map((m) => m.route),
   );
   return (Object.keys(ROUTES) as RouteName[])
     .filter((route) => {
@@ -52,7 +51,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const listId = useId();
-  const commands = useMemo(() => buildCommands(t), [t]);
+  const permissions = useSession((state) => state.session?.permissions);
+  const commands = useMemo(() => buildCommands(t, new Set(permissions ?? [])), [t, permissions]);
   const results = useMemo(() => {
     const needle = normalizeSearch(query);
     return commands.filter((command) => normalizeSearch(command.label).includes(needle));
