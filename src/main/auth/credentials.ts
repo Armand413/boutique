@@ -8,17 +8,17 @@ import { AppError } from '@shared/ipc/errors';
 import { isCommonPassword } from './common-passwords';
 
 const PASSWORD_MESSAGES = {
-  too_short: `au moins ${PASSWORD_MIN_LENGTH} caractères`,
-  too_long: '128 caractères au plus',
-  common: 'pas un mot de passe courant ou facile à deviner',
-  contains_username: 'sans votre identifiant',
+  too_short: `il doit compter au moins ${PASSWORD_MIN_LENGTH} caractères`,
+  too_long: 'il doit compter 128 caractères au plus',
+  common: 'il est trop courant ou trop facile à deviner',
+  contains_username: 'il ne doit pas contenir votre identifiant',
 } as const;
 
 export function assertPasswordAcceptable(password: string, username: string): void {
   const problems = passwordProblems(password, username, isCommonPassword);
   if (problems.length > 0) {
-    const rules = problems.map((problem) => PASSWORD_MESSAGES[problem]).join(', ');
-    throw new AppError('VALIDATION_ERROR', `Mot de passe refusé : il faut ${rules}.`);
+    const rules = problems.map((problem) => PASSWORD_MESSAGES[problem]).join(' ; ');
+    throw new AppError('VALIDATION_ERROR', `Mot de passe refusé : ${rules}.`);
   }
 }
 

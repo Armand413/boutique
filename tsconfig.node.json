@@ -10,8 +10,11 @@
     "src/preload/**/*",
     "src/shared/**/*",
     "tests/**/*",
+    "tools/**/*",
     "electron.vite.config.ts",
+    "electron.vite.demo.config.ts",
     "vitest.config.mts",
+    "vitest.load.config.mts",
     "playwright.config.ts",
     "eslint.config.mjs"
   ],

@@ -18,7 +18,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:e2e": "npm run build && playwright test",
+    "test:e2e": "npm run build && electron-vite build -c electron.vite.demo.config.ts && playwright test",
+    "test:load": "vitest run --config vitest.load.config.mts",
+    "seed": "electron-vite build -c electron.vite.demo.config.ts && electron out-demo/seed-main.js",
     "dist": "npm run build && electron-builder --win nsis"
   },
   "dependencies": {

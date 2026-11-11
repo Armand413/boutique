@@ -7,7 +7,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  globalIgnores(['out/', 'dist/', 'release/', 'coverage/', 'test-results/', 'playwright-report/']),
+  globalIgnores(['out/', 'out-demo/', 'dist/', 'release/', 'coverage/', 'test-results/', 'playwright-report/']),
   js.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
@@ -48,7 +48,13 @@ export default defineConfig(
     },
   },
   {
-    files: ['src/main/**/*.ts', 'src/preload/**/*.ts', 'tests/**/*.ts', '*.config.{ts,mts,mjs}'],
+    files: [
+      'src/main/**/*.ts',
+      'src/preload/**/*.ts',
+      'tests/**/*.ts',
+      'tools/**/*.ts',
+      '*.config.{ts,mts,mjs}',
+    ],
     languageOptions: { globals: globals.node },
   },
   {
