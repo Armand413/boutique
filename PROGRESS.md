@@ -290,6 +290,48 @@
 - Lecteur de codes-barres réel : testé par saisie clavier + Entrée.
 - Le double contrôle de l'inventaire se règle dans les Paramètres (phase 8) ; désactivé par défaut.
 
-## Phase 7 — Tableau de bord, rapports par famille, exports : à faire
+## Phase 7 — Tableau de bord, rapports par famille, exports : terminée (11/11/2026)
 
-Tableau de bord, rapports (ventes par famille, marges, stock, crédits, garanties), exports PDF et Excel.
+### Fait
+
+- Migration 0010 : ventes et marges hors taxe, nettes des retours, kits valorisés par leurs composants (D64).
+- Rapports (`src/main/reports`) : ventes par jour, mois, vendeur, famille, catégorie, marque ou produit (quantité,
+  ventes TTC, CA HT, coût, marge, taux) ; produits les plus et les moins vendus avec stock et couverture en jours (les
+  articles jamais vendus apparaissent) ; valorisation du stock par famille, catégorie, marque ou emplacement (au coût
+  et au prix de vente) ; créances clients (dont retards) et dettes fournisseurs ; journal des mouvements filtrable ;
+  rapports de caisse (encaissements par mode, écarts) ; devis en cours et échéances non soldées.
+- Calcul dans un thread en lecture seule (D65) ; coûts et marges retirés côté service sans `cost.view` (D66).
+- Exports PDF, Excel et CSV complets, tracés dans le journal d'audit.
+- Tableau de bord, devenu l'écran d'accueil : ventes du jour, de la semaine et du mois, bénéfice estimé, alertes,
+  ventes des 30 derniers jours, ventes du mois par famille, dernières ventes et derniers mouvements, raccourcis
+  « Nouvelle vente », « Entrée de stock », « Voir les rapports » (D67).
+- Écran Rapports : choix du rapport, du regroupement et de la période (raccourcis ou dates), chiffres clés, graphique,
+  tableau paginé avec totaux, exports.
+- Graphiques Recharts accessibles par résumé textuel (D68).
+
+### Vérifications de fin de phase
+
+| Contrôle            | Résultat                                                                                                  |
+| ------------------- | --------------------------------------------------------------------------------------------------------- |
+| `npm run typecheck` | 0 erreur                                                                                                  |
+| `npm run lint`      | 0 erreur, 0 avertissement                                                                                 |
+| `npm test`          | 246 tests verts (9 pour les rapports et leur affichage)                                                   |
+| `npm run test:e2e`  | 33 tests verts sur l’application compilée, thread des rapports compris (+ 1 capture ignorée hors demande) |
+| WCAG AA             | axe-core clair et sombre : tableau de bord (gérant, vendeur), rapports (ventes, stock, caisse)            |
+| `npm audit`         | 0 faille en production, aucune critique                                                                   |
+
+### Corrigé pendant la phase
+
+- Les vues de marge comptaient la TVA et ignoraient les retours (D64).
+- L'export PDF du rapport de caisse échouait sur la ligne de total (date attendue dans la première colonne).
+- Les erreurs de droits du service des rapports n'étaient pas renvoyées comme promesse rejetée.
+
+### Reste à valider / limites
+
+- Thread des rapports dans l'application installée (archive asar) : à vérifier au packaging (phase 10).
+- Temps de calcul sur gros volume (100 000 ventes) : mesuré au test de charge de la phase 9.
+
+## Phase 8 — Sauvegarde/restauration, paramètres, anti-fraude : à faire
+
+Sauvegardes chiffrées et restauration, écrans de paramètres (boutique, impressions, plafonds, double contrôle),
+alertes anti-fraude et rapport d'activités sensibles.
