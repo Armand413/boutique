@@ -36,10 +36,19 @@ function cancellations(db: Db, from: string, to: string): ReportRow[] {
 
 function discounts(db: Db, from: string, to: string, threshold: number): ReportRow[] {
   return db
-    .prepare<[string, string, number], ReportRow>(
-      `SELECT s.completed_at AS created_at, 'discount' AS category, u.full_name AS user,
-              s.invoice_number AS reference,
-              p.name || ' : ' || CAST(round(l.discount * 100.0 / (l.quantity * l.unit_price), 1) AS TEXT) || ' %' AS detail,
+    .prepare<
+      [string, string, number],
+      {
+        created_at: string;
+        user: string;
+        reference: string;
+        product: string;
+        rate: number;
+        amount: number;
+      }
+    >(
+      `SELECT s.completed_at AS created_at, u.full_name AS user, s.invoice_number AS reference,
+              p.name AS product, round(l.discount * 100.0 / (l.quantity * l.unit_price), 1) AS rate,
               l.discount AS amount
        FROM sale_lines l
        JOIN sales s ON s.id = l.sale_id AND s.status = 'completed'
@@ -49,7 +58,12 @@ function discounts(db: Db, from: string, to: string, threshold: number): ReportR
        WHERE s.completed_at >= ? AND s.completed_at < ? AND l.line_type <> 'kit_component'
          AND l.unit_price > 0 AND l.discount * 10000 > ? * l.quantity * l.unit_price`,
     )
-    .all(from, to, threshold);
+    .all(from, to, threshold)
+    .map(({ product, rate, ...row }) => ({
+      ...row,
+      category: 'discount',
+      detail: `${product} : ${rate.toLocaleString('fr-FR')} %`,
+    }));
 }
 
 function belowCost(db: Db, from: string, to: string): ReportRow[] {
