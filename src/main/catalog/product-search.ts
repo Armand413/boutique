@@ -109,8 +109,8 @@ interface SearchRow {
 }
 
 /**
- * Avec une saisie, la lecture part des résultats plein texte (CROSS JOIN fixe l'ordre des tables) :
- * un « v.id IN (MATCH) » serait réévalué pour chaque variante.
+ * Variantes filtrées. Avec une saisie, la lecture part des résultats plein texte (CROSS JOIN fixe
+ * l'ordre des tables) : un « v.id IN (MATCH) » serait réévalué pour chaque variante.
  */
 function fromClause(fts: string | null): string {
   const variants =
@@ -119,15 +119,13 @@ function fromClause(fts: string | null): string {
       : `FROM (SELECT rowid AS id FROM products_fts WHERE products_fts MATCH @fts) hits
   CROSS JOIN product_variants v ON v.id = hits.id`;
   return `${variants}
-  JOIN products p ON p.id = v.product_id
-  LEFT JOIN brands b ON b.id = p.brand_id
-  JOIN categories c ON c.id = p.category_id
-  JOIN v_category_families f ON f.category_id = p.category_id`;
+  JOIN products p ON p.id = v.product_id`;
 }
 
 /**
  * Recherche paginée côté base (5.1) : une ligne par variante. Une saisie identique à un code-barres
- * ou une référence passe en tête (lecteur de codes-barres).
+ * ou une référence passe en tête (lecteur de codes-barres). Le tri ne porte que sur les identifiants ;
+ * le détail (marque, famille, stock) n'est lu que pour la page demandée.
  */
 export function searchProducts(
   db: Db,
@@ -137,7 +135,7 @@ export function searchProducts(
 ): { total: number; rows: ProductRow[] } {
   const clauses = whereClauses(input, categoryIds);
   const fts = input.query === undefined ? null : ftsQuery(input.query);
-  const FROM = fromClause(fts);
+  const from = fromClause(fts);
   const where = clauses.length === 0 ? '' : `WHERE ${clauses.map((c) => c.sql).join(' AND ')}`;
   const params = Object.assign(
     fts === null ? {} : { fts },
@@ -145,7 +143,7 @@ export function searchProducts(
   ) as Record<string, unknown>;
   const total =
     db
-      .prepare<Record<string, unknown>, number>(`SELECT count(*) ${FROM} ${where}`)
+      .prepare<Record<string, unknown>, number>(`SELECT count(*) ${from} ${where}`)
       .pluck()
       .get(params) ?? 0;
   const exact = input.query === undefined || input.query === '' ? null : input.query;
@@ -153,23 +151,37 @@ export function searchProducts(
     exact === null
       ? ORDER_BY[input.sort]
       : `(v.barcode = @exact OR v.sku = @exact COLLATE NOCASE) DESC, ${ORDER_BY[input.sort]}`;
-  const rows = db
-    .prepare<Record<string, unknown>, SearchRow>(
-      `SELECT v.id AS variant_id, p.id AS product_id, p.name, b.name AS brand_name,
-              c.name AS category_name, f.family_name, p.product_type, p.tracking_mode, v.sku,
-              v.barcode, v.color, v.storage_gb, v.ram_gb, v.condition, v.sale_price, v.cost_price,
-              ${STOCK_EXPRESSION} AS stock, p.is_stocked, p.reorder_level,
-              (p.is_active = 1 AND v.is_active = 1) AS is_active
-       ${FROM} ${where}
-       ORDER BY ${order}
-       LIMIT @limit OFFSET @offset`,
+  const stockColumn = input.sort === 'stock_asc' ? `, ${STOCK_EXPRESSION} AS stock` : '';
+  const ids = db
+    .prepare<Record<string, unknown>, number>(
+      `SELECT v.id${stockColumn} ${from} ${where} ORDER BY ${order} LIMIT @limit OFFSET @offset`,
     )
+    .pluck()
     .all({
       ...params,
       ...(exact === null ? {} : { exact }),
       limit: input.limit,
       offset: input.offset,
     });
+  const rows =
+    ids.length === 0
+      ? []
+      : db
+          .prepare<[string], SearchRow>(
+            `SELECT v.id AS variant_id, p.id AS product_id, p.name, b.name AS brand_name,
+                    c.name AS category_name, f.family_name, p.product_type, p.tracking_mode, v.sku,
+                    v.barcode, v.color, v.storage_gb, v.ram_gb, v.condition, v.sale_price,
+                    v.cost_price, ${STOCK_EXPRESSION} AS stock, p.is_stocked, p.reorder_level,
+                    (p.is_active = 1 AND v.is_active = 1) AS is_active
+             FROM json_each(?) page
+             JOIN product_variants v ON v.id = page.value
+             JOIN products p ON p.id = v.product_id
+             LEFT JOIN brands b ON b.id = p.brand_id
+             JOIN categories c ON c.id = p.category_id
+             JOIN v_category_families f ON f.category_id = p.category_id
+             ORDER BY page.key`,
+          )
+          .all(JSON.stringify(ids));
   return {
     total,
     rows: rows.map((row) => ({
