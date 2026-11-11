@@ -93,10 +93,11 @@ describe('migrations', () => {
 
   it('annule entièrement une migration qui échoue', () => {
     test = createTestDatabase();
+    const current = bundledMigrations();
     const broken = [
-      ...bundledMigrations(),
+      ...current,
       {
-        version: 7,
+        version: current.length + 1,
         name: 'casse',
         sql: 'CREATE TABLE t1 (a INTEGER) STRICT; INSERT INTO inconnue VALUES (1);',
         checksum: 'a'.repeat(64),
@@ -106,7 +107,9 @@ describe('migrations', () => {
     expect(
       test.db.prepare("SELECT count(*) FROM sqlite_schema WHERE name = 't1'").pluck().get(),
     ).toBe(0);
-    expect(test.db.prepare('SELECT max(version) FROM schema_migrations').pluck().get()).toBe(6);
+    expect(test.db.prepare('SELECT max(version) FROM schema_migrations').pluck().get()).toBe(
+      current.length,
+    );
   });
 
   it('refuse des fichiers mal numérotés', () => {

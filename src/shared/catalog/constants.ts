@@ -20,7 +20,15 @@ export type Condition = (typeof CONDITIONS)[number];
 export const ATTRIBUTE_VALUE_TYPES = ['text', 'number', 'choice', 'boolean'] as const;
 export type AttributeValueType = (typeof ATTRIBUTE_VALUE_TYPES)[number];
 
-export const SERIAL_STATUSES = ['in_stock', 'reserved', 'sold', 'returned', 'defective'] as const;
+export const SERIAL_STATUSES = [
+  'in_stock',
+  'reserved',
+  'sold',
+  'returned',
+  'defective',
+  'supplier_returned',
+  'written_off',
+] as const;
 export type SerialStatus = (typeof SERIAL_STATUSES)[number];
 
 /** Profondeur maximale de l'arbre : famille > catégorie > sous-catégorie (trigger de la base). */

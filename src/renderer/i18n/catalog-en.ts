@@ -26,6 +26,8 @@ export const catalogEn: Readonly<Record<keyof typeof catalogFr, string>> = {
   'serial.sold': 'Sold',
   'serial.returned': 'Returned',
   'serial.defective': 'Defective',
+  'serial.supplier_returned': 'Returned to supplier',
+  'serial.written_off': 'Written off',
   'valueType.text': 'Text',
   'valueType.number': 'Number',
   'valueType.choice': 'Choice list',

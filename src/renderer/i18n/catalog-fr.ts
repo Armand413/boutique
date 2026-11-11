@@ -24,6 +24,8 @@ export const catalogFr = {
   'serial.sold': 'Vendu',
   'serial.returned': 'Retourné',
   'serial.defective': 'Défectueux',
+  'serial.supplier_returned': 'Rendu au fournisseur',
+  'serial.written_off': 'Sorti du stock',
   'valueType.text': 'Texte',
   'valueType.number': 'Nombre',
   'valueType.choice': 'Liste de choix',
