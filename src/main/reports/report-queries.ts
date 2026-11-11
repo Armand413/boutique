@@ -36,39 +36,56 @@ export interface DashboardContext {
   now: Date;
 }
 
-interface Totals {
+interface DayTotals {
   count: number;
   revenue_ttc: number;
   margin: number;
 }
 
-function periodTotals(db: Db, period: { from: string; to: string }, canSeeCost: boolean) {
+/**
+ * Totaux par jour sur toute la plage utile au tableau de bord, en une seule lecture : une vente
+ * appartient à un seul jour, les totaux du jour, de la semaine et du mois s'en déduisent.
+ */
+function dailyTotals(db: Db, period: { from: string; to: string }): Map<string, DayTotals> {
   const [from, to] = utcBounds(period);
-  const row = db
-    .prepare<[string, string], Totals>(
-      `SELECT count(DISTINCT sale_id) AS count, coalesce(sum(revenue_ttc), 0) AS revenue_ttc,
-              coalesce(sum(margin), 0) AS margin
-       FROM v_sale_lines_net WHERE completed_at >= ? AND completed_at < ?`,
-    )
-    .get(from, to) ?? { count: 0, revenue_ttc: 0, margin: 0 };
-  return { count: row.count, revenueTtc: row.revenue_ttc, margin: canSeeCost ? row.margin : null };
-}
-
-function dailySeries(db: Db, period: { from: string; to: string }, canSeeCost: boolean) {
-  const [from, to] = utcBounds(period);
-  const found = new Map(
+  return new Map(
     db
-      .prepare<[string, string], { day: string; revenue_ttc: number; margin: number }>(
-        `SELECT day, sum(revenue_ttc) AS revenue_ttc, sum(margin) AS margin
+      .prepare<[string, string], DayTotals & { day: string }>(
+        `SELECT day, count(DISTINCT sale_id) AS count, sum(revenue_ttc) AS revenue_ttc, sum(margin) AS margin
          FROM v_sale_lines_net WHERE completed_at >= ? AND completed_at < ? GROUP BY day`,
       )
       .all(from, to)
-      .map((row) => [row.day, row]),
+      .map(({ day, ...totals }) => [day, totals]),
   );
+}
+
+function periodTotals(
+  days: Map<string, DayTotals>,
+  period: { from: string; to: string },
+  canSeeCost: boolean,
+) {
+  let count = 0;
+  let revenueTtc = 0;
+  let margin = 0;
+  for (const day of daysOf(period)) {
+    const totals = days.get(day);
+    if (totals === undefined) continue;
+    count += totals.count;
+    revenueTtc += totals.revenue_ttc;
+    margin += totals.margin;
+  }
+  return { count, revenueTtc, margin: canSeeCost ? margin : null };
+}
+
+function dailySeries(
+  days: Map<string, DayTotals>,
+  period: { from: string; to: string },
+  canSeeCost: boolean,
+) {
   return daysOf(period).map((day) => ({
     day,
-    revenueTtc: found.get(day)?.revenue_ttc ?? 0,
-    margin: canSeeCost ? (found.get(day)?.margin ?? 0) : null,
+    revenueTtc: days.get(day)?.revenue_ttc ?? 0,
+    margin: canSeeCost ? (days.get(day)?.margin ?? 0) : null,
   }));
 }
 
@@ -130,10 +147,13 @@ function count(db: Db, sql: string): number {
 /** Tableau de bord (4.8, A.4) : ventes du jour, de la semaine et du mois, alertes, dernières opérations. */
 export function dashboard(db: Db, context: DashboardContext): Dashboard {
   const periods = currentPeriods(context.now);
+  const earliest =
+    [periods.last30.from, periods.month.from, periods.week.from].sort()[0] ?? periods.today.from;
+  const days = dailyTotals(db, { from: earliest, to: periods.today.to });
   return {
-    today: periodTotals(db, periods.today, context.canSeeCost),
-    week: periodTotals(db, periods.week, context.canSeeCost),
-    month: periodTotals(db, periods.month, context.canSeeCost),
+    today: periodTotals(days, periods.today, context.canSeeCost),
+    week: periodTotals(days, periods.week, context.canSeeCost),
+    month: periodTotals(days, periods.month, context.canSeeCost),
     lowStock: context.canSeeStock ? count(db, 'SELECT count(*) FROM v_low_stock') : null,
     overdueInstallments: count(db, 'SELECT count(*) FROM v_overdue_installments'),
     sensitive: context.canSeeAudit
@@ -143,7 +163,7 @@ export function dashboard(db: Db, context: DashboardContext): Dashboard {
       db,
       "SELECT count(*) FROM warranty_claims WHERE status NOT IN ('closed', 'rejected')",
     ),
-    days: dailySeries(db, periods.last30, context.canSeeCost),
+    days: dailySeries(days, periods.last30, context.canSeeCost),
     families: familySeries(db, periods.month, context.canSeeCost),
     latestSales: latestSales(db),
     latestMovements: context.canSeeStock ? latestMovements(db) : null,
