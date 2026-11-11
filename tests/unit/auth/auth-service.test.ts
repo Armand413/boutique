@@ -31,6 +31,15 @@ describe('assistant de premier lancement', () => {
     expect(actions()).toEqual(['setup.completed']);
   });
 
+  it('refuse deux installations simultanées (une seule clé de récupération valable)', async () => {
+    const attempts = await Promise.allSettled([setupShop(h), setupShop(h)]);
+    const done = attempts.filter((attempt) => attempt.status === 'fulfilled');
+    expect(done).toHaveLength(1);
+    const [first] = done;
+    if (first?.status !== 'fulfilled') throw new Error('aucune installation');
+    await expect(h.keyStore.recoverKey(first.value)).resolves.toEqual(h.test.key);
+  });
+
   it('ne peut être rejoué une fois terminé', async () => {
     await setupShop(h);
     await expect(setupShop(h)).rejects.toMatchObject({ code: 'CONFLICT' });
