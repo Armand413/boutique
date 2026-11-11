@@ -59,11 +59,24 @@ export function dataFile(userData: string, name: string): string {
 /** Assistant de premier lancement ; renvoie la clé de récupération affichée. */
 export async function completeSetup(page: Page, admin = ADMIN): Promise<string> {
   await expect(page.getByRole('heading', { level: 1, name: 'Bienvenue' })).toBeVisible();
-  await page.getByLabel('Nom de la boutique').fill(admin.shopName);
-  await page.getByLabel('Votre nom complet').fill(admin.fullName);
-  await page.getByLabel('Identifiant de connexion').fill(admin.username);
-  await page.getByLabel('Mot de passe administrateur').fill(admin.password);
-  await page.getByLabel('Confirmez le mot de passe').fill(admin.password);
+  const fields: [string, string][] = [
+    ['Nom de la boutique', admin.shopName],
+    ['Votre nom complet', admin.fullName],
+    ['Identifiant de connexion', admin.username],
+    ['Mot de passe administrateur', admin.password],
+    ['Confirmez le mot de passe', admin.password],
+  ];
+  // Le formulaire peut encore se monter quand le test commence à écrire : chaque valeur est vérifiée.
+  for (const [label, value] of fields) {
+    await expect(async () => {
+      const field = page.getByLabel(label);
+      if ((await field.inputValue()) !== value) await field.fill(value);
+      await expect(field).toHaveValue(value, { timeout: 500 });
+    }).toPass();
+  }
+  for (const [label, value] of fields) {
+    await expect(page.getByLabel(label)).toHaveValue(value);
+  }
   await page.getByRole('button', { name: 'Créer le compte administrateur' }).click();
   const key = page.getByTestId('recovery-key');
   await expect(key).toBeVisible();

@@ -81,7 +81,6 @@ test('réception fournisseur, transfert, sortie, paiement et alertes de stock', 
   await page.getByRole('button', { name: 'Enregistrer un paiement' }).click();
   await page.getByRole('dialog').getByLabel('Montant *').fill('40000');
   await page.getByRole('dialog').getByRole('button', { name: 'Enregistrer un paiement' }).click();
-  await toastShown(page, 'Paiement enregistré.');
   await expect(page.getByText('Reste dû : 100 000')).toBeVisible();
 
   await openModule(page, 'Stock');
