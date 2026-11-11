@@ -151,6 +151,55 @@
 - Sous-agent `security-reviewer` indisponible : revue faite à la main et par les tests (droits par rôle et par PIN,
   masquage des coûts, refus d'un appel IPC direct par un vendeur, fichiers choisis uniquement par le processus principal).
 
-## Phase 4 — Stock multi-emplacements et fournisseurs : à faire
+## Phase 4 — Stock multi-emplacements et fournisseurs : terminée (11/11/2026)
 
-Mouvements, entrées/sorties, transferts, alertes, valorisation, réceptions (IMEI et numéros de série), fournisseurs.
+### Fait
+
+- **Schéma** : migration 0007 (D43), accord du client : états « rendu au fournisseur » et « sorti du stock » des unités
+  suivies ; table `serial_units` recréée sans couper les clés étrangères, testée sur une base existante.
+- **Mouvement de stock unique** (`applyMovement`, D44) : seul point d'écriture, dans la transaction de l'opération ;
+  coût moyen pondéré et dernier prix d'achat recalculés à chaque achat.
+- **Entrées de marchandise** : bon `BR-AAAA-NNNNN`, lignes, prix d'achat, IMEI / numéros de série (un par article,
+  IMEI 2 facultatif), paiement immédiat facultatif ; tout ou rien (D45).
+- **Sorties** (perte, casse, vol, usage interne) et **ajustements** avec motif obligatoire ; un appareil suivi sort à
+  l'unité et peut être réintégré s'il est retrouvé. **Transferts** entre emplacements (sortie et entrée liées),
+  **retours fournisseur**.
+- **Emplacements** (magasin, dépôt…) : un par défaut, désactivation refusée tant qu'il reste du stock.
+- **Consultation** : état par variante et par emplacement (recherche, famille, emplacement, stock bas, pagination côté
+  base), historique des mouvements (date, article, numéro, quantité, stock après, coût, motif, document, utilisateur),
+  valorisation au coût moyen et au prix de vente, par emplacement et par famille.
+- **Fournisseurs** : fiche, historique des entrées (détail du bon et des numéros), paiements, reste dû (vue
+  `v_supplier_balances`) ; paiement plafonné au solde (D48).
+- **Alertes de stock bas** : indicateur permanent dans l'en-tête et notification à l'ouverture de session (D50).
+- **Droits** (D47) contrôlés dans les services ; coûts masqués sans `cost.view` (état, historique, valorisation).
+- Écrans : Stock (3 onglets), Entrée de marchandise (au scanner), Emplacements, Fournisseurs, Fiche fournisseur ;
+  dialogue commun sortie / transfert / retour. Textes fr/en.
+
+### Vérifications de fin de phase
+
+| Contrôle            | Résultat                                                                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run typecheck` | 0 erreur                                                                                                                                   |
+| `npm run lint`      | 0 erreur, 0 avertissement                                                                                                                  |
+| `npm test`          | 208 tests verts (dont 13 pour le stock et 2 pour la migration 0007)                                                                        |
+| `npm run test:e2e`  | 26 tests verts sur l’application compilée (+ 1 capture ignorée hors demande)                                                               |
+| WCAG AA             | axe-core clair et sombre : Stock (vide, état, mouvements, valorisation), emplacements, entrée de marchandise, fiche fournisseur, transfert |
+| `npm audit`         | 0 en production ; 15 modérées en dev (D13), aucune critique                                                                                |
+
+### Corrigé pendant la phase
+
+- Un accessoire de la famille Téléphonie héritait du suivi IMEI : la réception exigeait des IMEI pour des câbles (D49).
+- Indicateur d'alertes non rafraîchi après une opération sur le même écran.
+- Tableaux défilants inaccessibles au clavier (WCAG `scrollable-region-focusable`).
+- Test de migration figé sur 6 migrations.
+
+### Reste à valider / limites
+
+- Lecteur de codes-barres réel sur l'écran d'entrée (testé par saisie clavier + Entrée).
+- Avoirs fournisseurs non gérés : un retour ne réduit pas le solde (D48).
+- Ventes, retours clients et inventaire créeront leurs mouvements par `applyMovement` (phases 5 et 6).
+
+## Phase 5 — Caisse, paiements, devis, livraisons, clients : à faire
+
+Caisse au clavier et au scanner, paiements, crédits et échéanciers, devis, kits et services à la vente, livraisons,
+clients, tickets, factures, clôture de caisse.
