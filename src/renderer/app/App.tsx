@@ -11,6 +11,15 @@ import { AccountPage } from '../pages/account/AccountPage';
 import { AuditPage } from '../pages/audit/AuditPage';
 import { AppearancePage } from '../pages/settings/AppearancePage';
 import { SettingsPage } from '../pages/settings/SettingsPage';
+import { BackupPage } from '../pages/settings/BackupPage';
+import {
+  PrintingSettingsPage,
+  RegionalSettingsPage,
+  SecuritySettingsPage,
+  ShopSettingsPage,
+  TaxesSettingsPage,
+} from '../pages/settings/SettingsSections';
+import { usePublicSettings } from '../stores/public-settings';
 import { UsersPage } from '../pages/users/UsersPage';
 import { BrandsPage } from '../pages/products/BrandsPage';
 import { CategoriesPage } from '../pages/products/CategoriesPage';
@@ -48,6 +57,12 @@ const DevGallery: ComponentType | null = import.meta.env.DEV
 const PAGES: Readonly<Record<Exclude<RouteName, 'dev.gallery'>, ComponentType>> = {
   settings: SettingsPage,
   'settings.appearance': AppearancePage,
+  'settings.shop': ShopSettingsPage,
+  'settings.regional': RegionalSettingsPage,
+  'settings.taxes': TaxesSettingsPage,
+  'settings.printing': PrintingSettingsPage,
+  'settings.security': SecuritySettingsPage,
+  'settings.backup': BackupPage,
   about: AboutPage,
   users: UsersPage,
   audit: AuditPage,
@@ -90,6 +105,7 @@ function CurrentPage() {
   const current = useRouter((state) => state.current);
   const params = useRouter((state) => state.params);
   const allowed = useRouteAllowed(current);
+  const version = usePublicSettings((state) => state.version);
   if (!allowed) {
     return (
       <EmptyState
@@ -109,7 +125,7 @@ function CurrentPage() {
   }
   const Page = PAGES[current];
   // Un écran repart de zéro quand ses paramètres changent (autre produit, autre devis…).
-  return <Page key={`${current}:${JSON.stringify(params)}`} />;
+  return <Page key={`${current}:${JSON.stringify(params)}:${String(version)}`} />;
 }
 
 /** Chaque nouvel utilisateur repart de l'écran d'accueil (aucun écran hérité du précédent). */
@@ -159,9 +175,62 @@ function useStockAlertOnLogin(): void {
   }, [userId, canView]);
 }
 
+/** Devise et format de date de la boutique, appliqués à chaque connexion (4.11). */
+function usePublicSettingsOnLogin(): void {
+  const userId = useSession((state) => state.session?.user.id ?? null);
+  const load = usePublicSettings((state) => state.load);
+  useEffect(() => {
+    if (userId === null) return;
+    load().catch((error: unknown) => {
+      toast.error(errorMessage(error));
+    });
+  }, [userId, load]);
+}
+
+/**
+ * Rappels à l'ouverture de session de l'administrateur : activités sensibles des 7 derniers
+ * jours (B.4b) et copie de sauvegarde externe en retard (4.10).
+ */
+function useAdminAlertsOnLogin(): void {
+  const userId = useSession((state) => state.session?.user.id ?? null);
+  const canAudit = useSession(
+    (state) => state.session?.permissions.includes('audit.view') ?? false,
+  );
+  const canBackup = useSession(
+    (state) => state.session?.permissions.includes('backup.manage') ?? false,
+  );
+  useEffect(() => {
+    if (userId === null) return;
+    const language = usePreferences.getState().preferences.language;
+    if (canAudit) {
+      invoke('dashboard:get').then(
+        ({ sensitive }) => {
+          if (sensitive !== null && sensitive > 0)
+            toast.warning(translate(language, 'alert.sensitive', { count: sensitive }));
+        },
+        () => undefined,
+      );
+    }
+    if (canBackup) {
+      invoke('backup:status').then(
+        (status) => {
+          if (!status.passwordSet) toast.warning(translate(language, 'dashboard.backupPassword'));
+          else if (status.reminderDue)
+            toast.warning(
+              translate(language, 'dashboard.backupReminder', { days: status.reminderDays }),
+            );
+        },
+        () => undefined,
+      );
+    }
+  }, [userId, canAudit, canBackup]);
+}
+
 function AuthenticatedApp() {
   useResetRouterOnUserChange();
+  usePublicSettingsOnLogin();
   useStockAlertOnLogin();
+  useAdminAlertsOnLogin();
   return (
     <AppShell>
       <AuditAlert />

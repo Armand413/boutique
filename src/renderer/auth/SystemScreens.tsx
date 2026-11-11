@@ -8,6 +8,7 @@ import { zodResolver } from '../lib/form';
 import { useSession } from '../stores/session';
 import { AuthLayout } from './AuthLayout';
 import { formSchemas } from './form-schemas';
+import { RestoreBackupButton } from './RestoreBackupButton';
 import { useSubmit } from './use-submit';
 
 /** Base illisible sur ce compte Windows : la clé de récupération rouvre la base (séquestre). */
@@ -40,6 +41,7 @@ export function DatabaseLockedScreen() {
           {t('dbLocked.submit')}
         </Button>
       </form>
+      <RestoreBackupButton />
     </AuthLayout>
   );
 }
@@ -60,6 +62,7 @@ export function FatalScreen({ message }: { message: string }) {
       <Button variant="secondary" onClick={() => void refresh()}>
         {t('fatal.retry')}
       </Button>
+      <RestoreBackupButton />
     </AuthLayout>
   );
 }

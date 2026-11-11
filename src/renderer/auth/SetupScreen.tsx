@@ -6,6 +6,7 @@ import { useT } from '../i18n';
 import { zodResolver } from '../lib/form';
 import { useSession } from '../stores/session';
 import { AuthLayout } from './AuthLayout';
+import { RestoreBackupButton } from './RestoreBackupButton';
 import { formSchemas } from './form-schemas';
 import { useSubmit } from './use-submit';
 
@@ -78,6 +79,7 @@ export function SetupScreen() {
           {t('setup.submit')}
         </Button>
       </form>
+      <RestoreBackupButton hint />
     </AuthLayout>
   );
 }

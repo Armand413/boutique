@@ -4,6 +4,7 @@ import {
   CalendarClock,
   ChartColumn,
   PackagePlus,
+  ShieldAlert,
   ShieldCheck,
   ShoppingCart,
   type LucideIcon,
@@ -187,6 +188,36 @@ function LatestMovements({ movements }: { movements: NonNullable<Dashboard['late
   );
 }
 
+/** Rappel de sauvegarde pour qui gère les sauvegardes (4.10). */
+function BackupReminder() {
+  const t = useT();
+  const navigate = useRouter((state) => state.navigate);
+  const canBackup = useCan('backup.manage');
+  const loader = useCallback(
+    () => (canBackup ? invoke('backup:status') : Promise.resolve(null)),
+    [canBackup],
+  );
+  const { state } = useRemote(loader);
+  if (state.status !== 'ready' || state.data === null) return null;
+  const status = state.data;
+  if (status.passwordSet && !status.reminderDue) return null;
+  return (
+    <div
+      role="alert"
+      className="bg-warning-soft text-warning-soft-foreground flex flex-wrap items-center justify-between gap-4 rounded-md px-4 py-3 text-sm font-medium"
+    >
+      <span>
+        {status.passwordSet
+          ? t('dashboard.backupReminder', { days: status.reminderDays })
+          : t('dashboard.backupPassword')}
+      </span>
+      <Button size="sm" variant="secondary" onClick={() => navigate('settings.backup')}>
+        {t('dashboard.backupOpen')}
+      </Button>
+    </div>
+  );
+}
+
 function Shortcuts() {
   const t = useT();
   const navigate = useRouter((state) => state.navigate);
@@ -252,7 +283,7 @@ export function DashboardPage() {
             <PeriodCard title={t('dashboard.week')} totals={state.data.week} />
             <PeriodCard title={t('dashboard.month')} totals={state.data.month} />
           </section>
-          <section className="grid gap-4 md:grid-cols-3">
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {state.data.lowStock !== null && (
               <AlertTile
                 icon={AlertTriangle}
@@ -273,7 +304,16 @@ export function DashboardPage() {
               value={state.data.openClaims}
               onOpen={canWarranty ? () => navigate('warranty') : null}
             />
+            {state.data.sensitive !== null && (
+              <AlertTile
+                icon={ShieldAlert}
+                label={t('dashboard.sensitive')}
+                value={state.data.sensitive}
+                onOpen={() => navigate('reports')}
+              />
+            )}
           </section>
+          <BackupReminder />
           <div className="grid gap-4 xl:grid-cols-2">
             <Card>
               <CardHeader>

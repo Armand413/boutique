@@ -13,6 +13,12 @@ export interface RouteDefinition {
 export const ROUTES = {
   settings: { labelKey: 'nav.settings', parent: null },
   'settings.appearance': { labelKey: 'nav.settings.appearance', parent: 'settings' },
+  'settings.shop': { labelKey: 'nav.settings.shop', parent: 'settings' },
+  'settings.regional': { labelKey: 'nav.settings.regional', parent: 'settings' },
+  'settings.taxes': { labelKey: 'nav.settings.taxes', parent: 'settings' },
+  'settings.printing': { labelKey: 'nav.settings.printing', parent: 'settings' },
+  'settings.security': { labelKey: 'nav.settings.security', parent: 'settings' },
+  'settings.backup': { labelKey: 'nav.settings.backup', parent: 'settings' },
   about: { labelKey: 'nav.about', parent: null },
   users: { labelKey: 'nav.users', parent: null },
   audit: { labelKey: 'nav.audit', parent: null },
