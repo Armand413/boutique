@@ -47,6 +47,7 @@ export const catalogFr = {
   'products.manageCategories': 'Catégories et caractéristiques',
   'products.manageBrands': 'Marques',
   'products.search': 'Rechercher un produit',
+  'products.filters': 'Recherche et filtres',
   'products.searchPlaceholder': 'Nom, marque, modèle, référence ou code-barres',
   'products.filter.category': 'Famille ou catégorie',
   'products.filter.allCategories': 'Toutes les familles',

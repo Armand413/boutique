@@ -48,6 +48,7 @@ export const catalogEn: Readonly<Record<keyof typeof catalogFr, string>> = {
   'products.manageCategories': 'Categories and specifications',
   'products.manageBrands': 'Brands',
   'products.search': 'Search a product',
+  'products.filters': 'Search and filters',
   'products.searchPlaceholder': 'Name, brand, model, reference or barcode',
   'products.filter.category': 'Family or category',
   'products.filter.allCategories': 'All families',

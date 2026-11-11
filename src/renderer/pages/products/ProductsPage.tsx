@@ -640,7 +640,7 @@ export function ProductsPage() {
       )}
       {state.status === 'ready' && (
         <>
-          <section role="search" className="flex flex-col gap-4" aria-label={t('products.search')}>
+          <section role="search" className="flex flex-col gap-4" aria-label={t('products.filters')}>
             <div className="flex flex-col gap-2">
               <label htmlFor="products-search" className="text-sm font-medium">
                 {t('products.search')}

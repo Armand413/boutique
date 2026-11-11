@@ -237,7 +237,6 @@ export function ProductFormDialog({
   };
 
   const onSubmit = handleSubmit(async (values) => {
-    clearErrors();
     let valid = true;
     const attributes: CreateProductInput['attributes'] = [];
     for (const definition of definitions) {
@@ -326,7 +325,16 @@ export function ProductFormDialog({
           </DialogTitle>
           <DialogDescription>{t('product.form.description')}</DialogDescription>
         </DialogHeader>
-        <form onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-4" noValidate>
+        <form
+          onSubmit={(event) => {
+            // Erreurs posées à la main (caractéristiques, montants) : effacées avant chaque envoi,
+            // sinon React Hook Form les garde et bloque la soumission.
+            clearErrors();
+            void onSubmit(event);
+          }}
+          className="flex flex-col gap-4"
+          noValidate
+        >
           <TextField
             label={t('product.form.name')}
             autoFocus

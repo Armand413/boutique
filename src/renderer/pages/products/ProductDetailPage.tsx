@@ -31,6 +31,7 @@ import { PageHeader } from '../../layout/AppShell';
 import { errorMessage, invoke } from '../../lib/ipc';
 import { useRemote } from '../../lib/use-remote';
 import { useRouter } from '../../stores/router';
+import { cn } from '../../lib/cn';
 import { formatAttribute, useCan, useCatalogReferences } from './catalog-ui';
 import { KitDialog, LabelsDialog, VariantDialog, variantName } from './ProductDialogs';
 import { ProductFormDialog } from './ProductFormDialog';
@@ -40,9 +41,17 @@ type Dialog =
   | { kind: 'variant' | 'kit'; variant: VariantDetail }
   | null;
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className={cn('flex flex-col gap-1', className)}>
       <dt className="text-muted-foreground text-sm">{label}</dt>
       <dd className="text-base">{children}</dd>
     </div>
@@ -169,15 +178,13 @@ function InfoCard({
               ? notSet
               : t('detail.weightValue', { weight: product.weightKg.toLocaleString('fr-FR') })}
           </Field>
-          <div className="col-span-3">
-            <Field label={t('detail.description')}>
-              {product.description === null ? (
-                notSet
-              ) : (
-                <span className="whitespace-pre-line">{product.description}</span>
-              )}
-            </Field>
-          </div>
+          <Field label={t('detail.description')} className="col-span-3">
+            {product.description === null ? (
+              notSet
+            ) : (
+              <span className="whitespace-pre-line">{product.description}</span>
+            )}
+          </Field>
         </dl>
         <Photo product={product} canEdit={canEdit} onChange={onChange} />
       </CardContent>
