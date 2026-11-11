@@ -10,9 +10,12 @@ import {
 import { developmentCsp } from './security/csp';
 import { installSecurityGuards } from './security/guards';
 import { createMainWindow, preloadPathFrom } from './security/window';
+import { createAuthorizer } from './ipc/authorize';
 import { registerIpc } from './ipc/register';
 import { createHandlers } from './ipc/handlers';
+import { safeStorageProtector } from './security/safe-storage';
 import { PreferencesService } from './services/preferences-service';
+import { AppRuntime } from './system/runtime';
 
 const devServerUrl = app.isPackaged ? undefined : process.env.ELECTRON_RENDERER_URL;
 const isDevelopment = devServerUrl !== undefined;
@@ -43,6 +46,13 @@ function configureUserDataForTests(): void {
   }
 }
 
+/** Tests de bout en bout uniquement : délai d'inactivité court, ignoré dans l'application installée. */
+function testIdleLockOverride(): { idleLockSecondsOverride?: number } {
+  const seconds = Number(process.env.BOUTIQUE_TEST_IDLE_SECONDS);
+  if (app.isPackaged || !Number.isInteger(seconds) || seconds <= 0) return {};
+  return { idleLockSecondsOverride: seconds };
+}
+
 function focusMainWindow(): void {
   const [window] = BrowserWindow.getAllWindows();
   if (window === undefined) return;
@@ -62,8 +72,17 @@ async function start(): Promise<void> {
   handleAppScheme(join(__dirname, '../renderer'));
   if (isDevelopment) applyDevelopmentCsp(devServerUrl);
 
+  const runtime = new AppRuntime({
+    dataDirectory: join(app.getPath('userData'), 'donnees'),
+    protector: safeStorageProtector,
+    ...testIdleLockOverride(),
+  });
+  const status = await runtime.start();
+  logger.info('Base de données', { state: status.state });
+  app.on('will-quit', () => runtime.close());
+
   const preferences = new PreferencesService(join(app.getPath('userData'), 'preferences.json'));
-  registerIpc(createHandlers({ preferences }), trustedOrigins);
+  registerIpc(createHandlers({ preferences, runtime }), createAuthorizer(runtime), trustedOrigins);
 
   if (!isDevelopment) Menu.setApplicationMenu(null);
   const window = createMainWindow({
