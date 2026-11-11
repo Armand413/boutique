@@ -24,6 +24,11 @@ export function translate(
   });
 }
 
+/** Vrai si `key` est une clé connue (clés construites à partir d'un code renvoyé par le service). */
+export function isTranslationKey(key: string): key is TranslationKey {
+  return Object.hasOwn(fr, key);
+}
+
 /** Hook de traduction : suit la langue choisie dans les préférences. */
 export function useT(): Translate {
   const language = usePreferences((state) => state.preferences.language);

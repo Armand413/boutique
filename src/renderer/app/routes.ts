@@ -38,12 +38,14 @@ export const ROUTES = {
   inventory: { labelKey: 'nav.inventory', parent: null },
   'inventory.detail': { labelKey: 'nav.inventory.detail', parent: 'inventory' },
   warranty: { labelKey: 'nav.warranty', parent: null },
+  dashboard: { labelKey: 'nav.dashboard', parent: null },
+  reports: { labelKey: 'nav.reports', parent: null },
   'dev.gallery': { labelKey: 'nav.dev.gallery', parent: null },
 } as const satisfies Record<string, { labelKey: TranslationKey; parent: string | null }>;
 
 export type RouteName = keyof typeof ROUTES;
 
-export const DEFAULT_ROUTE: RouteName = 'settings';
+export const DEFAULT_ROUTE: RouteName = 'dashboard';
 
 export function routeDefinition(name: RouteName): RouteDefinition {
   return ROUTES[name];

@@ -2,6 +2,7 @@ import { catalogFr } from './catalog-fr';
 import { stockFr } from './stock-fr';
 import { salesFr } from './sales-fr';
 import { inventoryFr } from './inventory-fr';
+import { reportsFr } from './reports-fr';
 
 /** Textes de l'interface en français (langue par défaut). */
 export const fr = {
@@ -9,6 +10,7 @@ export const fr = {
   ...stockFr,
   ...salesFr,
   ...inventoryFr,
+  ...reportsFr,
   'app.name': 'Boutique Gestion',
   'app.skipToContent': 'Aller au contenu principal',
 

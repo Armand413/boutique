@@ -29,6 +29,8 @@ import { SaleDetailPage } from '../pages/sales/SaleDetailPage';
 import { SalesPage } from '../pages/sales/SalesPage';
 import { InventoriesPage, InventoryDetailPage } from '../pages/inventory/InventoryPages';
 import { WarrantyPage } from '../pages/warranty/WarrantyPage';
+import { DashboardPage } from '../pages/dashboard/DashboardPage';
+import { ReportsPage } from '../pages/reports/ReportsPage';
 import { toast } from '../components/ui/toast';
 import { errorMessage, invoke } from '../lib/ipc';
 import { usePreferences } from '../stores/preferences';
@@ -71,6 +73,8 @@ const PAGES: Readonly<Record<Exclude<RouteName, 'dev.gallery'>, ComponentType>> 
   inventory: InventoriesPage,
   'inventory.detail': InventoryDetailPage,
   warranty: WarrantyPage,
+  dashboard: DashboardPage,
+  reports: ReportsPage,
 };
 
 /** Écran refusé si la session n'a pas la permission (le service le refuserait aussi). */

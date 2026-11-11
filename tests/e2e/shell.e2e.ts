@@ -173,5 +173,5 @@ test('reprend sur l’écran de connexion après une déconnexion, sans écran h
   await page.getByRole('button', { name: 'Se déconnecter' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Connexion' })).toBeVisible();
   await login(page, ADMIN.username, ADMIN.password);
-  await expect(page.getByRole('heading', { level: 1, name: 'Paramètres' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Tableau de bord' })).toBeVisible();
 });

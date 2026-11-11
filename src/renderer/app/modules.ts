@@ -1,5 +1,7 @@
 import {
+  ChartColumn,
   Info,
+  LayoutDashboard,
   LayoutPanelTop,
   Package,
   CalendarClock,
@@ -36,6 +38,12 @@ export interface ModuleEntry {
  * Modules de la barre latérale (A.3). Un module n'apparaît ici que lorsqu'il est livré.
  */
 export const MODULES: readonly ModuleEntry[] = [
+  {
+    route: 'dashboard',
+    labelKey: 'nav.dashboard',
+    icon: LayoutDashboard,
+    permission: 'dashboard.view',
+  },
   { route: 'pos', labelKey: 'nav.pos', icon: ShoppingCart, permission: 'pos.use' },
   { route: 'sales', labelKey: 'nav.sales', icon: Receipt, permission: 'sale.view' },
   { route: 'quotes', labelKey: 'nav.quotes', icon: ClipboardList, permission: 'quote.manage' },
@@ -62,6 +70,7 @@ export const MODULES: readonly ModuleEntry[] = [
   },
   { route: 'warranty', labelKey: 'nav.warranty', icon: ShieldCheck, permission: 'warranty.manage' },
   { route: 'suppliers', labelKey: 'nav.suppliers', icon: Truck, permission: 'supplier.manage' },
+  { route: 'reports', labelKey: 'nav.reports', icon: ChartColumn, permission: 'report.view' },
   { route: 'users', labelKey: 'nav.users', icon: Users, permission: 'user.manage' },
   { route: 'audit', labelKey: 'nav.audit', icon: ScrollText, permission: 'audit.view' },
   { route: 'account', labelKey: 'nav.account', icon: UserRound },
