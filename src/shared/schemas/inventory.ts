@@ -119,6 +119,7 @@ export const claimSchema = z.strictObject({
   serialNumber: z.string(),
   productName: z.string(),
   customerName: z.string().nullable(),
+  supplierId: id.nullable(),
   supplierName: z.string().nullable(),
   issue: z.string(),
   status: z.enum(CLAIM_STATUSES),

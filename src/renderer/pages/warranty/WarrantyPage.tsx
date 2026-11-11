@@ -74,7 +74,9 @@ function ClaimDialog({
   const suppliers = useSuppliers();
   const { error, submit } = useSubmit();
   const [issue, setIssue] = useState('');
-  const [supplier, setSupplier] = useState(NONE);
+  const [supplier, setSupplier] = useState(
+    mode.kind === 'update' && mode.claim.supplierId !== null ? String(mode.claim.supplierId) : NONE,
+  );
   const next = mode.kind === 'update' ? NEXT[mode.claim.status] : [];
   const [status, setStatus] = useState<ClaimStatus>(next[0] ?? 'received');
   const [resolution, setResolution] = useState(

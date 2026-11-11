@@ -31,6 +31,7 @@ interface ClaimRow {
   serial_number: string;
   product_name: string;
   customer_name: string | null;
+  supplier_id: number | null;
   supplier_name: string | null;
   issue: string;
   status: ClaimStatus;
@@ -43,7 +44,7 @@ interface ClaimRow {
 
 const CLAIM_SELECT = `
   SELECT w.id, w.serial_unit_id, u.serial_number, p.name AS product_name, c.full_name AS customer_name,
-         sp.name AS supplier_name, w.issue, w.status, w.resolution, w.warranty_expired, w.opened_at, w.closed_at,
+         w.supplier_id, sp.name AS supplier_name, w.issue, w.status, w.resolution, w.warranty_expired, w.opened_at, w.closed_at,
          us.full_name AS user_name
   FROM warranty_claims w
   JOIN serial_units u ON u.id = w.serial_unit_id
@@ -60,6 +61,7 @@ function toClaim(row: ClaimRow): Claim {
     serialNumber: row.serial_number,
     productName: row.product_name,
     customerName: row.customer_name,
+    supplierId: row.supplier_id,
     supplierName: row.supplier_name,
     issue: row.issue,
     status: row.status,

@@ -648,11 +648,7 @@ export function InventoryDetailPage() {
             >
               {t('inventory.resume')}
             </Button>
-            <Button
-              variant="success"
-              disabled={!detail.canValidate}
-              onClick={() => setConfirm('validate')}
-            >
+            <Button disabled={!detail.canValidate} onClick={() => setConfirm('validate')}>
               {t('inventory.validate')}
             </Button>
           </>
