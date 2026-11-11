@@ -5,6 +5,7 @@ import { appendAudit } from '../audit/audit-log';
 import type { Db } from '../db/types';
 import type { KeyStore } from '../db/keystore';
 import { getSetting, setSetting } from '../settings/settings-repository';
+import { Exclusive } from '../system/exclusive';
 import { requireSession } from './authorization';
 import {
   assertPasswordAcceptable,
@@ -151,7 +152,17 @@ export class AuthService {
    * Récupération du compte administrateur par la clé de récupération (B.1).
    * La clé utilisée est aussitôt remplacée : la nouvelle est renvoyée pour être conservée.
    */
-  async recoverAdmin(username: string, recoveryKey: string, newPassword: string): Promise<string> {
+  recoverAdmin(username: string, recoveryKey: string, newPassword: string): Promise<string> {
+    return this.recovery.run(() => this.recoverAdminOnce(username, recoveryKey, newPassword));
+  }
+
+  private readonly recovery = new Exclusive('Une récupération est déjà en cours.');
+
+  private async recoverAdminOnce(
+    username: string,
+    recoveryKey: string,
+    newPassword: string,
+  ): Promise<string> {
     const now = this.clock();
     if (now < this.recoveryLockedUntil) {
       throw new AppError(

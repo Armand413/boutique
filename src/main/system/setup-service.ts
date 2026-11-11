@@ -9,6 +9,7 @@ import { countUsers, insertUser } from '../auth/user-repository';
 import type { KeyStore } from '../db/keystore';
 import type { Db } from '../db/types';
 import { getSetting, setSetting } from '../settings/settings-repository';
+import { Exclusive } from './exclusive';
 
 /**
  * Assistant de premier lancement : nom de la boutique, compte administrateur choisi par le patron
@@ -29,7 +30,13 @@ export class SetupService {
     return getSetting(this.db, 'shop.name', z.string());
   }
 
-  async complete(input: SetupInput): Promise<string> {
+  private readonly exclusive = new Exclusive('La configuration est déjà en cours.');
+
+  complete(input: SetupInput): Promise<string> {
+    return this.exclusive.run(() => this.completeOnce(input));
+  }
+
+  private async completeOnce(input: SetupInput): Promise<string> {
     if (this.isCompleted() || countUsers(this.db) > 0) {
       throw new AppError('CONFLICT', 'L’application est déjà configurée.');
     }
