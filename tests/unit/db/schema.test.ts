@@ -62,8 +62,8 @@ describe('migrations', () => {
       )
       .all()
       .filter((t) => !t.name.startsWith('sqlite_') && !t.name.startsWith('products_fts'));
-    // 39 tables métier de l'Annexe E + schema_migrations.
-    expect(tables).toHaveLength(40);
+    // 39 tables métier de l'Annexe E + inventory_unit_scans (migration 0009) + schema_migrations.
+    expect(tables).toHaveLength(41);
     expect(tables.filter((t) => t.strict !== 1).map((t) => t.name)).toEqual([]);
   });
 
