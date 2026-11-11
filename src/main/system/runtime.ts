@@ -20,6 +20,8 @@ import { ImageStore } from '../catalog/image-store';
 import { ProductService } from '../catalog/product-service';
 import { ReferenceService } from '../catalog/reference-service';
 import type { FileDialogs } from '../files/file-dialogs';
+import { StockService } from '../stock/stock-service';
+import { SupplierService } from '../stock/supplier-service';
 
 export interface RuntimeOptions {
   dataDirectory: string;
@@ -38,6 +40,8 @@ export interface Services {
   references: ReferenceService;
   products: ProductService;
   catalogFiles: CatalogFilesService;
+  stock: StockService;
+  suppliers: SupplierService;
 }
 
 /**
@@ -269,6 +273,8 @@ export class AppRuntime {
         dialogs: this.options.dialogs,
         images: new ImageStore(join(this.options.dataDirectory, 'images')),
       }),
+      stock: new StockService(db),
+      suppliers: new SupplierService(db),
     };
   }
 }

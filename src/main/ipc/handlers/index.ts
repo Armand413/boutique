@@ -103,5 +103,26 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
     'catalog:importCommit': ({ token }, context) =>
       services().catalogFiles.commitImport(actor(context), token),
     'labels:generate': (input, context) => services().catalogFiles.labels(actor(context), input),
+    'locations:list': (_input, context) => services().stock.locations(actor(context)),
+    'locations:save': (input, context) => services().stock.saveLocation(actor(context), input),
+    'stock:overview': (input, context) => services().stock.overview(actor(context), input),
+    'stock:valuation': (_input, context) => services().stock.valuation(actor(context)),
+    'stock:alerts': (_input, context) => services().stock.alerts(actor(context)),
+    'stock:movements': (input, context) => services().stock.movements(actor(context), input),
+    'stock:units': ({ variantId, locationId }, context) =>
+      services().stock.availableUnits(actor(context), variantId, locationId),
+    'stock:exit': (input, context) => services().stock.exit(actor(context), input),
+    'stock:transfer': (input, context) => services().stock.transfer(actor(context), input),
+    'suppliers:list': (_input, context) => services().suppliers.list(actor(context)),
+    'suppliers:get': ({ supplierId }, context) =>
+      services().suppliers.detail(actor(context), supplierId),
+    'suppliers:save': (input, context) => services().suppliers.save(actor(context), input),
+    'suppliers:pay': (input, context) => services().suppliers.pay(actor(context), input),
+    'suppliers:return': (input, context) =>
+      services().suppliers.returnToSupplier(actor(context), input),
+    'receipts:list': ({ limit }, context) => services().suppliers.receipts(actor(context), limit),
+    'receipts:get': ({ receiptId }, context) =>
+      services().suppliers.receipt(actor(context), receiptId),
+    'receipts:create': (input, context) => services().suppliers.receive(actor(context), input),
   };
 }

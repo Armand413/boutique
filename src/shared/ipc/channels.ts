@@ -45,6 +45,23 @@ export const IPC_CHANNELS = [
   'catalog:importAnalyze',
   'catalog:importCommit',
   'labels:generate',
+  'locations:list',
+  'locations:save',
+  'stock:overview',
+  'stock:valuation',
+  'stock:alerts',
+  'stock:movements',
+  'stock:units',
+  'stock:exit',
+  'stock:transfer',
+  'suppliers:list',
+  'suppliers:get',
+  'suppliers:save',
+  'suppliers:pay',
+  'suppliers:return',
+  'receipts:list',
+  'receipts:get',
+  'receipts:create',
 ] as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[number];

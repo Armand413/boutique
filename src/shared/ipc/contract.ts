@@ -51,6 +51,31 @@ import {
   setProductActiveInputSchema,
   updateProductInputSchema,
 } from '../schemas/catalog';
+import {
+  availableUnitSchema,
+  availableUnitsInputSchema,
+  createReceiptInputSchema,
+  locationSchema,
+  movementListInputSchema,
+  movementSchema,
+  receiptDetailSchema,
+  receiptIdInputSchema,
+  receiptListInputSchema,
+  receiptSummarySchema,
+  saveLocationInputSchema,
+  saveSupplierInputSchema,
+  stockAlertsSchema,
+  stockExitInputSchema,
+  stockOverviewInputSchema,
+  stockOverviewOutputSchema,
+  supplierDetailSchema,
+  supplierIdInputSchema,
+  supplierPaymentInputSchema,
+  supplierReturnInputSchema,
+  supplierSchema,
+  transferInputSchema,
+  valuationSchema,
+} from '../schemas/stock';
 
 export const appInfoSchema = z.strictObject({
   name: z.string().min(1),
@@ -253,6 +278,91 @@ export const ipcContract = {
     input: labelsInputSchema,
     output: savedFileOutputSchema,
     access: needs('product.view'),
+  },
+  'locations:list': {
+    input: noInput,
+    output: z.array(locationSchema),
+    access: needs('stock.view'),
+  },
+  'locations:save': {
+    input: saveLocationInputSchema,
+    output: locationSchema,
+    access: needs('settings.manage'),
+  },
+  'stock:overview': {
+    input: stockOverviewInputSchema,
+    output: stockOverviewOutputSchema,
+    access: needs('stock.view'),
+  },
+  'stock:valuation': {
+    input: noInput,
+    output: valuationSchema,
+    access: needs('stock.view'),
+  },
+  'stock:alerts': {
+    input: noInput,
+    output: stockAlertsSchema,
+    access: needs('stock.view'),
+  },
+  'stock:movements': {
+    input: movementListInputSchema,
+    output: z.array(movementSchema),
+    access: needs('stock.view'),
+  },
+  'stock:units': {
+    input: availableUnitsInputSchema,
+    output: z.array(availableUnitSchema),
+    access: needs('stock.view'),
+  },
+  'stock:exit': {
+    input: stockExitInputSchema,
+    output: z.strictObject({ movements: z.number().int() }),
+    access: needs('stock.adjust'),
+  },
+  'stock:transfer': {
+    input: transferInputSchema,
+    output: z.strictObject({ transferId: z.number().int() }),
+    access: needs('stock.adjust'),
+  },
+  'suppliers:list': {
+    input: noInput,
+    output: z.array(supplierSchema),
+    access: needs('supplier.manage'),
+  },
+  'suppliers:get': {
+    input: supplierIdInputSchema,
+    output: supplierDetailSchema,
+    access: needs('supplier.manage'),
+  },
+  'suppliers:save': {
+    input: saveSupplierInputSchema,
+    output: supplierSchema,
+    access: needs('supplier.manage'),
+  },
+  'suppliers:pay': {
+    input: supplierPaymentInputSchema,
+    output: supplierSchema,
+    access: needs('supplier.manage'),
+  },
+  'suppliers:return': {
+    input: supplierReturnInputSchema,
+    output: z.strictObject({ movements: z.number().int() }),
+    access: needs('stock.adjust'),
+  },
+  'receipts:list': {
+    input: receiptListInputSchema,
+    output: z.array(receiptSummarySchema),
+    access: needs('stock.adjust'),
+  },
+  'receipts:get': {
+    input: receiptIdInputSchema,
+    output: receiptDetailSchema,
+    access: needs('stock.adjust'),
+  },
+  'receipts:create': {
+    input: createReceiptInputSchema,
+    output: receiptDetailSchema,
+    access: needs('stock.adjust'),
   },
 } as const satisfies Record<IpcChannel, { input: z.ZodType; output: z.ZodType; access: IpcAccess }>;
 
