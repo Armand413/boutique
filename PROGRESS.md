@@ -249,6 +249,47 @@
 - Une annulation n'efface pas les paiements par carte ou mobile money déjà comptés dans la session : le remboursement de
   ces moyens se fait hors caisse (seules les espèces sortent du tiroir).
 
-## Phase 6 — Inventaire, garantie et SAV : à faire
+## Phase 6 — Inventaire, garantie et SAV : terminée (11/11/2026)
 
-Inventaire (périmètre, comptage au scanner, écarts, validation), réclamations de garantie par numéro de série.
+### Fait
+
+- Migration 0009 : appareils scannés pendant un inventaire (`inventory_unit_scans`), règles portées par triggers (D60).
+- Inventaire (`src/main/inventory`) : périmètre complet, par marque ou par famille/catégorie, un emplacement par session,
+  quantités attendues figées ; comptage au scanner (numéro de série d'abord, puis code-barres ou référence) ou à la main ;
+  mise à zéro explicite des non-comptés ; fin de comptage, reprise, revue des écarts (quantité et valeur au coût moyen
+  pour qui a `cost.view`) ; validation en une transaction : mouvements `inventory`, appareils manquants sortis du stock,
+  appareils retrouvés remis en stock ; double contrôle paramétrable ; annulation sans ajustement (D61).
+- Rapport d'inventaire PDF et Excel (écarts, valeur, signataires).
+- Garantie et SAV (`src/main/warranty`) : recherche par numéro de série ou IMEI (vente, facture, client, fin de garantie,
+  jours restants, historique), ouverture de réclamation (alerte hors garantie), étapes jusqu'à la clôture avec solution,
+  fournisseur associé, liste des réclamations en cours, garanties qui expirent sous 30 jours (D62).
+- Écrans : Inventaires (historique, création), assistant d'inventaire en étapes (scan, comptage, écarts, validation,
+  rapports) et Garantie et SAV (recherche, réclamations en cours, garanties qui expirent).
+- 17 canaux IPC validés par Zod, droits vérifiés dans les services (`inventory.manage`, `inventory.validate`,
+  `warranty.manage`).
+
+### Vérifications de fin de phase
+
+| Contrôle            | Résultat                                                                                                                                                 |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run typecheck` | 0 erreur                                                                                                                                                 |
+| `npm run lint`      | 0 erreur, 0 avertissement                                                                                                                                |
+| `npm test`          | 237 tests verts (8 pour l’inventaire et la garantie)                                                                                                     |
+| `npm run test:e2e`  | 31 tests verts sur l’application compilée (+ 1 capture ignorée hors demande)                                                                             |
+| WCAG AA             | axe-core clair et sombre : inventaires (vide, historique), nouvel inventaire, comptage, écarts, garantie (recherche, réclamation, en cours, expirations) |
+| `npm audit`         | 0 faille en production, aucune critique                                                                                                                  |
+
+### Corrigé pendant la phase
+
+- La mise à jour d'une réclamation effaçait son fournisseur (identifiant absent du schéma renvoyé).
+- Le champ de quantité ne suivait pas les scans d'un article non suivi.
+- Bouton vert de validation sous le contraste AA en taille normale (D63).
+
+### Reste à valider / limites
+
+- Lecteur de codes-barres réel : testé par saisie clavier + Entrée.
+- Le double contrôle de l'inventaire se règle dans les Paramètres (phase 8) ; désactivé par défaut.
+
+## Phase 7 — Tableau de bord, rapports par famille, exports : à faire
+
+Tableau de bord, rapports (ventes par famille, marges, stock, crédits, garanties), exports PDF et Excel.
