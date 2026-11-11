@@ -28,6 +28,9 @@ export const DEFAULT_SETTINGS: Readonly<Record<string, unknown>> = {
   'payment.methods': ['cash', 'mobile_money', 'card', 'transfer', 'cheque'],
   // Plafonds de remise en centièmes de pourcent (1000 = 10 %) ; null = sans plafond (D52).
   'pos.discount_caps': { seller: 1000, manager: 3000, admin: null },
+  // Imprimante de tickets : null = simulateur (fichier) ; « tcp://adresse:9100 » pour une imprimante réseau (D55).
+  'printer.receipt': null,
+  'printer.receipt_width': 48,
 };
 
 function seedRolesAndPermissions(db: Db): void {

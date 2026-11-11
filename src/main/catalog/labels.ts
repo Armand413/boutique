@@ -1,7 +1,7 @@
 import bwipjs from 'bwip-js/node';
-import pdfmake from 'pdfmake';
 import type { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { formatMoney } from '@shared/format/money';
+import { MM, renderPdf } from '../printing/pdf';
 
 export interface LabelData {
   name: string;
@@ -15,30 +15,11 @@ export interface LabelData {
 
 export type LabelLayout = 'a4' | 'roll';
 
-const MM = 72 / 25.4;
 /** Planche A4 classique de 3 × 8 étiquettes de 70 × 37 mm ; rouleau de 50 × 30 mm. */
 const LAYOUTS = {
   a4: { width: 70 * MM, height: 37 * MM, columns: 3, rows: 8 },
   roll: { width: 50 * MM, height: 30 * MM, columns: 1, rows: 1 },
 } as const;
-
-/** Polices PDF standard : aucun fichier de police lu sur le disque. */
-const STANDARD_FONTS = new Set([
-  'Helvetica',
-  'Helvetica-Bold',
-  'Helvetica-Oblique',
-  'Helvetica-BoldOblique',
-]);
-pdfmake.setFonts({
-  Helvetica: {
-    normal: 'Helvetica',
-    bold: 'Helvetica-Bold',
-    italics: 'Helvetica-Oblique',
-    bolditalics: 'Helvetica-BoldOblique',
-  },
-});
-pdfmake.setUrlAccessPolicy(() => false);
-pdfmake.setLocalAccessPolicy((path) => STANDARD_FONTS.has(path));
 
 /** Code 128 : lisible par tous les lecteurs, accepte lettres, chiffres et ponctuation. */
 async function barcodePng(code: string): Promise<string> {
@@ -109,7 +90,7 @@ export async function renderLabels(
             index === 0 ? cell : [{ text: '', pageBreak: 'before' as const }, cell],
           ),
   };
-  return pdfmake.createPdf(document).getBuffer();
+  return renderPdf(document);
 }
 
 function sheetTables(

@@ -124,5 +124,58 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
     'receipts:get': ({ receiptId }, context) =>
       services().suppliers.receipt(actor(context), receiptId),
     'receipts:create': (input, context) => services().suppliers.receive(actor(context), input),
+    'customers:search': ({ query, limit, withDebtOnly }, context) =>
+      services().customers.search(actor(context), query, limit, withDebtOnly ?? false),
+    'customers:get': ({ customerId }, context) =>
+      services().customers.get(actor(context), customerId),
+    'customers:save': (input, context) => services().customers.save(actor(context), input),
+    'customers:payDebt': (input, context) => services().customers.payDebt(actor(context), input),
+    'cash:current': (_input, context) => services().cashSessions.current(actor(context)),
+    'cash:open': ({ openingFloat }, context) =>
+      services().cashSessions.open(actor(context), openingFloat),
+    'cash:move': ({ direction, amount, reason }, context) =>
+      services().cashSessions.move(actor(context), direction, amount, reason),
+    'cash:close': ({ countedCash, notes }, context) =>
+      services().cashSessions.close(actor(context), countedCash, notes),
+    'cash:list': ({ limit }, context) => services().cashSessions.list(actor(context), limit),
+    'sales:preview': ({ lines, globalDiscount, quoteId }, context) =>
+      services().sales.preview(actor(context), lines, globalDiscount, quoteId),
+    'sales:checkout': (input, context) => services().sales.checkout(actor(context), input),
+    'sales:hold': (input, context) => services().sales.hold(actor(context), input),
+    'sales:held': (_input, context) => services().sales.heldSales(actor(context)),
+    'sales:resume': ({ saleId }, context) => services().sales.resume(actor(context), saleId),
+    'sales:discard': ({ saleId }, context) => {
+      services().sales.discard(actor(context), saleId);
+      return null;
+    },
+    'sales:list': (input, context) => services().sales.list(actor(context), input),
+    'sales:get': ({ saleId }, context) => services().sales.detail(actor(context), saleId),
+    'sales:cancel': ({ saleId, reason }, context) =>
+      services().sales.cancel(actor(context), saleId, reason),
+    'sales:return': (input, context) => services().sales.returnItems(actor(context), input),
+    'quotes:list': ({ status, limit }, context) =>
+      services().quotes.list(actor(context), status, limit),
+    'quotes:get': ({ quoteId }, context) => services().quotes.get(actor(context), quoteId),
+    'quotes:save': (input, context) => services().quotes.save(actor(context), input),
+    'quotes:setStatus': ({ quoteId, status }, context) =>
+      services().quotes.setStatus(actor(context), quoteId, status),
+    'quotes:toCart': ({ quoteId }, context) => services().quotes.toCart(actor(context), quoteId),
+    'installments:list': ({ scope, limit }, context) =>
+      services().followups.installments(actor(context), scope, limit),
+    'deliveries:list': ({ status, limit }, context) =>
+      services().followups.deliveries(actor(context), status, limit),
+    'deliveries:update': ({ deliveryId, status }, context) => {
+      services().followups.updateDelivery(actor(context), deliveryId, status);
+      return null;
+    },
+    'documents:ticketText': ({ saleId }, context) => ({
+      lines: services().documents.ticketText(actor(context), saleId),
+    }),
+    'documents:printTicket': ({ saleId }, context) =>
+      services().documents.printTicket(actor(context), saleId),
+    'documents:saveSale': ({ saleId, kind }, context) =>
+      services().documents.saveSaleDocument(actor(context), saleId, kind),
+    'documents:saveQuote': ({ quoteId }, context) =>
+      services().documents.saveQuote(actor(context), quoteId),
   };
 }

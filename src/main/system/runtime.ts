@@ -22,6 +22,12 @@ import { ReferenceService } from '../catalog/reference-service';
 import type { FileDialogs } from '../files/file-dialogs';
 import { StockService } from '../stock/stock-service';
 import { SupplierService } from '../stock/supplier-service';
+import { CashSessionService } from '../sales/cash-session-service';
+import { CustomerService } from '../sales/customer-service';
+import { FollowupService } from '../sales/followup-service';
+import { QuoteService, expireQuotes } from '../sales/quote-service';
+import { SaleService } from '../sales/sale-service';
+import { DocumentService } from '../printing/document-service';
 
 export interface RuntimeOptions {
   dataDirectory: string;
@@ -42,6 +48,12 @@ export interface Services {
   catalogFiles: CatalogFilesService;
   stock: StockService;
   suppliers: SupplierService;
+  customers: CustomerService;
+  cashSessions: CashSessionService;
+  sales: SaleService;
+  quotes: QuoteService;
+  followups: FollowupService;
+  documents: DocumentService;
 }
 
 /**
@@ -250,6 +262,9 @@ export class AppRuntime {
   private createServices(db: Db, key: Buffer): Services {
     const sessions = new SessionManager();
     const products = new ProductService(db);
+    const customers = new CustomerService(db);
+    const quotes = new QuoteService(db);
+    expireQuotes(db);
     return {
       db,
       sessions,
@@ -275,6 +290,18 @@ export class AppRuntime {
       }),
       stock: new StockService(db),
       suppliers: new SupplierService(db),
+      customers,
+      cashSessions: new CashSessionService(db),
+      sales: new SaleService(db),
+      quotes,
+      followups: new FollowupService(db),
+      documents: new DocumentService({
+        db,
+        dialogs: this.options.dialogs,
+        quotes,
+        customers,
+        simulatorDirectory: join(this.options.dataDirectory, 'tickets-simules'),
+      }),
     };
   }
 }

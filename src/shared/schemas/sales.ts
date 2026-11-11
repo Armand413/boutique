@@ -435,3 +435,13 @@ export const DOCUMENT_KINDS = ['ticket', 'invoice', 'warranty', 'delivery_note']
 export const documentInputSchema = z.strictObject({ saleId: id, kind: z.enum(DOCUMENT_KINDS) });
 export const quoteDocumentInputSchema = z.strictObject({ quoteId: id });
 export const ticketTextSchema = z.strictObject({ lines: z.array(z.string()) });
+
+export const previewInputSchema = z.strictObject({
+  lines: z.array(cartLineSchema).max(300),
+  globalDiscount: discountSchema.nullable(),
+  quoteId: id.nullable(),
+});
+export const savedSchema = z.strictObject({ saved: z.boolean() });
+export const printedSchema = z.strictObject({ simulated: z.boolean() });
+export const quoteCartSchema = heldCartSchema.omit({ heldSaleId: true }).extend({ quoteId: id });
+export type QuoteCart = z.infer<typeof quoteCartSchema>;
