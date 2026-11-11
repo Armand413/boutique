@@ -100,6 +100,57 @@
   tests ; plafonds de remise par rôle (phase 5) et alertes anti-fraude (phase 8) restent à faire.
 - Réglage du délai de verrouillage dans l'interface : phase 8 (paramètres) ; valeur par défaut 5 min.
 
-## Phase 3 — Catalogue : à faire
+## Phase 3 — Catalogue : terminée (11/11/2026)
 
-Familles, catégories, attributs techniques, produits, variantes, IMEI et numéros de série, kits, import/export, étiquettes.
+### Fait
+
+- **Référentiels** : familles et catégories sur trois niveaux, marques, caractéristiques techniques par catégorie
+  (texte, nombre, liste de choix, oui/non ; unité, obligatoire, filtrable) héritées par les sous-catégories.
+  Modification réservée à l'administrateur (D34), consultation pour tous les rôles du catalogue.
+- **Produits** : ajout rapide et modification (type, suivi, garantie, taxe, seuil, poids, description, caractéristiques
+  contrôlées par type et obligation), archivage et restauration avec confirmation, photo (PNG/JPEG/WebP vérifiés).
+  Variantes (couleur, stockage, RAM, état, codes, prix, prix minimum) ; référence générée si vide (D37).
+  Téléphone toujours en IMEI ; services et kits sans stock ; type figé dès le premier mouvement.
+- **Kits** : composition (recherche des composants, quantités), somme des composants comparée au prix du kit ; ni kit
+  dans un kit, ni changement de type d'un kit composé ou d'un composant.
+- **Droits** : contrôlés dans les services ; prix d'achat et coût moyen retirés des réponses, de la recherche et des
+  exports sans `cost.view` ; changement de prix soumis à `price.edit` et journalisé (ancien / nouveau).
+- **Recherche** : plein texte sans accents par préfixes, code-barres ou référence exacts en tête (lecteur), filtres par
+  famille (descendance comprise), marque, état, stock bas et caractéristiques (min / max / valeur), tri, pagination
+  côté base. Tableau virtualisé (TanStack Table + Virtual) chargé par pages de 100.
+- **Ctrl+K** : produits et appareils (IMEI 1, IMEI 2 ou numéro de série exact) en plus des écrans.
+- **Import / export** Excel et CSV : mêmes colonnes, analyse avant confirmation, tout ou rien, erreurs par ligne (D36).
+- **Étiquettes** : PDF Code 128, planche A4 ou rouleau, par variante ou par unité suivie (D39).
+- **Écrans** : Produits, Fiche produit technique, Catégories et caractéristiques, Marques, dialogues (produit, variante,
+  kit, étiquettes, import). États chargement / vide / erreur, textes fr/en.
+- Journal d'audit : chaque création, modification, archivage, import, export et génération d'étiquettes.
+
+### Vérifications de fin de phase
+
+| Contrôle            | Résultat                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| `npm run typecheck` | 0 erreur                                                                                          |
+| `npm run lint`      | 0 erreur, 0 avertissement                                                                         |
+| `npm test`          | 191 tests verts (45 pour le catalogue, dont la recherche sur 50 000 produits < 100 ms)            |
+| `npm run test:e2e`  | 24 tests verts sur l'application compilée (+ 1 capture ignorée hors demande)                      |
+| WCAG AA             | axe-core clair et sombre : Produits (vide et rempli), fiche, catégories, marques, formulaire, kit |
+| `npm audit`         | 0 en production (uuid forcé, D33) ; 15 modérées en dev (D13), aucune critique                     |
+
+### Corrigé pendant la phase
+
+- Recherche plein texte réévaluée pour chaque variante : 116 s sur 50 000 produits, ramenée à quelques ms (D42).
+- Première page sans filtre au-delà de 100 ms (tri de lignes complètes) : tri des seuls identifiants.
+- Formulaire produit bloqué après une première erreur sur une caractéristique obligatoire.
+- Liste de définitions de la fiche et zone de recherche non conformes WCAG (trouvé par axe-core).
+
+### Reste à valider / limites
+
+- Impression réelle des étiquettes (imprimante d'étiquettes et lecteur de codes-barres) : à valider sur le matériel.
+- Saisie des IMEI et numéros de série : avec les réceptions de marchandise, phase 4 (D35).
+- Le chunk JavaScript de l'interface atteint ~1,4 Mo : découpage prévu en phase 9.
+- Sous-agent `security-reviewer` indisponible : revue faite à la main et par les tests (droits par rôle et par PIN,
+  masquage des coûts, refus d'un appel IPC direct par un vendeur, fichiers choisis uniquement par le processus principal).
+
+## Phase 4 — Stock multi-emplacements et fournisseurs : à faire
+
+Mouvements, entrées/sorties, transferts, alertes, valorisation, réceptions (IMEI et numéros de série), fournisseurs.
