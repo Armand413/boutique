@@ -281,6 +281,7 @@ export const kitComponentSchema = z.strictObject({
   salePrice: money,
   stock: z.number().int(),
   isStocked: z.boolean(),
+  trackingMode: trackingModeSchema,
 });
 export type KitComponent = z.infer<typeof kitComponentSchema>;
 
@@ -358,6 +359,7 @@ export const serialLookupInputSchema = z.strictObject({ serial: z.string().trim(
 
 export const serialLookupSchema = z.strictObject({
   id,
+  variantId: id,
   serialNumber: z.string(),
   imei2: z.string().nullable(),
   status: serialStatusSchema,

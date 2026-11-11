@@ -1,10 +1,12 @@
 import { catalogFr } from './catalog-fr';
 import { stockFr } from './stock-fr';
+import { salesFr } from './sales-fr';
 
 /** Textes de l'interface en français (langue par défaut). */
 export const fr = {
   ...catalogFr,
   ...stockFr,
+  ...salesFr,
   'app.name': 'Boutique Gestion',
   'app.skipToContent': 'Aller au contenu principal',
 

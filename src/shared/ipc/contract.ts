@@ -111,6 +111,8 @@ import {
   saleIdInputSchema,
   saleListInputSchema,
   saleSummarySchema,
+  saleUnitSchema,
+  saleUnitsInputSchema,
   saveCustomerInputSchema,
   saveQuoteInputSchema,
   savedSchema,
@@ -559,6 +561,11 @@ export const ipcContract = {
     input: quoteDocumentInputSchema,
     output: savedSchema,
     access: needs('quote.manage'),
+  },
+  'sales:units': {
+    input: saleUnitsInputSchema,
+    output: z.array(saleUnitSchema),
+    access: needs('pos.use'),
   },
 } as const satisfies Record<IpcChannel, { input: z.ZodType; output: z.ZodType; access: IpcAccess }>;
 

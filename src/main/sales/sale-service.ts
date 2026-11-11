@@ -10,6 +10,7 @@ import type {
   ReturnInput,
   SaleDetail,
   SaleListInput,
+  SaleUnit,
   SaleSummary,
   CartLine,
 } from '@shared/schemas/sales';
@@ -19,7 +20,7 @@ import type { Session } from '../auth/session';
 import type { Db } from '../db/types';
 import { applyMovement } from '../stock/movements';
 import { setUnitStatus } from '../stock/units';
-import { defaultLocation, priceCart, toPreview, type PricedCart } from './cart';
+import { defaultLocation, describeLines, priceCart, toPreview, type PricedCart } from './cart';
 import { openSessionId, recordPayment } from './payments';
 import { finishQuoteConversion, expireQuotes } from './quote-service';
 import { readSaleDetail, listSales } from './sale-queries';
@@ -210,6 +211,30 @@ export class SaleService {
     return { heldSaleId };
   }
 
+  /** Unités vendables d'un article suivi, tous emplacements confondus (caisse). */
+  availableUnits(actor: Session, variantId: number): SaleUnit[] {
+    requirePermission(actor, 'pos.use');
+    return this.db
+      .prepare<
+        [number],
+        { id: number; serial_number: string; imei2: string | null; location_name: string }
+      >(
+        `SELECT u.id, u.serial_number, u.imei2, l.name AS location_name
+         FROM serial_units u
+         JOIN stock_movements m ON m.id = (SELECT max(id) FROM stock_movements WHERE serial_unit_id = u.id)
+         JOIN stock_locations l ON l.id = m.location_id
+         WHERE u.variant_id = ? AND u.status = 'in_stock' AND m.quantity_delta > 0
+         ORDER BY l.is_default DESC, u.serial_number`,
+      )
+      .all(variantId)
+      .map((row) => ({
+        id: row.id,
+        serialNumber: row.serial_number,
+        imei2: row.imei2,
+        locationName: row.location_name,
+      }));
+  }
+
   heldSales(actor: Session): HeldSale[] {
     requirePermission(actor, 'pos.use');
     return this.db
@@ -244,10 +269,12 @@ export class SaleService {
   resume(actor: Session, saleId: number): HeldCart {
     requirePermission(actor, 'pos.use');
     const sale = this.heldRow(saleId);
+    const lines = cartFromLines(this.db, saleId);
     return {
       heldSaleId: saleId,
       customerId: sale.customer_id,
-      lines: cartFromLines(this.db, saleId),
+      lines,
+      display: describeLines(this.db, lines),
     };
   }
 

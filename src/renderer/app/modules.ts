@@ -2,6 +2,12 @@ import {
   Info,
   LayoutPanelTop,
   Package,
+  CalendarClock,
+  ClipboardList,
+  Contact,
+  Receipt,
+  ShoppingCart,
+  PackageCheck,
   Truck,
   Warehouse,
   ScrollText,
@@ -28,6 +34,22 @@ export interface ModuleEntry {
  * Modules de la barre latérale (A.3). Un module n'apparaît ici que lorsqu'il est livré.
  */
 export const MODULES: readonly ModuleEntry[] = [
+  { route: 'pos', labelKey: 'nav.pos', icon: ShoppingCart, permission: 'pos.use' },
+  { route: 'sales', labelKey: 'nav.sales', icon: Receipt, permission: 'sale.view' },
+  { route: 'quotes', labelKey: 'nav.quotes', icon: ClipboardList, permission: 'quote.manage' },
+  { route: 'customers', labelKey: 'nav.customers', icon: Contact, permission: 'customer.manage' },
+  {
+    route: 'installments',
+    labelKey: 'nav.installments',
+    icon: CalendarClock,
+    permission: 'customer.manage',
+  },
+  {
+    route: 'deliveries',
+    labelKey: 'nav.deliveries',
+    icon: PackageCheck,
+    permission: 'delivery.manage',
+  },
   { route: 'products', labelKey: 'nav.products', icon: Package, permission: 'product.view' },
   { route: 'stock', labelKey: 'nav.stock', icon: Warehouse, permission: 'stock.view' },
   { route: 'suppliers', labelKey: 'nav.suppliers', icon: Truck, permission: 'supplier.manage' },

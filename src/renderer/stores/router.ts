@@ -7,6 +7,9 @@ const MAX_HISTORY = 50;
 export interface RouteParams {
   productId?: number;
   supplierId?: number;
+  saleId?: number;
+  customerId?: number;
+  quoteId?: number;
   /** Écran Stock ouvert sur les articles sous le seuil d'alerte. */
   lowStock?: boolean;
 }
@@ -27,7 +30,14 @@ export interface RouterState {
 }
 
 function sameParams(a: RouteParams, b: RouteParams): boolean {
-  return a.productId === b.productId && a.supplierId === b.supplierId && a.lowStock === b.lowStock;
+  return (
+    a.productId === b.productId &&
+    a.supplierId === b.supplierId &&
+    a.lowStock === b.lowStock &&
+    a.saleId === b.saleId &&
+    a.customerId === b.customerId &&
+    a.quoteId === b.quoteId
+  );
 }
 
 /** Routeur en mémoire : l'application n'a pas d'URL visible, seulement une pile d'écrans. */

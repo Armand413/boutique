@@ -362,6 +362,7 @@ interface ComponentRow {
   sale_price: number;
   stock: number;
   is_stocked: number;
+  tracking_mode: TrackingMode;
 }
 
 export function listKitComponents(db: Db, kitVariantId: number): KitComponent[] {
@@ -369,7 +370,7 @@ export function listKitComponents(db: Db, kitVariantId: number): KitComponent[] 
     .prepare<[number], ComponentRow>(
       `SELECT k.component_variant_id AS variant_id, p.id AS product_id, p.name AS product_name,
               v.sku, v.color, v.storage_gb, v.ram_gb, v.condition, k.quantity, v.sale_price,
-              p.is_stocked,
+              p.is_stocked, p.tracking_mode,
               coalesce((SELECT sum(l.quantity) FROM stock_levels l WHERE l.variant_id = v.id), 0) AS stock
        FROM kit_components k
        JOIN product_variants v ON v.id = k.component_variant_id
@@ -392,6 +393,7 @@ export function listKitComponents(db: Db, kitVariantId: number): KitComponent[] 
       salePrice: row.sale_price,
       stock: row.stock,
       isStocked: row.is_stocked === 1,
+      trackingMode: row.tracking_mode,
     }));
 }
 

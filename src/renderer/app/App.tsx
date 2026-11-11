@@ -21,6 +21,12 @@ import { ReceiptPage } from '../pages/stock/ReceiptPage';
 import { StockPage } from '../pages/stock/StockPage';
 import { SupplierDetailPage } from '../pages/suppliers/SupplierDetailPage';
 import { SuppliersPage } from '../pages/suppliers/SuppliersPage';
+import { CustomerDetailPage, CustomersPage } from '../pages/customers/CustomersPage';
+import { DeliveriesPage, InstallmentsPage } from '../pages/followups/FollowupPages';
+import { PosPage } from '../pages/pos/PosPage';
+import { QuoteEditorPage, QuotesPage } from '../pages/quotes/QuotesPage';
+import { SaleDetailPage } from '../pages/sales/SaleDetailPage';
+import { SalesPage } from '../pages/sales/SalesPage';
 import { toast } from '../components/ui/toast';
 import { errorMessage, invoke } from '../lib/ipc';
 import { usePreferences } from '../stores/preferences';
@@ -51,6 +57,15 @@ const PAGES: Readonly<Record<Exclude<RouteName, 'dev.gallery'>, ComponentType>> 
   'stock.locations': LocationsPage,
   suppliers: SuppliersPage,
   'suppliers.detail': SupplierDetailPage,
+  pos: PosPage,
+  sales: SalesPage,
+  'sales.detail': SaleDetailPage,
+  customers: CustomersPage,
+  'customers.detail': CustomerDetailPage,
+  quotes: QuotesPage,
+  'quotes.edit': QuoteEditorPage,
+  installments: InstallmentsPage,
+  deliveries: DeliveriesPage,
 };
 
 /** Écran refusé si la session n'a pas la permission (le service le refuserait aussi). */
@@ -64,6 +79,7 @@ function useRouteAllowed(route: RouteName): boolean {
 function CurrentPage() {
   const t = useT();
   const current = useRouter((state) => state.current);
+  const params = useRouter((state) => state.params);
   const allowed = useRouteAllowed(current);
   if (!allowed) {
     return (
@@ -83,7 +99,8 @@ function CurrentPage() {
     );
   }
   const Page = PAGES[current];
-  return <Page />;
+  // Un écran repart de zéro quand ses paramètres changent (autre produit, autre devis…).
+  return <Page key={`${current}:${JSON.stringify(params)}`} />;
 }
 
 /** Chaque nouvel utilisateur repart de l'écran d'accueil (aucun écran hérité du précédent). */

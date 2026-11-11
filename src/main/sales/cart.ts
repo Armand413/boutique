@@ -3,7 +3,7 @@ import { AppError } from '@shared/ipc/errors';
 import { formatMoney } from '@shared/format/money';
 import { variantLabel } from '@shared/catalog/tree';
 import type { Condition, ProductType, TrackingMode } from '@shared/catalog/constants';
-import type { CartLine, CartPreview, Discount } from '@shared/schemas/sales';
+import type { CartLine, CartLineDisplay, CartPreview, Discount } from '@shared/schemas/sales';
 import type { Session } from '../auth/session';
 import type { Db } from '../db/types';
 import { getSetting } from '../settings/settings-repository';
@@ -396,4 +396,54 @@ export function toPreview(cart: PricedCart): CartPreview {
     taxIncluded: cart.taxIncluded,
     issues: [...new Set(cart.issues)],
   };
+}
+
+function serialNumbers(db: Db, ids: readonly number[]): string[] {
+  const read = db
+    .prepare<[number], string>('SELECT serial_number FROM serial_units WHERE id = ?')
+    .pluck();
+  return ids.map((unitId) => read.get(unitId) ?? '');
+}
+
+/** Libellés d'un panier repris (attente, devis) : noms, numéros des unités, composants suivis. */
+export function describeLines(db: Db, lines: readonly CartLine[]): CartLineDisplay[] {
+  return lines.map((line) => {
+    const info = variantInfo(db, line.variantId);
+    const components =
+      info.productType !== 'kit'
+        ? []
+        : db
+            .prepare<[number], { component_variant_id: number; quantity: number }>(
+              'SELECT component_variant_id, quantity FROM kit_components WHERE kit_variant_id = ? ORDER BY id',
+            )
+            .all(line.variantId)
+            .map((component) => ({
+              component,
+              info: variantInfo(db, component.component_variant_id),
+            }))
+            .filter(
+              ({ info: componentInfo }) =>
+                componentInfo.isStocked && componentInfo.trackingMode !== 'none',
+            )
+            .map(({ component, info: componentInfo }) => ({
+              variantId: component.component_variant_id,
+              name: componentInfo.name,
+              quantity: component.quantity,
+              serialNumbers: serialNumbers(
+                db,
+                line.components?.find(
+                  (chosen) => chosen.variantId === component.component_variant_id,
+                )?.serialUnitIds ?? [],
+              ),
+            }));
+    return {
+      name: info.name,
+      variantLabel: info.label,
+      sku: info.sku,
+      productType: info.productType,
+      trackingMode: info.trackingMode,
+      serialNumbers: serialNumbers(db, line.serialUnitIds ?? []),
+      components,
+    };
+  });
 }

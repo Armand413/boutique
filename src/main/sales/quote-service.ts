@@ -6,7 +6,7 @@ import { requirePermission } from '../auth/authorization';
 import type { Session } from '../auth/session';
 import type { Db } from '../db/types';
 import { setUnitStatus } from '../stock/units';
-import { defaultLocation, priceCart } from './cart';
+import { defaultLocation, describeLines, priceCart } from './cart';
 import { distribute, includedTax } from './pricing';
 
 type QuoteStatus = QuoteSummary['status'];
@@ -321,16 +321,18 @@ export class QuoteService {
     if (!['draft', 'sent', 'accepted'].includes(detail.quote.status)) {
       throw new AppError('CONFLICT', 'Ce devis n’est plus convertible (expiré ou déjà converti).');
     }
+    const lines = detail.lines.map((line) => ({
+      variantId: line.variantId,
+      quantity: line.quantity,
+      discount: null,
+      quoteLineId: line.id,
+      ...(line.serialUnitId === null ? {} : { serialUnitIds: [line.serialUnitId] }),
+    }));
     return {
       quoteId,
       customerId: detail.customerId,
-      lines: detail.lines.map((line) => ({
-        variantId: line.variantId,
-        quantity: line.quantity,
-        discount: null,
-        quoteLineId: line.id,
-        ...(line.serialUnitId === null ? {} : { serialUnitIds: [line.serialUnitId] }),
-      })),
+      lines,
+      display: describeLines(this.db, lines),
     };
   }
 

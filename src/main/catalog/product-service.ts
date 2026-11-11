@@ -288,6 +288,7 @@ export class ProductService {
     const withSale = actor.permissions.has('sale.view');
     return findSerials(this.db, normalizeSerial(serial)).map((row) => ({
       id: row.id,
+      variantId: row.variant_id,
       serialNumber: row.serial_number,
       imei2: row.imei2,
       status: row.status,

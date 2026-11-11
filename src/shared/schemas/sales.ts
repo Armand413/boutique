@@ -192,10 +192,40 @@ export const heldSaleSchema = z.strictObject({
 });
 export type HeldSale = z.infer<typeof heldSaleSchema>;
 
+/** Ce que la caisse affiche pour une ligne reprise (panier en attente, devis). */
+export const cartLineDisplaySchema = z.strictObject({
+  name: z.string(),
+  variantLabel: z.string(),
+  sku: z.string(),
+  productType: z.enum([
+    'phone',
+    'accessory',
+    'electronics',
+    'appliance',
+    'solar',
+    'part',
+    'service',
+    'kit',
+  ]),
+  trackingMode: z.enum(['none', 'serial', 'imei']),
+  serialNumbers: z.array(z.string()),
+  components: z.array(
+    z.strictObject({
+      variantId: id,
+      name: z.string(),
+      quantity: z.number().int().positive(),
+      serialNumbers: z.array(z.string()),
+    }),
+  ),
+});
+export type CartLineDisplay = z.infer<typeof cartLineDisplaySchema>;
+
 export const heldCartSchema = z.strictObject({
   heldSaleId: id,
   customerId: id.nullable(),
   lines: z.array(cartLineSchema),
+  /** Une entrée par ligne, dans le même ordre. */
+  display: z.array(cartLineDisplaySchema),
 });
 export type HeldCart = z.infer<typeof heldCartSchema>;
 
@@ -442,6 +472,14 @@ export const previewInputSchema = z.strictObject({
   quoteId: id.nullable(),
 });
 export const savedSchema = z.strictObject({ saved: z.boolean() });
+export const saleUnitsInputSchema = z.strictObject({ variantId: id });
+export const saleUnitSchema = z.strictObject({
+  id,
+  serialNumber: z.string(),
+  imei2: z.string().nullable(),
+  locationName: z.string(),
+});
+export type SaleUnit = z.infer<typeof saleUnitSchema>;
 export const printedSchema = z.strictObject({ simulated: z.boolean() });
 export const quoteCartSchema = heldCartSchema.omit({ heldSaleId: true }).extend({ quoteId: id });
 export type QuoteCart = z.infer<typeof quoteCartSchema>;

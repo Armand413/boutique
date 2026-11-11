@@ -93,6 +93,7 @@ export const IPC_CHANNELS = [
   'documents:printTicket',
   'documents:saveSale',
   'documents:saveQuote',
+  'sales:units',
 ] as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[number];

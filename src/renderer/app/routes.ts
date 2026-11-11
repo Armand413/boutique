@@ -26,6 +26,15 @@ export const ROUTES = {
   'stock.locations': { labelKey: 'nav.stock.locations', parent: 'stock' },
   suppliers: { labelKey: 'nav.suppliers', parent: null },
   'suppliers.detail': { labelKey: 'nav.suppliers.detail', parent: 'suppliers' },
+  pos: { labelKey: 'nav.pos', parent: null },
+  sales: { labelKey: 'nav.sales', parent: null },
+  'sales.detail': { labelKey: 'nav.sales.detail', parent: 'sales' },
+  customers: { labelKey: 'nav.customers', parent: null },
+  'customers.detail': { labelKey: 'nav.customers.detail', parent: 'customers' },
+  quotes: { labelKey: 'nav.quotes', parent: null },
+  'quotes.edit': { labelKey: 'nav.quotes.edit', parent: 'quotes' },
+  installments: { labelKey: 'nav.installments', parent: null },
+  deliveries: { labelKey: 'nav.deliveries', parent: null },
   'dev.gallery': { labelKey: 'nav.dev.gallery', parent: null },
 } as const satisfies Record<string, { labelKey: TranslationKey; parent: string | null }>;
 

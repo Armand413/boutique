@@ -61,9 +61,12 @@ export function parseSerialLines(text: string): { serialNumber: string; imei2: s
 export function VariantPicker({
   onPick,
   autoFocus,
+  includeAll = false,
 }: {
   onPick: (row: ProductRow) => void;
   autoFocus?: boolean;
+  /** Tous les articles (kits et services compris), pas seulement ceux qui ont du stock. */
+  includeAll?: boolean;
 }) {
   const t = useT();
   const inputId = useId();
@@ -82,14 +85,17 @@ export function VariantPicker({
       invoke('products:search', {
         query: trimmed,
         status: 'active',
-        excludeKits: true,
+        excludeKits: !includeAll,
         sort: 'name',
         offset: 0,
         limit: 8,
       }).then(
         (result) => {
           if (active)
-            setFound({ query: trimmed, rows: result.rows.filter((row) => row.isStocked) });
+            setFound({
+              query: trimmed,
+              rows: includeAll ? result.rows : result.rows.filter((row) => row.isStocked),
+            });
         },
         (error: unknown) => {
           if (active) toast.error(errorMessage(error));
@@ -100,7 +106,7 @@ export function VariantPicker({
       active = false;
       window.clearTimeout(timer);
     };
-  }, [trimmed]);
+  }, [trimmed, includeAll]);
 
   const pick = (row: ProductRow): void => {
     onPick(row);

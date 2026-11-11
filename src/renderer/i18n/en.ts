@@ -1,11 +1,13 @@
 import { catalogEn } from './catalog-en';
 import { stockEn } from './stock-en';
+import { salesEn } from './sales-en';
 import type { TranslationKey } from './fr';
 
 /** English translation: the type forces every French key to exist here. */
 export const en: Readonly<Record<TranslationKey, string>> = {
   ...catalogEn,
   ...stockEn,
+  ...salesEn,
   'app.name': 'Shop Manager',
   'app.skipToContent': 'Skip to main content',
 

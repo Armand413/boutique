@@ -175,6 +175,8 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
       services().documents.printTicket(actor(context), saleId),
     'documents:saveSale': ({ saleId, kind }, context) =>
       services().documents.saveSaleDocument(actor(context), saleId, kind),
+    'sales:units': ({ variantId }, context) =>
+      services().sales.availableUnits(actor(context), variantId),
     'documents:saveQuote': ({ quoteId }, context) =>
       services().documents.saveQuote(actor(context), quoteId),
   };
