@@ -79,3 +79,15 @@ export async function createAuthHarness(): Promise<AuthHarness> {
 export async function setupShop(harness: AuthHarness): Promise<string> {
   return harness.setup.complete({ shopName: 'Boutique du Plateau', ...ADMIN });
 }
+
+/** Fenêtres de fichiers simulées : chemins fixés par le test (null = annulation). */
+export function fakeDialogs(paths: { open?: string | null; save?: string | null } = {}) {
+  const state = { open: paths.open ?? null, save: paths.save ?? null };
+  return {
+    state,
+    dialogs: {
+      openFile: () => Promise.resolve(state.open),
+      saveFile: () => Promise.resolve(state.save),
+    },
+  };
+}

@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRuntime } from '../../../src/main/system/runtime';
-import { ADMIN, fakeProtector } from './harness';
+import { ADMIN, fakeDialogs, fakeProtector } from './harness';
 
 vi.mock('../../../src/main/logging/logger', () => ({
   logger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -14,7 +14,11 @@ let runtime: AppRuntime | null = null;
 
 function newRuntime(): AppRuntime {
   runtime?.close();
-  runtime = new AppRuntime({ dataDirectory: directory, protector: fakeProtector });
+  runtime = new AppRuntime({
+    dataDirectory: directory,
+    protector: fakeProtector,
+    dialogs: fakeDialogs().dialogs,
+  });
   return runtime;
 }
 
