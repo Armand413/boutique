@@ -10,6 +10,7 @@ export interface RouteParams {
   saleId?: number;
   customerId?: number;
   quoteId?: number;
+  inventoryId?: number;
   /** Écran Stock ouvert sur les articles sous le seuil d'alerte. */
   lowStock?: boolean;
 }
@@ -36,7 +37,8 @@ function sameParams(a: RouteParams, b: RouteParams): boolean {
     a.lowStock === b.lowStock &&
     a.saleId === b.saleId &&
     a.customerId === b.customerId &&
-    a.quoteId === b.quoteId
+    a.quoteId === b.quoteId &&
+    a.inventoryId === b.inventoryId
   );
 }
 

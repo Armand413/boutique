@@ -35,6 +35,9 @@ export const ROUTES = {
   'quotes.edit': { labelKey: 'nav.quotes.edit', parent: 'quotes' },
   installments: { labelKey: 'nav.installments', parent: null },
   deliveries: { labelKey: 'nav.deliveries', parent: null },
+  inventory: { labelKey: 'nav.inventory', parent: null },
+  'inventory.detail': { labelKey: 'nav.inventory.detail', parent: 'inventory' },
+  warranty: { labelKey: 'nav.warranty', parent: null },
   'dev.gallery': { labelKey: 'nav.dev.gallery', parent: null },
 } as const satisfies Record<string, { labelKey: TranslationKey; parent: string | null }>;
 
