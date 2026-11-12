@@ -137,9 +137,7 @@ describe('démarrage de la base', () => {
         const inline = new InlineExecutor(db);
         return {
           execute: <T extends ReportTask>(task: T) =>
-            task.type === 'integrity'
-              ? (verdict as Promise<TaskResult<T>>)
-              : inline.execute(task),
+            task.type === 'integrity' ? (verdict as Promise<TaskResult<T>>) : inline.execute(task),
           close: () => inline.close(),
         };
       },

@@ -213,9 +213,8 @@ describe('vérification par Windows (PowerShell)', () => {
   it.runIf(process.platform === 'win32')(
     'lit la signature et la version d’un exécutable, même au nom piégé',
     async () => {
-      const { windowsExecutableInspector } = await import(
-        '../../../src/main/update/installer-inspector'
-      );
+      const { windowsExecutableInspector } =
+        await import('../../../src/main/update/installer-inspector');
       const node = await windowsExecutableInspector.inspect(process.execPath);
       expect(node.productName).toBe('Node.js');
       expect(node.signature).toBe('valid');

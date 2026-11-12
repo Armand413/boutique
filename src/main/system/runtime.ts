@@ -40,7 +40,10 @@ import { WarrantyService } from '../warranty/warranty-service';
 import { WorkerExecutor, type ReportExecutor } from '../reports/report-executor';
 import { ReportService } from '../reports/report-service';
 import { SettingsService } from '../settings/settings-service';
-import { windowsExecutableInspector, type ExecutableInspector } from '../update/installer-inspector';
+import {
+  windowsExecutableInspector,
+  type ExecutableInspector,
+} from '../update/installer-inspector';
 import { UpdateService, type InstallerLauncher } from '../update/update-service';
 
 export interface RuntimeOptions {
@@ -143,11 +146,13 @@ export class AppRuntime {
       this.status = await this.openWithStoredKey();
     } catch (error) {
       logger.error('Démarrage de la base impossible', { error });
-      this.status = isCorruption(error) ? INTEGRITY_FAILURE : {
-        state: 'error',
-        code: 'STARTUP',
-        message: 'La base de données n’a pas pu être ouverte.',
-      };
+      this.status = isCorruption(error)
+        ? INTEGRITY_FAILURE
+        : {
+            state: 'error',
+            code: 'STARTUP',
+            message: 'La base de données n’a pas pu être ouverte.',
+          };
     }
     return this.getStatus();
   }
