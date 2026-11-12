@@ -85,7 +85,8 @@
 
 @layer base {
   html {
-    font-size: calc(var(--text-scale, 100) * 1%);
+    /* Taille du texte choisie × ajustement à la fenêtre (D92) : toute l'interface est en rem. */
+    font-size: calc(var(--text-scale, 100) * var(--fit-scale, 1) * 1%);
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;

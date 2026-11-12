@@ -107,13 +107,14 @@ test('vente complète au clavier : scan, IMEI, service, attente, encaissement, r
   await scan(page, IMEI);
   await toastShown(page, `Unité ${IMEI} ajoutée.`);
   await pickArticle(page, page, 'Énergie solaire', 'Installation');
-  await page.getByLabel('Remise sur Câble USB-C').fill('10');
+  // Prix négocié (D92) : 2 250 au lieu de 2 500, soit 500 de moins sur les deux câbles.
+  await page.getByLabel('Prix convenu pour Câble USB-C').fill('2250');
   await expect(page.getByTestId('pos-total')).toHaveText(/149\s500/);
   await checkAccessibility(page, 'Caisse (panier)');
 
   await page.keyboard.press('F8');
   await toastShown(page, 'Panier mis en attente.');
-  await expect(page.getByText('Scannez ou recherchez un article')).toBeVisible();
+  await expect(page.getByText('Choisissez un article dans les listes ou scannez-le')).toBeVisible();
   await page.getByRole('button', { name: 'Paniers en attente (1)' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Reprendre' }).click();
   await expect(page.getByTestId('pos-total')).toHaveText(/149\s500/);
@@ -138,7 +139,7 @@ test('vente complète au clavier : scan, IMEI, service, attente, encaissement, r
   await toastShown(page, 'Document enregistré.');
   expect(existsSync(invoice)).toBe(true);
   await page.getByRole('button', { name: 'Nouvelle vente (F2)' }).click();
-  await expect(page.getByText('Scannez ou recherchez un article')).toBeVisible();
+  await expect(page.getByText('Choisissez un article dans les listes ou scannez-le')).toBeVisible();
 
   await scan(page, '0011');
   await expect(page.getByRole('button', { name: /^Encaisser/ })).toBeEnabled();
@@ -227,10 +228,10 @@ test('le vendeur vend dans son plafond de remise et ne peut pas annuler', async 
   await expect(nav(page).getByRole('button', { name: 'Caisse' })).toBeVisible();
   await openTill(page, '0');
   await scan(page, '0011');
-  await page.getByLabel('Remise sur Câble USB-C').fill('15');
+  await page.getByLabel('Prix convenu pour Câble USB-C').fill('2125');
   await expect(page.getByText(/au-delà de votre plafond \(10 %\)/)).toBeVisible();
   await expect(page.getByRole('button', { name: /^Encaisser/ })).toBeDisabled();
-  await page.getByLabel('Remise sur Câble USB-C').fill('10');
+  await page.getByLabel('Prix convenu pour Câble USB-C').fill('2250');
   await expect(page.getByRole('button', { name: /^Encaisser/ })).toBeEnabled();
   await page.keyboard.press('F4');
   await page.getByRole('dialog').getByRole('button', { name: 'Valider la vente' }).click();

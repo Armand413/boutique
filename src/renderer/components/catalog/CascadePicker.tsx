@@ -89,58 +89,13 @@ export function CascadePicker({
     };
   }, [current, excludeKits, stockedOnly]);
 
-  const childrenOf = useMemo(() => {
-    const map = new Map<number | null, Category[]>();
-    for (const category of categories ?? []) {
-      const siblings = map.get(category.parentId) ?? [];
-      siblings.push(category);
-      map.set(category.parentId, siblings);
-    }
-    for (const siblings of map.values()) {
-      siblings.sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'fr'));
-    }
-    return map;
-  }, [categories]);
-
-  // Une liste par niveau : les familles, puis les enfants de chaque catégorie choisie qui en a.
-  const levels: { parentId: number | null; options: Category[] }[] = [];
-  const families = childrenOf.get(null) ?? [];
-  levels.push({ parentId: null, options: families });
-  for (const selected of path) {
-    const children = childrenOf.get(selected) ?? [];
-    if (children.length === 0) break;
-    levels.push({ parentId: selected, options: children });
-  }
-
-  const choose = (level: number, value: string): void => {
-    setPath((previous) => {
-      const kept = previous.slice(0, level);
-      // « Tous les articles » d'un niveau : on reste sur la catégorie parente.
-      return value === '' || value === 'all' ? kept : [...kept, Number(value)];
-    });
-  };
   const loaded = current !== undefined && articles.categoryId === current;
   const rows = loaded ? articles.rows : [];
 
   return (
     <div className="flex flex-col gap-3">
       <div className="grid gap-3 md:grid-cols-2">
-        {levels.map((level, index) => (
-          <SelectField
-            key={level.parentId ?? 'familles'}
-            label={t(LEVEL_LABELS[Math.min(index, LEVEL_LABELS.length - 1)] ?? 'cascade.category')}
-            value={path[index] === undefined ? (index === 0 ? '' : 'all') : String(path[index])}
-            placeholder={t('cascade.chooseFamily')}
-            options={[
-              ...(index === 0 ? [] : [{ value: 'all', label: t('cascade.allArticles') }]),
-              ...level.options.map((category) => ({
-                value: String(category.id),
-                label: category.name,
-              })),
-            ]}
-            onValueChange={(value) => choose(index, value)}
-          />
-        ))}
+        <CategorySelects categories={categories ?? []} path={path} onChange={setPath} />
         {current !== undefined && (
           <SelectField
             key={`articles-${String(current)}`}
@@ -169,5 +124,83 @@ export function CascadePicker({
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * Listes successives des catégories (D91) : famille, puis catégorie et sous-catégorie quand elles
+ * existent. `path` : les catégories choisies, de la famille à la plus précise. `allowAll` : la
+ * première liste propose aussi « Toutes les familles » (filtres de la liste des produits).
+ */
+export function CategorySelects({
+  categories,
+  path,
+  onChange,
+  allowAll = false,
+}: {
+  categories: readonly Category[];
+  path: readonly number[];
+  onChange: (path: number[]) => void;
+  allowAll?: boolean;
+}) {
+  const t = useT();
+  const childrenOf = useMemo(() => {
+    const map = new Map<number | null, Category[]>();
+    for (const category of categories) {
+      if (!category.isActive) continue;
+      const siblings = map.get(category.parentId) ?? [];
+      siblings.push(category);
+      map.set(category.parentId, siblings);
+    }
+    for (const siblings of map.values()) {
+      siblings.sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'fr'));
+    }
+    return map;
+  }, [categories]);
+
+  // Une liste par niveau : les familles, puis les enfants de chaque catégorie choisie qui en a.
+  const levels: { parentId: number | null; options: Category[] }[] = [
+    { parentId: null, options: childrenOf.get(null) ?? [] },
+  ];
+  for (const selected of path) {
+    const children = childrenOf.get(selected) ?? [];
+    if (children.length === 0) break;
+    levels.push({ parentId: selected, options: children });
+  }
+  const choose = (level: number, value: string): void => {
+    const kept = path.slice(0, level);
+    // « Tous » à un niveau : on reste sur la catégorie parente.
+    onChange(value === '' || value === 'all' ? kept : [...kept, Number(value)]);
+  };
+  return (
+    <>
+      {levels.map((level, index) => {
+        const withAll = index > 0 || allowAll;
+        const selected = path[index];
+        return (
+          <SelectField
+            key={level.parentId ?? 'familles'}
+            label={t(LEVEL_LABELS[Math.min(index, LEVEL_LABELS.length - 1)] ?? 'cascade.category')}
+            value={selected === undefined ? (withAll ? 'all' : '') : String(selected)}
+            placeholder={t('cascade.chooseFamily')}
+            options={[
+              ...(withAll
+                ? [
+                    {
+                      value: 'all',
+                      label: index === 0 ? t('cascade.allFamilies') : t('cascade.allArticles'),
+                    },
+                  ]
+                : []),
+              ...level.options.map((category) => ({
+                value: String(category.id),
+                label: category.name,
+              })),
+            ]}
+            onValueChange={(value) => choose(index, value)}
+          />
+        );
+      })}
+    </>
   );
 }

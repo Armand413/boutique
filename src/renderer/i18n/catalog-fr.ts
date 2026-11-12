@@ -318,6 +318,7 @@ export const catalogFr = {
   'cascade.subcategory': 'Sous-catégorie',
   'cascade.chooseFamily': 'Choisissez une famille…',
   'cascade.allArticles': 'Tous les articles',
+  'cascade.allFamilies': 'Toutes les familles',
   'cascade.article': 'Article',
   'cascade.chooseArticle': 'Choisissez parmi {count} articles…',
   'cascade.empty': 'Aucun article ici',

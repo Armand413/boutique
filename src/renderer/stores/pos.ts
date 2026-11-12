@@ -21,6 +21,11 @@ export interface PosLine {
   trackingMode: TrackingMode;
   quantity: number;
   discount: Discount | null;
+  /**
+   * Prix unitaire convenu avec le client (D92) et prix affiché de l'article : la différence est
+   * envoyée comme réduction en montant, recalculée quand la quantité change.
+   */
+  agreedPrice?: { price: number; listPrice: number | null };
   serialUnitIds: number[];
   serialNumbers: string[];
   /** Kit : composants suivis dont il faut choisir les unités. */
@@ -49,6 +54,7 @@ interface PosState {
   add: (line: NewLine, unit?: { id: number; serialNumber: string }) => void;
   setQuantity: (key: string, quantity: number) => void;
   setDiscount: (key: string, discount: Discount | null) => void;
+  setAgreedPrice: (key: string, agreed: { price: number; listPrice: number | null } | null) => void;
   setUnits: (key: string, ids: number[], serials: string[]) => void;
   setComponentUnits: (key: string, variantId: number, ids: number[], serials: string[]) => void;
   remove: (key: string) => void;
@@ -181,6 +187,17 @@ export const usePos = create<PosState>()((set) => ({
     set((state) => ({
       lines: state.lines.map((line) => (line.key === key ? { ...line, discount } : line)),
     })),
+  setAgreedPrice: (key, agreed) =>
+    set((state) => ({
+      lines: state.lines.map((line) => {
+        if (line.key !== key) return line;
+        const next: PosLine = { ...line, discount: null };
+        if (agreed === null || (agreed.listPrice !== null && agreed.price >= agreed.listPrice))
+          delete next.agreedPrice;
+        else next.agreedPrice = agreed;
+        return next;
+      }),
+    })),
   setUnits: (key, ids, serials) =>
     set((state) => ({
       lines: state.lines.map((line) =>
@@ -217,12 +234,21 @@ export const usePos = create<PosState>()((set) => ({
     set({ lines: [], customer: null, globalDiscount: null, heldSaleId: null, quote: null }),
 }));
 
+/** Réduction envoyée : celle du prix convenu (par unité × quantité), sinon celle de la ligne. */
+function lineDiscount(line: PosLine): Discount | null {
+  if (line.agreedPrice === undefined) return line.discount;
+  // Prix affiché pas encore connu : aucune réduction tant que le panier n'est pas recalculé.
+  if (line.agreedPrice.listPrice === null) return null;
+  const reduction = (line.agreedPrice.listPrice - line.agreedPrice.price) * line.quantity;
+  return reduction > 0 ? { type: 'amount', value: reduction } : null;
+}
+
 /** Lignes envoyées au processus principal. */
 export function cartLines(lines: readonly PosLine[]): CartLine[] {
   return lines.map((line) => ({
     variantId: line.variantId,
     quantity: line.quantity,
-    discount: line.discount,
+    discount: lineDiscount(line),
     ...(line.serialUnitIds.length > 0 ? { serialUnitIds: line.serialUnitIds } : {}),
     ...(line.components.length > 0
       ? {

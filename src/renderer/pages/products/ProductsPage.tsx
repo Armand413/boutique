@@ -24,7 +24,7 @@ import {
   type ProductSearchInput,
 } from '@shared/schemas/catalog';
 import { EmptyState, ErrorState, LoadingState } from '../../components/states/states';
-import { Badge, Card, Input, Skeleton } from '../../components/ui/basic';
+import { Badge, Card, Skeleton } from '../../components/ui/basic';
 import { Button } from '../../components/ui/button';
 import { CheckboxField, SelectField, TextField } from '../../components/ui/form-field';
 import { Money } from '../../components/ui/money';
@@ -39,7 +39,8 @@ import { useT, type Translate } from '../../i18n';
 import { PageHeader } from '../../layout/AppShell';
 import { errorMessage, invoke } from '../../lib/ipc';
 import { useRouter } from '../../stores/router';
-import { categoryOptions, useCan, useCatalogReferences } from './catalog-ui';
+import { CategorySelects } from '../../components/catalog/CascadePicker';
+import { useCan, useCatalogReferences } from './catalog-ui';
 import { ImportDialog } from './ImportDialog';
 import { ProductFormDialog } from './ProductFormDialog';
 
@@ -56,8 +57,8 @@ interface AttributeFilterText {
 }
 
 interface Filters {
-  query: string;
-  categoryId: string;
+  /** Familles et catégories choisies par listes successives (D91), de la plus large à la plus précise. */
+  categoryPath: number[];
   brandId: string;
   status: ProductSearchInput['status'];
   lowStock: boolean;
@@ -66,8 +67,7 @@ interface Filters {
 }
 
 const INITIAL_FILTERS: Filters = {
-  query: '',
-  categoryId: ALL,
+  categoryPath: [],
   brandId: ALL,
   status: 'active',
   lowStock: false,
@@ -77,8 +77,7 @@ const INITIAL_FILTERS: Filters = {
 
 function hasFilters(filters: Filters): boolean {
   return (
-    filters.query.trim() !== '' ||
-    filters.categoryId !== ALL ||
+    filters.categoryPath.length > 0 ||
     filters.brandId !== ALL ||
     filters.status !== 'active' ||
     filters.lowStock ||
@@ -99,12 +98,16 @@ function attributeFilters(filters: Filters): AttributeFilter[] {
   });
 }
 
+/** Catégorie la plus précise choisie, ou null pour tout le catalogue. */
+function selectedCategory(filters: Filters): number | null {
+  return filters.categoryPath.at(-1) ?? null;
+}
+
 function searchInput(filters: Filters, offset: number): ProductSearchInput {
-  const query = filters.query.trim();
   const attributes = attributeFilters(filters);
+  const categoryId = selectedCategory(filters);
   return {
-    ...(query === '' ? {} : { query }),
-    ...(filters.categoryId === ALL ? {} : { categoryId: Number(filters.categoryId) }),
+    ...(categoryId === null ? {} : { categoryId }),
     ...(filters.brandId === ALL ? {} : { brandId: Number(filters.brandId) }),
     status: filters.status,
     ...(filters.lowStock ? { lowStock: true } : {}),
@@ -131,26 +134,23 @@ function useProductPages(filters: Filters) {
     generation.current += 1;
     const current = generation.current;
     requested.current = new Set([0]);
-    const timer = window.setTimeout(
-      () => {
-        invoke('products:search', searchInput(filters, 0)).then(
-          (result) => {
-            if (generation.current === current) {
-              setState({
-                status: 'ready',
-                total: result.total,
-                pages: new Map([[0, result.rows]]),
-              });
-            }
-          },
-          (error: unknown) => {
-            if (generation.current === current)
-              setState({ status: 'error', message: errorMessage(error) });
-          },
-        );
-      },
-      filters.query === '' ? 0 : 150,
-    );
+    const timer = window.setTimeout(() => {
+      invoke('products:search', searchInput(filters, 0)).then(
+        (result) => {
+          if (generation.current === current) {
+            setState({
+              status: 'ready',
+              total: result.total,
+              pages: new Map([[0, result.rows]]),
+            });
+          }
+        },
+        (error: unknown) => {
+          if (generation.current === current)
+            setState({ status: 'error', message: errorMessage(error) });
+        },
+      );
+    }, 0);
     return () => window.clearTimeout(timer);
   }, [filters, attempt]);
 
@@ -295,11 +295,12 @@ function AttributeFilterFields({
   onChange: (attributes: Filters['attributes']) => void;
 }) {
   const t = useT();
-  if (filters.categoryId === ALL) return null;
+  const categoryId = selectedCategory(filters);
+  if (categoryId === null) return null;
   const filterable = effectiveAttributes(
     references.categories,
     references.attributes,
-    Number(filters.categoryId),
+    categoryId,
   ).filter((attribute) => attribute.isFilterable);
   if (filterable.length === 0) return null;
   const set = (id: number, patch: Partial<AttributeFilterText>): void => {
@@ -641,30 +642,15 @@ export function ProductsPage() {
       {state.status === 'ready' && (
         <>
           <section role="search" className="flex flex-col gap-4" aria-label={t('products.filters')}>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="products-search" className="text-sm font-medium">
-                {t('products.search')}
-              </label>
-              <Input
-                id="products-search"
-                type="search"
-                autoFocus
-                autoComplete="off"
-                placeholder={t('products.searchPlaceholder')}
-                value={filters.query}
-                onChange={(event) => update({ query: event.target.value })}
+            <div className="grid grid-cols-3 gap-4">
+              <CategorySelects
+                allowAll
+                categories={state.data.categories}
+                path={filters.categoryPath}
+                onChange={(categoryPath) => update({ categoryPath, attributes: {} })}
               />
             </div>
-            <div className="grid grid-cols-4 gap-4">
-              <SelectField
-                label={t('products.filter.category')}
-                value={filters.categoryId}
-                options={[
-                  { value: ALL, label: t('products.filter.allCategories') },
-                  ...categoryOptions(state.data.categories),
-                ]}
-                onValueChange={(categoryId) => update({ categoryId, attributes: {} })}
-              />
+            <div className="grid grid-cols-3 gap-4">
               <SelectField
                 label={t('products.filter.brand')}
                 value={filters.brandId}

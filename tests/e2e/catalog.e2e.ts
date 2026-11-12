@@ -136,11 +136,13 @@ test('l’administrateur organise le catalogue et crée un produit technique', a
 
   await openProducts(page);
   await expect(page.getByText('2 article(s)')).toBeVisible();
-  await choose(page, 'Famille ou catégorie', 'Énergie solaire › Panneaux');
+  await choose(page, 'Famille', 'Énergie solaire');
+  await choose(page, 'Catégorie', 'Panneaux');
   await page.getByLabel('Puissance crête (Wc) minimum').fill('500');
   await expect(page.getByText('Aucun résultat', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Effacer les filtres' }).click();
-  await page.getByLabel('Rechercher un produit').fill('jinko pann');
+  // Listes successives (D91) : la famille suffit à retrouver les deux panneaux.
+  await choose(page, 'Famille', 'Énergie solaire');
   await expect(page.getByText('2 article(s)')).toBeVisible();
   await checkAccessibility(page, 'Produits');
 

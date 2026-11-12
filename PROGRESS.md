@@ -452,6 +452,10 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
 - **Choix d'un article par listes** (D91, demande du client) : Famille › Catégorie › Article à la caisse, à
   l'entrée de stock, aux sorties et transferts, aux devis et dans les kits ; champ de scan conservé.
 
+- **Prix convenu, liste des produits, taille d'écran** (D92, demandes du client) : prix négocié par ligne à la caisse
+  à la place des remises ; liste des produits filtrée par Famille › Catégorie ; interface ajustée à la fenêtre et à la
+  mise à l'échelle de Windows, fenêtre adaptée à la zone de travail.
+
 ### Vérifications de fin de phase
 
 | Contrôle                | Résultat                                                                                                     |

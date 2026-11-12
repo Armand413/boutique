@@ -13,7 +13,7 @@ import {
 import { formatDateTime } from '@shared/format/date';
 import { formatMoney } from '@shared/format/money';
 import type { ProductRow } from '@shared/schemas/catalog';
-import type { CartPreview, CashSession, Customer, Discount } from '@shared/schemas/sales';
+import type { CartPreview, CashSession, Customer } from '@shared/schemas/sales';
 import { useSubmit } from '../../auth/use-submit';
 import { EmptyState, ErrorState, LoadingState } from '../../components/states/states';
 import { Badge, Card, CardContent, Input, Kbd, Label } from '../../components/ui/basic';
@@ -26,7 +26,7 @@ import { useT } from '../../i18n';
 import { errorMessage, invoke } from '../../lib/ipc';
 import { PageHeader } from '../../layout/AppShell';
 import { cartLines, usePos, type NewLine, type PosLine } from '../../stores/pos';
-import { parseOptionalMoney } from '../products/catalog-ui';
+import { moneyText, parseOptionalMoney } from '../products/catalog-ui';
 import { PaymentDialog } from './PaymentDialog';
 import {
   CashMoveDialog,
@@ -129,73 +129,55 @@ function toNewLine(row: ProductRow): Promise<NewLine> {
   });
 }
 
-function DiscountEditor({
+/**
+ * Prix unitaire négocié (D92) : le vendeur saisit le montant convenu ; un prix vide ou égal au prix
+ * affiché annule la négociation. Le prix minimum et le plafond de réduction du rôle restent appliqués.
+ */
+function PriceEditor({
   label,
-  value,
+  listPrice,
+  agreed,
   onChange,
 }: {
   label: string;
-  value: Discount | null;
-  onChange: (discount: Discount | null) => void;
+  /** Prix affiché de l'article ; inconnu tant que le panier n'est pas recalculé. */
+  listPrice: number | null;
+  agreed: number | null;
+  onChange: (price: number | null) => void;
 }) {
-  const t = useT();
-  const [type, setType] = useState<'percent' | 'amount'>(value?.type ?? 'percent');
-  const [text, setText] = useState(
-    value === null
-      ? ''
-      : value.type === 'percent'
-        ? String(value.value / 100)
-        : String(value.value),
-  );
-  const apply = (nextText: string, nextType: 'percent' | 'amount'): void => {
-    setText(nextText);
-    setType(nextType);
-    const trimmed = nextText.trim().replace(',', '.');
-    if (trimmed === '') {
-      onChange(null);
-      return;
-    }
-    const number = Number(trimmed);
-    if (!Number.isFinite(number) || number < 0) return;
-    onChange(
-      nextType === 'percent'
-        ? { type: 'percent', value: Math.min(10_000, Math.round(number * 100)) }
-        : { type: 'amount', value: Math.round(number) },
-    );
+  const [text, setText] = useState(agreed === null ? '' : moneyText(agreed));
+  const apply = (next: string): void => {
+    setText(next);
+    const value = parseOptionalMoney(next);
+    if (value === undefined) return;
+    onChange(value);
   };
   return (
-    <div className="flex items-center gap-1">
-      <Input
-        className="h-8 w-20 text-sm"
-        inputMode="decimal"
-        aria-label={label}
-        value={text}
-        onChange={(event) => apply(event.target.value, type)}
-      />
-      <Button
-        size="sm"
-        variant="ghost"
-        aria-label={t('pos.discountType')}
-        aria-pressed={type === 'percent'}
-        onClick={() => apply(text, type === 'percent' ? 'amount' : 'percent')}
-      >
-        {type === 'percent' ? t('pos.discountPercent') : t('pos.discountAmount')}
-      </Button>
-    </div>
+    <Input
+      className="tabular h-8 w-32 text-right text-sm"
+      inputMode="decimal"
+      aria-label={label}
+      placeholder={listPrice === null ? '' : moneyText(listPrice)}
+      value={text}
+      onChange={(event) => apply(event.target.value)}
+    />
   );
 }
 
 function CartLineRow({
   line,
   lineTotal,
+  listPrice,
   onUnits,
 }: {
   line: PosLine;
   lineTotal: number | null;
+  /** Prix unitaire affiché, donné par le recalcul du panier. */
+  listPrice: number | null;
   onUnits: (line: PosLine, componentVariantId?: number) => void;
 }) {
   const t = useT();
-  const { setQuantity, setDiscount, remove } = usePos();
+  const { setQuantity, setAgreedPrice, remove } = usePos();
   const name = line.variantLabel === '' ? line.name : `${line.name} (${line.variantLabel})`;
   const tracked =
     line.trackingMode !== 'none' && line.productType !== 'kit' && line.productType !== 'service';
@@ -249,11 +231,23 @@ function CartLineRow({
           </span>
         )}
         {!fromQuote && (
-          <DiscountEditor
-            label={t('pos.lineDiscount', { name })}
-            value={line.discount}
-            onChange={(discount) => setDiscount(line.key, discount)}
-          />
+          <span className="flex items-center gap-2 text-sm">
+            <span className="text-muted-foreground">{t('pos.agreedPrice')}</span>
+            <PriceEditor
+              label={t('pos.agreedPriceOf', { name })}
+              listPrice={line.agreedPrice?.listPrice ?? listPrice}
+              agreed={line.agreedPrice?.price ?? null}
+              onChange={(price) =>
+                // Prix affiché encore inconnu (panier en cours de recalcul) : complété ensuite.
+                setAgreedPrice(
+                  line.key,
+                  price === null
+                    ? null
+                    : { price, listPrice: line.agreedPrice?.listPrice ?? listPrice },
+                )
+              }
+            />
+          </span>
         )}
         {tracked && (
           <Button
@@ -338,6 +332,17 @@ export function PosPage() {
       window.clearTimeout(timer);
     };
   }, [lines, pos.globalDiscount, pos.quote]);
+
+  // Prix convenu saisi avant le recalcul du panier : on le complète avec le prix affiché (D92).
+  useEffect(() => {
+    if (preview === null) return;
+    lines.forEach((line, index) => {
+      const listPrice = preview.lines[index]?.unitPrice;
+      if (line.agreedPrice?.listPrice === null && listPrice !== undefined) {
+        pos.setAgreedPrice(line.key, { price: line.agreedPrice.price, listPrice });
+      }
+    });
+  }, [preview, lines, pos]);
 
   const addRow = async (row: ProductRow): Promise<void> => {
     try {
@@ -598,6 +603,7 @@ export function PosPage() {
                     key={line.key}
                     line={line}
                     lineTotal={preview?.lines[index]?.lineTotal ?? null}
+                    listPrice={preview?.lines[index]?.unitPrice ?? null}
                     onUnits={(target, componentVariantId) => {
                       const component = target.components.find(
                         (candidate) => candidate.variantId === componentVariantId,
@@ -626,16 +632,6 @@ export function PosPage() {
                   />
                 ))}
               </ul>
-            )}
-            {lines.length > 0 && (
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-medium">{t('pos.globalDiscount')}</span>
-                <DiscountEditor
-                  label={t('pos.globalDiscount')}
-                  value={pos.globalDiscount}
-                  onChange={pos.setGlobalDiscount}
-                />
-              </div>
             )}
             {preview !== null && (
               <dl className="flex flex-col gap-1">

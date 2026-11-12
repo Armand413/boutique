@@ -320,6 +320,7 @@ export const catalogEn: Readonly<Record<keyof typeof catalogFr, string>> = {
   'cascade.subcategory': 'Subcategory',
   'cascade.chooseFamily': 'Choose a family…',
   'cascade.allArticles': 'All items',
+  'cascade.allFamilies': 'All families',
   'cascade.article': 'Item',
   'cascade.chooseArticle': 'Choose among {count} items…',
   'cascade.empty': 'No item here',

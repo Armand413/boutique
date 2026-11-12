@@ -109,6 +109,8 @@ saisissez la clé de récupération. Une nouvelle clé est alors générée : re
   Flèches pour choisir, Entrée pour ouvrir, Échap pour fermer.
 - **Apparence** (Paramètres › Apparence) : thème clair, sombre ou celui de Windows, taille du texte, langue (français
   ou anglais). Ces réglages sont propres à l'ordinateur.
+- **Taille de l'écran** : l'interface s'ajuste d'elle-même à la fenêtre et à la mise à l'échelle de Windows (125 %,
+  150 %) pour que tout tienne ; sur un petit écran, la fenêtre s'ouvre en plein écran.
 
 Les trois rôles :
 
@@ -141,8 +143,10 @@ En début de journée, saisissez le **fond de caisse** compté dans le tiroir et
   Si un composant manque, la vente est refusée en entier.
 - **Service** (livraison, installation) : ligne sans stock.
 - Quantité : boutons − et +, ou saisie directe. Corbeille pour retirer une ligne.
-- **Remise** par ligne ou globale, en pourcentage ou en montant. Elle est plafonnée selon le rôle (10 % pour un
-  vendeur et 30 % pour un gérant par défaut, réglable) et ne descend jamais sous le prix minimum d'un article.
+- **Prix convenu** : le prix se discute ? Saisissez sur la ligne le **prix unitaire convenu** avec le client (le prix
+  affiché apparaît en grisé). Le total se recalcule, quantité comprise. La réduction accordée est limitée selon le
+  rôle (10 % du prix pour un vendeur et 30 % pour un gérant par défaut, réglable dans Paramètres › Sécurité) et le
+  prix ne descend jamais sous le **prix minimum** de l'article.
 - **Client** : **Choisir un client** pour le retrouver par nom ou téléphone. S'il n'existe pas, cliquez sur
   **Nouveau client**, saisissez son nom et son téléphone, puis **Créer et choisir**. Il est obligatoire pour une
   vente à crédit ou une livraison.
@@ -215,6 +219,12 @@ ajoute des sous-catégories (**Produits › Catégories et caractéristiques**) 
 **caractéristiques techniques** : puissance en Wc, tension en V, intensité en A, capacité en Ah, taille en pouces… Une
 caractéristique peut être obligatoire et servir de **filtre** de recherche. Les sous-catégories héritent des
 caractéristiques de leur catégorie.
+
+### Liste des produits
+
+Choisissez la **Famille**, puis la **Catégorie** et la sous-catégorie : la liste se réduit à chaque choix.
+« Toutes les familles » remet tout le catalogue. La marque, l'état (actifs, archivés), le tri, le stock bas et les
+caractéristiques de la catégorie affinent encore la liste.
 
 ### Fiche produit
 
