@@ -372,7 +372,57 @@
 - Imprimante réseau réelle (ticket d'essai) : simulateur seulement.
 - DPAPI réel testé par les e2e sur ce poste ; restauration sur un autre compte Windows à refaire à la recette.
 
-## Phase 9 — Durcissement sécurité, optimisation, tests de bout en bout, seed de démonstration, charge : à faire
+## Phase 9 — Durcissement sécurité, optimisation, tests de bout en bout, seed de démonstration, charge : terminée (12/11/2026)
 
-Revue de sécurité complète, seed de démonstration (20 marques, 2 000 produits, 5 000 ventes), test de charge
-(50 000 produits, 100 000 ventes, 500 000 mouvements), mesures des temps cibles.
+### Fait
+
+- Données de démonstration : `npm run seed` (20 marques, 2 000 produits, 300 clients, 5 000 ventes, réassort), script
+  Electron séparé (`tools/demo`, jamais empaqueté), compte `demo` et vendeurs à mots de passe aléatoires (D76) ;
+  test e2e qui charge ces données puis ouvre l'application.
+- Test de charge `npm run test:load` (50 000 produits, 98 746 ventes, 522 361 mouvements), par les services réels (D78).
+- Tests d'intrusion (B.8) : canaux publics, refus par rôle sur chaque canal, droits dans les services, injection SQL
+  et FTS, aucun coût ni marge servis au vendeur (D79).
+- Optimisations mesurées : tableau de bord en deux lectures (D80) ; contrôle d'intégrité du démarrage dans un thread
+  dédié, base endommagée refermée avec l'écran de restauration (D77) ; index des clés étrangères consultées,
+  migration 0011 (D81).
+- Messages de refus de mot de passe reformulés.
+
+### Temps mesurés (test de charge complet, `test-results/charge-complete.json`)
+
+| Mesure                                           | Cible    | Mesuré                     |
+| ------------------------------------------------ | -------- | -------------------------- |
+| Recherche produit (6 requêtes, pire cas)         | < 100 ms | 10,8 ms                    |
+| Ajout au panier (3 lignes)                       | < 50 ms  | 0,8 ms                     |
+| Validation d'une vente                           | < 500 ms | 8 ms                       |
+| Ouverture de la base (étapes bloquantes)         | < 3 s    | 1,2 s                      |
+| `integrity_check` complet (thread, non bloquant) | —        | 30,6 s                     |
+| Tableau de bord (thread des rapports)            | —        | 4,8 s                      |
+| Rapports (9 types, thread des rapports)          | —        | 0,1 à 4,0 s                |
+| Copie de sauvegarde `VACUUM INTO`                | —        | 6,3 s                      |
+| Génération complète du jeu de charge             | —        | 20 min (104 min avant D81) |
+
+Toutes les ventes du jeu de charge sont datées du même jour : cas le plus défavorable pour le tableau de bord.
+
+### Vérifications de fin de phase
+
+| Contrôle            | Résultat                                                                                     |
+| ------------------- | -------------------------------------------------------------------------------------------- |
+| `npm run typecheck` | 0 erreur                                                                                     |
+| `npm run lint`      | 0 erreur, 0 avertissement                                                                    |
+| `npm test`          | 264 tests verts (dont intrusion et contrôle d'intégrité au démarrage)                        |
+| `npm run test:e2e`  | 38 tests verts, dont les données de démonstration (+ 1 capture ignorée hors demande)         |
+| `npm run test:load` | 7 tests verts                                                                                |
+| Sécurité            | tests d'intrusion automatisés ; pas de sous-agent `security-reviewer` disponible             |
+| `npm audit`         | 0 faille en production ; 15 modérées dans les outils de développement (D13), aucune critique |
+
+### Reste à valider / limites
+
+- Tableau de bord à 4,8 s sur 100 000 ventes du jour : calculé hors du thread de l'interface, avec squelettes ;
+  à surveiller sur un vrai poste de boutique.
+- Temps mesurés sur le poste de développement ; à refaire sur le matériel de la boutique.
+
+## Phase 10 — Packaging et documentation : à faire
+
+setup.exe NSIS, désinstallation propre, signature configurable, mises à jour ; thread des rapports dans l'archive
+asar ; GUIDE_UTILISATEUR.md, GUIDE_TECHNIQUE.md, BASE_DE_DONNEES.md (diagramme Mermaid), rapport final exigence par
+exigence.
