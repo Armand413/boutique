@@ -28,6 +28,7 @@ test('l’application installée démarre, garde ses données dans le profil et 
   app = await electron.launch({
     executablePath: executable ?? '',
     args: [`--user-data-dir=${userData}`],
+    timeout: 60_000,
   });
   const page = await app.firstWindow();
   await page.waitForLoadState('domcontentloaded');

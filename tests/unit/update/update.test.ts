@@ -221,8 +221,8 @@ describe('vérification par Windows (PowerShell)', () => {
       expect(node.signer).toMatch(/CN=/);
       const directory = mkdtempSync(join(tmpdir(), 'boutique-inspect-'));
       const trapped = join(directory, "piege'; $(Remove-Item x) `; & calc.exe");
-      writeFileSync(trapped, 'pas un exécutable');
       try {
+        writeFileSync(trapped, 'pas un exécutable');
         // Fichier non exécutable : Windows ne sait pas le vérifier, il est traité comme invalide.
         await expect(windowsExecutableInspector.inspect(trapped)).resolves.toMatchObject({
           signature: 'invalid',
