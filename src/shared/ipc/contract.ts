@@ -145,6 +145,7 @@ import {
   backupStatusSchema,
   restoreInputSchema,
 } from '../schemas/backup';
+import { updateInstallInputSchema, updatePreviewSchema } from '../schemas/update';
 import {
   allSettingsSchema,
   fraudSettingsSchema,
@@ -734,6 +735,16 @@ export const ipcContract = {
     input: restoreInputSchema,
     output: systemStatusSchema,
     access: needs('backup.manage'),
+  },
+  'update:choose': {
+    input: noInput,
+    output: updatePreviewSchema.nullable(),
+    access: needs('settings.manage'),
+  },
+  'update:install': {
+    input: updateInstallInputSchema,
+    output: z.strictObject({ started: z.boolean() }),
+    access: needs('settings.manage'),
   },
   // Restauration sans session : refusée par le service dès qu'une boutique configurée est ouverte.
   'system:chooseBackup': { input: noInput, output: backupPreviewSchema.nullable(), access: PUBLIC },

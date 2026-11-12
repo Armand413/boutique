@@ -120,6 +120,8 @@ export const IPC_CHANNELS = [
   'backup:run',
   'backup:choose',
   'backup:restore',
+  'update:choose',
+  'update:install',
   'system:chooseBackup',
   'system:restoreBackup',
   'settings:get',

@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import electronPath from 'electron';
 import { expect, test, type Page } from '@playwright/test';
 import { checkAccessibility } from './a11y';
 import {
@@ -17,6 +18,8 @@ import { choose, importCsv, openModule, stubFileDialogs, toastShown } from './he
 let launched: LaunchedApp;
 const others: LaunchedApp[] = [];
 const BACKUP_PASSWORD = 'Coffre-Fort-Abidjan-9';
+/** Le paquet `electron` exporte, sous Node, le chemin de l'exécutable. */
+const electronBinary = electronPath as unknown as string;
 
 test.beforeEach(async () => {
   launched = await launchReady();
@@ -261,4 +264,20 @@ test('activités sensibles : remise inhabituelle signalée à l’administrateur
     'Coque : 40 %',
   );
   await checkAccessibility(page, 'Activités sensibles');
+});
+
+test('mise à jour : un fichier qui n’est pas un installateur de l’application est refusé', async () => {
+  const { page, app } = launched;
+  await openSection(page, 'Mise à jour');
+  const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
+  await expect(page.getByText(`Version installée : ${version}`)).toBeVisible();
+  // L'exécutable d'Electron : un vrai programme Windows, mais pas un installateur de Boutique Gestion.
+  await stubFileDialogs(app, { open: electronBinary });
+  await page.getByRole('button', { name: 'Choisir le programme d’installation' }).click();
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'n’est pas un installateur de Boutique Gestion' }),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Installer la mise à jour' })).toHaveCount(0);
+  await expect(page.getByText('Revenir à la version précédente')).toBeVisible();
+  await checkAccessibility(page, 'Mise à jour');
 });

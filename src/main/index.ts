@@ -1,4 +1,5 @@
 import { app, BrowserWindow, Menu, session } from 'electron';
+import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { initLogger, logger } from './logging/logger';
 import {
@@ -17,6 +18,8 @@ import { safeStorageProtector } from './security/safe-storage';
 import { PreferencesService } from './services/preferences-service';
 import { AppRuntime } from './system/runtime';
 import { electronFileDialogs } from './files/file-dialogs';
+import { windowsExecutableInspector } from './update/installer-inspector';
+import type { InstallerLauncher } from './update/update-service';
 
 const devServerUrl = app.isPackaged ? undefined : process.env.ELECTRON_RENDERER_URL;
 const isDevelopment = devServerUrl !== undefined;
@@ -70,6 +73,18 @@ function scheduleAutomaticBackups(runtime: AppRuntime): void {
   setInterval(run, BACKUP_CHECK_INTERVAL_MS).unref();
 }
 
+/**
+ * Installateur vérifié lancé à part (interface de l'assistant visible), puis fermeture de
+ * l'application pour libérer ses fichiers ; la base est refermée proprement à la sortie.
+ */
+const installerLauncher: InstallerLauncher = {
+  launch(path) {
+    const child = spawn(path, [], { detached: true, stdio: 'ignore', windowsHide: false });
+    child.unref();
+    setTimeout(() => app.quit(), 500);
+  },
+};
+
 function focusMainWindow(): void {
   const [window] = BrowserWindow.getAllWindows();
   if (window === undefined) return;
@@ -94,6 +109,11 @@ async function start(): Promise<void> {
     protector: safeStorageProtector,
     dialogs: electronFileDialogs,
     appVersion: app.getVersion(),
+    updates: {
+      inspector: windowsExecutableInspector,
+      launcher: app.isPackaged ? installerLauncher : null,
+      currentExecutable: process.execPath,
+    },
     ...testIdleLockOverride(),
   });
   const status = await runtime.start();

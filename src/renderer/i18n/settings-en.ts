@@ -145,4 +145,34 @@ export const settingsEn: Readonly<Record<keyof typeof settingsFr, string>> = {
     'Operations made since the backup date will no longer be visible (they remain in the safety copy).',
   'restore.done': 'Backup restored. Please sign in.',
   'restore.fromSetup': 'Moving to a new computer? Restore a backup instead of creating a shop.',
+
+  'nav.settings.update': 'Update',
+  'settings.update.description': 'Install a new version from a USB drive, after checking the file.',
+  'update.install.title': 'Install a new version',
+  'update.current': 'Installed version: {version}',
+  'update.install.description':
+    'Copy the installer provided by your supplier to a USB drive, then choose it here. The application checks its signature and version, backs up the database, then starts the installation. Your data is kept.',
+  'update.choose': 'Choose the installer',
+  'update.file': 'File: {name}',
+  'update.versions': 'New version {version} (installed: {current})',
+  'update.signature.valid': 'Valid signature',
+  'update.signature.unsigned': 'Not signed',
+  'update.signature.invalid': 'Invalid signature',
+  'update.acceptUnsigned':
+    'I confirm that this file was given to me by my supplier and has not been modified.',
+  'update.password': 'Your sign-in password',
+  'update.warning':
+    'Finish the sales in progress: the application closes to let the installation run, then restarts.',
+  'update.confirm': 'Install the update',
+  'update.confirmTitle': 'Install the new version?',
+  'update.confirmDescription':
+    'An encrypted backup of the database is made first. The application then closes and the installer opens.',
+  'update.started': 'Installation started: follow the installer. The application will close.',
+  'update.rollback.title': 'Go back to the previous version',
+  'update.rollback.step1':
+    '1. Uninstall the application, then run the installer of the previous version: your data is kept.',
+  'update.rollback.step2':
+    '2. If the new version updated the database, restore the "before update" backup from Settings › Backups.',
+  'update.rollback.note':
+    'A copy of the database is also made automatically before each change to its structure.',
 };

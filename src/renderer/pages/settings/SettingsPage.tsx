@@ -2,6 +2,7 @@ import {
   ChevronRight,
   DatabaseBackup,
   Globe,
+  PackageCheck,
   Palette,
   Percent,
   Printer,
@@ -68,6 +69,13 @@ const SECTIONS: readonly Section[] = [
     title: 'nav.settings.backup',
     description: 'settings.backup.description',
     permission: 'backup.manage',
+  },
+  {
+    route: 'settings.update',
+    icon: PackageCheck,
+    title: 'nav.settings.update',
+    description: 'settings.update.description',
+    permission: 'settings.manage',
   },
   {
     route: 'settings.appearance',

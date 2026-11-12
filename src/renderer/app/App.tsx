@@ -12,6 +12,7 @@ import { AuditPage } from '../pages/audit/AuditPage';
 import { AppearancePage } from '../pages/settings/AppearancePage';
 import { SettingsPage } from '../pages/settings/SettingsPage';
 import { BackupPage } from '../pages/settings/BackupPage';
+import { UpdatePage } from '../pages/settings/UpdatePage';
 import {
   PrintingSettingsPage,
   RegionalSettingsPage,
@@ -63,6 +64,7 @@ const PAGES: Readonly<Record<Exclude<RouteName, 'dev.gallery'>, ComponentType>> 
   'settings.printing': PrintingSettingsPage,
   'settings.security': SecuritySettingsPage,
   'settings.backup': BackupPage,
+  'settings.update': UpdatePage,
   about: AboutPage,
   users: UsersPage,
   audit: AuditPage,

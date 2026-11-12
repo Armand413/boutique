@@ -19,6 +19,7 @@ export const ROUTES = {
   'settings.printing': { labelKey: 'nav.settings.printing', parent: 'settings' },
   'settings.security': { labelKey: 'nav.settings.security', parent: 'settings' },
   'settings.backup': { labelKey: 'nav.settings.backup', parent: 'settings' },
+  'settings.update': { labelKey: 'nav.settings.update', parent: 'settings' },
   about: { labelKey: 'nav.about', parent: null },
   users: { labelKey: 'nav.users', parent: null },
   audit: { labelKey: 'nav.audit', parent: null },

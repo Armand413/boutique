@@ -216,6 +216,8 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
     'backup:run': (_input, context) => services().backups.backupNow(actor(context)),
     'backup:choose': (_input, context) => runtime.chooseBackup(actor(context)),
     'backup:restore': (input, context) => runtime.restoreBackup(input, actor(context)),
+    'update:choose': (_input, context) => services().updates.choose(actor(context)),
+    'update:install': (input, context) => services().updates.install(actor(context), input),
     'system:chooseBackup': () => runtime.chooseBackup(null),
     'system:restoreBackup': (input) => runtime.restoreBackup(input, null),
     'settings:get': (_input, context) => services().settings.all(actor(context)),

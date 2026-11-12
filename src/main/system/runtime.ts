@@ -40,6 +40,8 @@ import { WarrantyService } from '../warranty/warranty-service';
 import { WorkerExecutor, type ReportExecutor } from '../reports/report-executor';
 import { ReportService } from '../reports/report-service';
 import { SettingsService } from '../settings/settings-service';
+import { windowsExecutableInspector, type ExecutableInspector } from '../update/installer-inspector';
+import { UpdateService, type InstallerLauncher } from '../update/update-service';
 
 export interface RuntimeOptions {
   dataDirectory: string;
@@ -52,6 +54,13 @@ export interface RuntimeOptions {
   executorFactory?: (db: Db, file: string, key: Buffer) => ReportExecutor;
   /** Version de l'application, inscrite dans chaque sauvegarde. */
   appVersion?: string;
+  /** Mise à jour par setup.exe (D82) : vérification de Windows et lancement de l'installateur. */
+  updates?: {
+    inspector: ExecutableInspector;
+    /** Absent hors de l'application installée : la vérification reste possible, pas l'installation. */
+    launcher: InstallerLauncher | null;
+    currentExecutable: string;
+  };
 }
 
 export interface Services {
@@ -78,12 +87,10 @@ export interface Services {
   reports: ReportService;
   backups: BackupService;
   settings: SettingsService;
+  updates: UpdateService;
 }
 
-/**
- * Cycle de vie de la base au démarrage (B.3, B.4, E.7) : clé protégée, ouverture chiffrée,
- * contrôle d'intégrité, sauvegarde puis migrations, seed système, vérification de l'audit.
- */
+/** État affiché quand la base est endommagée (D77). */
 const INTEGRITY_FAILURE: SystemStatus = {
   state: 'error',
   code: 'INTEGRITY',
@@ -96,6 +103,10 @@ function isCorruption(error: unknown): boolean {
   return /malformed|corrupt|not a database/i.test(message);
 }
 
+/**
+ * Cycle de vie de la base au démarrage (B.3, B.4, E.7) : clé protégée, ouverture chiffrée,
+ * contrôle d'intégrité (D77), sauvegarde puis migrations, seed système, vérification de l'audit.
+ */
 export class AppRuntime {
   private status: SystemStatus = {
     state: 'error',
@@ -483,6 +494,28 @@ export class AppRuntime {
     ).run(backup.path, backup.sizeBytes, backup.checksum);
   }
 
+  private createUpdates(db: Db, auth: AuthService, backups: BackupService): UpdateService {
+    const updates = this.options.updates;
+    return new UpdateService({
+      db,
+      dialogs: this.options.dialogs,
+      inspector: updates?.inspector ?? windowsExecutableInspector,
+      launcher: updates?.launcher ?? null,
+      currentVersion: this.options.appVersion ?? '0.0.0',
+      currentExecutable: updates?.currentExecutable ?? process.execPath,
+      stagingDirectory: join(this.options.dataDirectory, 'mise-a-jour'),
+      confirmPassword: (userId, password) => auth.confirmPassword(userId, password),
+      hasBackupPassword: () => this.backupSecrets.has(),
+      safetyBackup: async (name) => {
+        const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15);
+        await backups.createBackup(
+          'safety',
+          join(this.backupDirectory, `${name}-${stamp}.${BACKUP_EXTENSION}`),
+        );
+      },
+    });
+  }
+
   private createServices(db: Db, key: Buffer): Services {
     const sessions = new SessionManager();
     const products = new ProductService(db);
@@ -492,6 +525,17 @@ export class AppRuntime {
     const inventories = new InventoryService(db);
     const images = new ImageStore(join(this.options.dataDirectory, 'images'));
     const executor = this.newExecutor(db, key);
+    const backups = new BackupService({
+      db,
+      executor,
+      secrets: this.backupSecrets,
+      databaseKey: key,
+      escrowPath: this.keyStore.escrowPath,
+      directory: this.backupDirectory,
+      dialogs: this.options.dialogs,
+      appVersion: this.options.appVersion ?? '0.0.0',
+      confirmPassword: (userId, password) => auth.confirmPassword(userId, password),
+    });
     const auth = new AuthService({
       db,
       sessions,
@@ -528,17 +572,8 @@ export class AppRuntime {
       warranty: new WarrantyService(db),
       reports: new ReportService(db, executor, this.options.dialogs),
       settings: new SettingsService(db, images, this.options.dialogs),
-      backups: new BackupService({
-        db,
-        executor,
-        secrets: this.backupSecrets,
-        databaseKey: key,
-        escrowPath: this.keyStore.escrowPath,
-        directory: this.backupDirectory,
-        dialogs: this.options.dialogs,
-        appVersion: this.options.appVersion ?? '0.0.0',
-        confirmPassword: (userId, password) => auth.confirmPassword(userId, password),
-      }),
+      backups,
+      updates: this.createUpdates(db, auth, backups),
       documents: new DocumentService({
         db,
         dialogs: this.options.dialogs,

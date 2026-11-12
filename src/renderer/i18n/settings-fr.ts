@@ -148,4 +148,36 @@ export const settingsFr = {
   'restore.done': 'Sauvegarde restaurée. Connectez-vous.',
   'restore.fromSetup':
     'Vous changez d’ordinateur ? Restaurez une sauvegarde au lieu de créer une boutique.',
+
+  'nav.settings.update': 'Mise à jour',
+  'settings.update.description':
+    'Installer une nouvelle version depuis une clé USB, après vérification du fichier.',
+  'update.install.title': 'Installer une nouvelle version',
+  'update.current': 'Version installée : {version}',
+  'update.install.description':
+    'Copiez le programme d’installation fourni par votre prestataire sur une clé USB, puis choisissez-le ici. L’application vérifie sa signature et sa version, sauvegarde la base, puis lance l’installation. Vos données sont conservées.',
+  'update.choose': 'Choisir le programme d’installation',
+  'update.file': 'Fichier : {name}',
+  'update.versions': 'Nouvelle version {version} (installée : {current})',
+  'update.signature.valid': 'Signature valide',
+  'update.signature.unsigned': 'Non signé',
+  'update.signature.invalid': 'Signature invalide',
+  'update.acceptUnsigned':
+    'Je confirme que ce fichier m’a été remis par mon prestataire et qu’il n’a pas été modifié.',
+  'update.password': 'Votre mot de passe de connexion',
+  'update.warning':
+    'Fermez les ventes en cours : l’application se ferme pour laisser l’installation se faire, puis redémarre.',
+  'update.confirm': 'Installer la mise à jour',
+  'update.confirmTitle': 'Installer la nouvelle version ?',
+  'update.confirmDescription':
+    'Une sauvegarde chiffrée de la base est faite d’abord. L’application se ferme ensuite et l’assistant d’installation s’ouvre.',
+  'update.started':
+    'Installation lancée : suivez l’assistant d’installation. L’application va se fermer.',
+  'update.rollback.title': 'Revenir à la version précédente',
+  'update.rollback.step1':
+    '1. Désinstallez l’application, puis lancez le programme d’installation de la version précédente : vos données sont conservées.',
+  'update.rollback.step2':
+    '2. Si la nouvelle version a mis à jour la base, restaurez la sauvegarde « avant mise à jour » depuis Paramètres › Sauvegardes.',
+  'update.rollback.note':
+    'Une copie de la base est aussi faite automatiquement avant chaque mise à jour de sa structure.',
 } as const;
