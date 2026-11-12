@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { checkAccessibility } from './a11y';
 import { launchReady, removeUserData, type LaunchedApp } from './fixtures';
-import { importCsv, openModule, stubFileDialogs, toastShown } from './helpers';
+import { enableModules, importCsv, openModule, stubFileDialogs, toastShown } from './helpers';
 
 let launched: LaunchedApp;
 
@@ -71,17 +71,9 @@ async function seedShop(page: Page): Promise<void> {
         limit: 10,
       })) as { rows: { variantId: number; name: string }[] };
       const id = (name: string) => search.rows.find((row) => row.name === name)?.variantId ?? 0;
-      const supplier = (await call('suppliers:save', {
-        name: 'Grossiste',
-        phone: null,
-        email: null,
-        address: null,
-        notes: null,
-        isActive: true,
-      })) as { id: number };
       const locations = (await call('locations:list')) as { id: number }[];
       await call('receipts:create', {
-        supplierId: supplier.id,
+        supplierId: null,
         locationId: locations[0]?.id,
         receivedOn: '2026-11-11',
         notes: null,
@@ -175,6 +167,7 @@ test('inventaire : scan, comptage, écarts, validation, ajustement du stock et r
 
 test('garantie : recherche par IMEI, réclamation ouverte, envoyée au fournisseur puis clôturée', async () => {
   const { page } = launched;
+  await enableModules(page, ['Garantie et SAV', 'Fournisseurs']);
   await seedShop(page);
 
   await openModule(page, 'Caisse');

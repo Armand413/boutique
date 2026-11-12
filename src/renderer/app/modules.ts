@@ -21,6 +21,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { Permission } from '@shared/permissions';
+import type { ModuleName, ModulesSettings } from '@shared/schemas/settings';
 import type { RouteName } from './routes';
 import type { TranslationKey } from '../i18n/fr';
 
@@ -32,6 +33,8 @@ export interface ModuleEntry {
   permission?: Permission;
   /** Visible uniquement en développement (jamais dans l'application installée). */
   devOnly?: boolean;
+  /** Module activable (Paramètres › Modules, D90) : masqué tant qu'il est désactivé. */
+  module?: ModuleName;
 }
 
 /**
@@ -59,6 +62,7 @@ export const MODULES: readonly ModuleEntry[] = [
     labelKey: 'nav.deliveries',
     icon: PackageCheck,
     permission: 'delivery.manage',
+    module: 'deliveries',
   },
   { route: 'products', labelKey: 'nav.products', icon: Package, permission: 'product.view' },
   { route: 'stock', labelKey: 'nav.stock', icon: Warehouse, permission: 'stock.view' },
@@ -68,8 +72,20 @@ export const MODULES: readonly ModuleEntry[] = [
     icon: ClipboardCheck,
     permission: 'inventory.manage',
   },
-  { route: 'warranty', labelKey: 'nav.warranty', icon: ShieldCheck, permission: 'warranty.manage' },
-  { route: 'suppliers', labelKey: 'nav.suppliers', icon: Truck, permission: 'supplier.manage' },
+  {
+    route: 'warranty',
+    labelKey: 'nav.warranty',
+    icon: ShieldCheck,
+    permission: 'warranty.manage',
+    module: 'warranty',
+  },
+  {
+    route: 'suppliers',
+    labelKey: 'nav.suppliers',
+    icon: Truck,
+    permission: 'supplier.manage',
+    module: 'suppliers',
+  },
   { route: 'reports', labelKey: 'nav.reports', icon: ChartColumn, permission: 'report.view' },
   { route: 'users', labelKey: 'nav.users', icon: Users, permission: 'user.manage' },
   { route: 'audit', labelKey: 'nav.audit', icon: ScrollText, permission: 'audit.view' },
@@ -84,15 +100,33 @@ export function routePermission(route: RouteName): Permission | undefined {
   return MODULES.find((entry) => entry.route === route)?.permission;
 }
 
-/** Modules visibles : ceux autorisés au rôle connecté, sans les outils de développement en production. */
+/** Module activable dont dépend un écran de premier niveau, s'il y en a un. */
+export function routeModule(route: RouteName): ModuleName | undefined {
+  return MODULES.find((entry) => entry.route === route)?.module;
+}
+
+/** Un module activable est visible s'il est activé ; tant que les réglages ne sont pas lus, il est masqué. */
+export function moduleEnabled(
+  module: ModuleName | undefined,
+  enabled: ModulesSettings | null,
+): boolean {
+  return module === undefined || (enabled?.[module] ?? false);
+}
+
+/**
+ * Modules visibles : ceux autorisés au rôle connecté et activés dans les paramètres, sans les outils
+ * de développement en production.
+ */
 export function visibleModules(
   modules: readonly ModuleEntry[],
   granted: ReadonlySet<Permission>,
   isDevelopment: boolean,
+  enabled: ModulesSettings | null,
 ): ModuleEntry[] {
   return modules.filter(
     (entry) =>
       (entry.devOnly !== true || isDevelopment) &&
-      (entry.permission === undefined || granted.has(entry.permission)),
+      (entry.permission === undefined || granted.has(entry.permission)) &&
+      moduleEnabled(entry.module, enabled),
   );
 }

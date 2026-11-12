@@ -112,8 +112,8 @@ export const stockFr = {
   'receipt.title': 'Entrée de marchandise',
   'receipt.description':
     'Bon de réception : quantités, prix d’achat et numéros des articles suivis.',
-  'receipt.supplier': 'Fournisseur *',
-  'receipt.noSupplier': 'Aucun fournisseur : créez-en un dans le module Fournisseurs.',
+  'receipt.supplierOptional': 'Fournisseur (facultatif)',
+  'receipt.noSupplierChoice': 'Sans fournisseur',
   'receipt.location': 'Emplacement de réception',
   'receipt.date': 'Date de réception',
   'receipt.notes': 'Notes',

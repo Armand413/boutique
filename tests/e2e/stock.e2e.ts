@@ -1,7 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { checkAccessibility } from './a11y';
 import { launchReady, nav, removeUserData, type LaunchedApp } from './fixtures';
-import { choose, importCsv, openModule, signInAsNewSeller, toastShown } from './helpers';
+import {
+  choose,
+  enableModules,
+  importCsv,
+  openModule,
+  signInAsNewSeller,
+  toastShown,
+} from './helpers';
 
 let launched: LaunchedApp;
 
@@ -20,6 +27,8 @@ const IMEI_B = '356938035643809';
 
 test('réception fournisseur, transfert, sortie, paiement et alertes de stock', async () => {
   const { app, page, userData } = launched;
+  await enableModules(page, ['Fournisseurs']);
+  await checkAccessibility(page, 'Modules');
   await openModule(page, 'Produits');
   await importCsv(app, page, userData, [
     'Nom;Catégorie;Type;Prix de vente;Seuil d’alerte',

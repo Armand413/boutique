@@ -175,4 +175,18 @@ export const settingsEn: Readonly<Record<keyof typeof settingsFr, string>> = {
     '2. If the new version updated the database, restore the "before update" backup from Settings › Backups.',
   'update.rollback.note':
     'A copy of the database is also made automatically before each change to its structure.',
+
+  'nav.settings.modules': 'Modules',
+  'settings.modules.description':
+    'Features enabled in the shop: unused ones disappear from the menus.',
+  'modules.intro':
+    'A disabled module disappears from the menus, the till and the dashboard. Any data it holds is kept and comes back if you enable it again.',
+  'modules.suppliers': 'Suppliers',
+  'modules.suppliers.hint':
+    'Supplier records, debts and payments, returns to the supplier. Without this module, stock entries are made without a supplier.',
+  'modules.deliveries': 'Deliveries',
+  'modules.deliveries.hint': 'Delivery offered at checkout, delivery tracking, delivery note.',
+  'modules.warranty': 'Warranty and after-sales',
+  'modules.warranty.hint':
+    'Device lookup and claims. The warranty end date is still printed on the invoice.',
 };

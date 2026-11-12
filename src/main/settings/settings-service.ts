@@ -4,6 +4,7 @@ import { setActiveCurrency, type CurrencyConfig } from '@shared/format/money';
 import { AppError } from '@shared/ipc/errors';
 import type {
   AllSettings,
+  ModulesSettings,
   FraudSettings,
   PrinterSettings,
   PublicSettings,
@@ -41,6 +42,15 @@ function printerTarget(db: Db): PrinterSettings['receipt'] {
 }
 
 /** Paramètres de la boutique (4.11), réservés à l'administrateur (`settings.manage`), tracés dans l'audit. */
+/** Modules activés (D90) : lus par la caisse, les menus et le contrôle des canaux. */
+export function readModules(db: Db): ModulesSettings {
+  return {
+    suppliers: getSetting(db, 'modules.suppliers', z.boolean()),
+    deliveries: getSetting(db, 'modules.deliveries', z.boolean()),
+    warranty: getSetting(db, 'modules.warranty', z.boolean()),
+  };
+}
+
 export class SettingsService {
   constructor(
     private readonly db: Db,
@@ -87,6 +97,7 @@ export class SettingsService {
         adjustmentsPerDay: getSetting(db, 'fraud.adjustments_per_day', z.number().int()),
         cashDifference: getSetting(db, 'fraud.cash_difference', z.number().int()),
       },
+      modules: readModules(db),
       taxRates: listTaxRates(db),
     };
   }
@@ -98,6 +109,7 @@ export class SettingsService {
       currency: getSetting(this.db, 'shop.currency', currencySchema),
       dateFormat: getSetting(this.db, 'shop.date_format', z.enum(['fr', 'iso'])),
       labelLayout: getSetting(this.db, 'printer.label_layout', z.enum(['sheet', 'roll'])),
+      modules: readModules(this.db),
     };
   }
 
@@ -152,6 +164,14 @@ export class SettingsService {
       'fraud.discount_alert': input.discountAlert,
       'fraud.adjustments_per_day': input.adjustmentsPerDay,
       'fraud.cash_difference': input.cashDifference,
+    });
+  }
+
+  saveModules(actor: Session, input: ModulesSettings): AllSettings {
+    return this.save(actor, 'modules', {
+      'modules.suppliers': input.suppliers,
+      'modules.deliveries': input.deliveries,
+      'modules.warranty': input.warranty,
     });
   }
 

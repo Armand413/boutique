@@ -17,6 +17,7 @@ import { CheckboxField, FormError, SelectField, TextField } from '../../componen
 import { toast } from '../../components/ui/toast';
 import { useT } from '../../i18n';
 import { errorMessage, invoke } from '../../lib/ipc';
+import { usePublicSettings } from '../../stores/public-settings';
 import { useStockEvents } from '../../stores/stock-events';
 import { cartLines, usePos } from '../../stores/pos';
 import { parseOptionalMoney } from '../products/catalog-ui';
@@ -122,6 +123,10 @@ export function PaymentDialog({
   const [reference, setReference] = useState('');
   const [installments, setInstallments] = useState('1');
   const [firstDue, setFirstDue] = useState(nextMonth());
+  // Module Livraisons désactivé (D90) : aucune livraison proposée à l'encaissement.
+  const deliveriesEnabled = usePublicSettings(
+    (state) => state.settings?.modules.deliveries ?? false,
+  );
   const [delivery, setDelivery] = useState(false);
   const [address, setAddress] = useState(pos.customer?.address ?? '');
   const [deliveryDate, setDeliveryDate] = useState(today());
@@ -170,7 +175,10 @@ export function PaymentDialog({
         globalDiscount: pos.globalDiscount,
         payments,
         installments: remaining > 0 ? plan : null,
-        delivery: delivery ? { address, scheduledOn: deliveryDate, notes: null } : null,
+        delivery:
+          deliveriesEnabled && delivery
+            ? { address, scheduledOn: deliveryDate, notes: null }
+            : null,
       }),
     );
     setSaving(false);
@@ -341,13 +349,17 @@ export function PaymentDialog({
               </ul>
             </fieldset>
           )}
-          <Separator />
-          <CheckboxField
-            label={t('pay.delivery')}
-            checked={delivery}
-            onChange={(event) => setDelivery(event.target.checked)}
-          />
-          {delivery && (
+          {deliveriesEnabled && (
+            <>
+              <Separator />
+              <CheckboxField
+                label={t('pay.delivery')}
+                checked={delivery}
+                onChange={(event) => setDelivery(event.target.checked)}
+              />
+            </>
+          )}
+          {deliveriesEnabled && delivery && (
             <div className="grid grid-cols-[2fr_1fr] gap-4">
               <TextField
                 label={t('pay.deliveryAddress')}

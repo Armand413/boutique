@@ -50,17 +50,9 @@ async function seedShop(page: Page): Promise<void> {
       rows: { variantId: number; name: string }[];
     };
     const id = (name: string) => search.rows.find((row) => row.name === name)?.variantId ?? 0;
-    const supplier = (await call('suppliers:save', {
-      name: 'Grossiste',
-      phone: null,
-      email: null,
-      address: null,
-      notes: null,
-      isActive: true,
-    })) as { id: number };
     const locations = (await call('locations:list')) as { id: number }[];
     await call('receipts:create', {
-      supplierId: supplier.id,
+      supplierId: null,
       locationId: locations[0]?.id,
       receivedOn: '2026-11-11',
       notes: null,

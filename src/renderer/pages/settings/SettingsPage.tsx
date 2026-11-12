@@ -2,6 +2,7 @@ import {
   ChevronRight,
   DatabaseBackup,
   Globe,
+  LayoutGrid,
   PackageCheck,
   Palette,
   Percent,
@@ -28,6 +29,13 @@ interface Section {
 }
 
 const SECTIONS: readonly Section[] = [
+  {
+    route: 'settings.modules',
+    icon: LayoutGrid,
+    title: 'nav.settings.modules',
+    description: 'settings.modules.description',
+    permission: 'settings.manage',
+  },
   {
     route: 'settings.shop',
     icon: Store,

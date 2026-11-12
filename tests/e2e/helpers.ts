@@ -74,3 +74,13 @@ export async function signInAsNewSeller(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Enregistrer le mot de passe' }).click();
   await expect(nav(page)).toBeVisible();
 }
+
+/** Active des modules par l'écran Paramètres › Modules (désactivés par défaut, D90). */
+export async function enableModules(page: Page, labels: readonly string[]): Promise<void> {
+  await openModule(page, 'Paramètres');
+  await page.getByRole('button', { name: /^Modules/ }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Modules' })).toBeVisible();
+  for (const label of labels) await page.getByLabel(label, { exact: true }).check();
+  await page.getByRole('button', { name: 'Enregistrer' }).click();
+  await toastShown(page, 'Paramètres enregistrés.');
+}

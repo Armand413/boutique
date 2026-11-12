@@ -12,6 +12,7 @@ import { AuditPage } from '../pages/audit/AuditPage';
 import { AppearancePage } from '../pages/settings/AppearancePage';
 import { SettingsPage } from '../pages/settings/SettingsPage';
 import { BackupPage } from '../pages/settings/BackupPage';
+import { ModulesPage } from '../pages/settings/ModulesPage';
 import { UpdatePage } from '../pages/settings/UpdatePage';
 import {
   PrintingSettingsPage,
@@ -47,7 +48,7 @@ import { usePreferences } from '../stores/preferences';
 import { useRouter } from '../stores/router';
 import { useSession } from '../stores/session';
 import { ThemeProvider } from '../theme/ThemeProvider';
-import { routePermission } from './modules';
+import { moduleEnabled, routeModule, routePermission } from './modules';
 import { breadcrumbOf, type RouteName } from './routes';
 
 /** La galerie n'existe qu'en développement : en production, ce bloc est éliminé du bundle. */
@@ -65,6 +66,7 @@ const PAGES: Readonly<Record<Exclude<RouteName, 'dev.gallery'>, ComponentType>> 
   'settings.security': SecuritySettingsPage,
   'settings.backup': BackupPage,
   'settings.update': UpdatePage,
+  'settings.modules': ModulesPage,
   about: AboutPage,
   users: UsersPage,
   audit: AuditPage,
@@ -97,9 +99,13 @@ const PAGES: Readonly<Record<Exclude<RouteName, 'dev.gallery'>, ComponentType>> 
 /** Écran refusé si la session n'a pas la permission (le service le refuserait aussi). */
 function useRouteAllowed(route: RouteName): boolean {
   const permissions = useSession((state) => state.session?.permissions);
+  const enabled = usePublicSettings((state) => state.settings?.modules ?? null);
   const top = breadcrumbOf(route)[0] ?? route;
   const required = routePermission(top);
-  return required === undefined || (permissions ?? []).includes(required);
+  return (
+    (required === undefined || (permissions ?? []).includes(required)) &&
+    moduleEnabled(routeModule(top), enabled)
+  );
 }
 
 function CurrentPage() {

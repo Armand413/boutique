@@ -132,6 +132,7 @@ export const IPC_CHANNELS = [
   'settings:savePrinter',
   'settings:saveSecurity',
   'settings:saveFraud',
+  'settings:saveModules',
   'settings:saveTaxRate',
   'settings:chooseLogo',
   'settings:removeLogo',

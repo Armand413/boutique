@@ -8,6 +8,7 @@ import { Tooltip } from '../components/ui/radix';
 import { useHotkey } from '../hotkeys/hotkeys';
 import { useT } from '../i18n';
 import { cn } from '../lib/cn';
+import { usePublicSettings } from '../stores/public-settings';
 import { useRouter } from '../stores/router';
 import { useSession } from '../stores/session';
 
@@ -64,9 +65,10 @@ export function Sidebar() {
   const navigate = useRouter((state) => state.navigate);
   const permissions = useSession((state) => state.session?.permissions);
   const topLevel = breadcrumbOf(current)[0];
+  const enabled = usePublicSettings((state) => state.settings?.modules ?? null);
   const modules = useMemo(
-    () => visibleModules(MODULES, new Set(permissions ?? []), import.meta.env.DEV),
-    [permissions],
+    () => visibleModules(MODULES, new Set(permissions ?? []), import.meta.env.DEV, enabled),
+    [permissions, enabled],
   );
 
   return (

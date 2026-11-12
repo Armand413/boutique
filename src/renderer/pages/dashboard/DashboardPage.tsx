@@ -21,6 +21,7 @@ import { invoke } from '../../lib/ipc';
 import { cn } from '../../lib/cn';
 import { useRemote } from '../../lib/use-remote';
 import { PageHeader } from '../../layout/AppShell';
+import { usePublicSettings } from '../../stores/public-settings';
 import { useRouter } from '../../stores/router';
 import { useCan } from '../products/catalog-ui';
 
@@ -257,6 +258,7 @@ export function DashboardPage() {
   const navigate = useRouter((state) => state.navigate);
   const canInstallments = useCan('customer.manage');
   const canWarranty = useCan('warranty.manage');
+  const warrantyEnabled = usePublicSettings((state) => state.settings?.modules.warranty ?? false);
   const loader = useCallback(() => invoke('dashboard:get'), []);
   const { state, reload } = useRemote<Dashboard>(loader);
   return (
@@ -298,12 +300,14 @@ export function DashboardPage() {
               value={state.data.overdueInstallments}
               onOpen={canInstallments ? () => navigate('installments') : null}
             />
-            <AlertTile
-              icon={ShieldCheck}
-              label={t('dashboard.claims')}
-              value={state.data.openClaims}
-              onOpen={canWarranty ? () => navigate('warranty') : null}
-            />
+            {warrantyEnabled && (
+              <AlertTile
+                icon={ShieldCheck}
+                label={t('dashboard.claims')}
+                value={state.data.openClaims}
+                onOpen={canWarranty ? () => navigate('warranty') : null}
+              />
+            )}
             {state.data.sensitive !== null && (
               <AlertTile
                 icon={ShieldAlert}

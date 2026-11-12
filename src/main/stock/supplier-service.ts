@@ -63,15 +63,15 @@ const RECEIPT_SELECT = `
          coalesce((SELECT sum(p.amount) FROM supplier_payments p WHERE p.receipt_id = r.id), 0) AS paid,
          (SELECT count(*) FROM goods_receipt_lines gl WHERE gl.receipt_id = r.id) AS line_count
   FROM goods_receipts r
-  JOIN suppliers s ON s.id = r.supplier_id
+  LEFT JOIN suppliers s ON s.id = r.supplier_id
   JOIN stock_locations l ON l.id = r.location_id
   JOIN users u ON u.id = r.user_id`;
 
 interface ReceiptRow {
   id: number;
   number: string;
-  supplier_id: number;
-  supplier_name: string;
+  supplier_id: number | null;
+  supplier_name: string | null;
   location_name: string;
   received_at: string;
   total_cost: number;
@@ -307,10 +307,19 @@ export class SupplierService {
    */
   receive(actor: Session, input: CreateReceiptInput): ReceiptDetail {
     requirePermission(actor, 'stock.adjust');
-    requirePermission(actor, 'supplier.manage');
     requirePermission(actor, 'cost.view');
-    const supplier = this.existing(input.supplierId);
-    if (!supplier.isActive) throw new AppError('VALIDATION_ERROR', 'Ce fournisseur est archivé.');
+    const { supplierId } = input;
+    if (supplierId !== null) {
+      requirePermission(actor, 'supplier.manage');
+      if (!this.existing(supplierId).isActive) {
+        throw new AppError('VALIDATION_ERROR', 'Ce fournisseur est archivé.');
+      }
+    } else if (input.payment !== null) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        'Un paiement se rattache à un fournisseur : choisissez-le.',
+      );
+    }
     const location = this.db
       .prepare<[number], number>('SELECT is_active FROM stock_locations WHERE id = ?')
       .pluck()
@@ -400,8 +409,8 @@ export class SupplierService {
           "UPDATE goods_receipts SET total_cost = ?, status = 'validated', validated_at = ?, updated_at = ? WHERE id = ?",
         )
         .run(total, now, now, id);
-      if (input.payment !== null) {
-        this.insertPayment(actor, input.supplierId, id, input.payment, receivedAt);
+      if (input.payment !== null && supplierId !== null) {
+        this.insertPayment(actor, supplierId, id, input.payment, receivedAt);
       }
       appendAudit(this.db, {
         userId: actor.userId,

@@ -5,6 +5,7 @@ import { checkAccessibility } from './a11y';
 import { launchReady, nav, removeUserData, type LaunchedApp } from './fixtures';
 import {
   choose,
+  enableModules,
   importCsv,
   openModule,
   signInAsNewSeller,
@@ -25,6 +26,8 @@ test.afterEach(async () => {
 
 /** Catalogue importé puis 10 câbles reçus (coût 1 000) par les canaux de l'application. */
 async function seedShop(page: Page): Promise<void> {
+  // Le rapport des soldes montre aussi les dettes fournisseurs : module activé (D90).
+  await enableModules(page, ['Fournisseurs']);
   await openModule(page, 'Produits');
   await importCsv(launched.app, page, launched.userData, [
     'Nom;Catégorie;Type;Code-barres;Prix de vente;Seuil d’alerte',

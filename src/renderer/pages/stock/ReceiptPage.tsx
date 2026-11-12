@@ -13,6 +13,7 @@ import { useT } from '../../i18n';
 import { PageHeader } from '../../layout/AppShell';
 import { invoke } from '../../lib/ipc';
 import { useRemote } from '../../lib/use-remote';
+import { usePublicSettings } from '../../stores/public-settings';
 import { useRouter } from '../../stores/router';
 import { useStockEvents } from '../../stores/stock-events';
 import { moneyText, parseOptionalMoney } from '../products/catalog-ui';
@@ -39,12 +40,14 @@ export function ReceiptPage() {
   const t = useT();
   const navigate = useRouter((state) => state.navigate);
   const presetSupplier = useRouter((state) => state.params.supplierId);
+  // Module Fournisseurs désactivé (D90) : entrée sans fournisseur ni paiement.
+  const suppliersEnabled = usePublicSettings((state) => state.settings?.modules.suppliers ?? false);
   const loader = useCallback(
     async () => ({
-      suppliers: await invoke('suppliers:list'),
+      suppliers: suppliersEnabled ? await invoke('suppliers:list') : [],
       locations: await invoke('locations:list'),
     }),
-    [],
+    [suppliersEnabled],
   );
   const { state, reload } = useRemote(loader);
   const { error, submit } = useSubmit();
@@ -78,6 +81,7 @@ export function ReceiptPage() {
   const location =
     locationId ??
     String(locations.find((candidate) => candidate.isDefault)?.id ?? locations[0]?.id ?? '');
+  const withSupplier = suppliersEnabled && supplierId !== NONE;
   const total = lines.reduce((sum, line) => {
     const quantity = parseQuantity(line.quantity) ?? 0;
     const cost = parseOptionalMoney(line.unitCost) ?? 0;
@@ -124,7 +128,7 @@ export function ReceiptPage() {
     setSaving(true);
     const result = await submit(() =>
       invoke('receipts:create', {
-        supplierId: Number(supplierId),
+        supplierId: withSupplier ? Number(supplierId) : null,
         locationId: Number(location),
         receivedOn,
         notes,
@@ -134,7 +138,7 @@ export function ReceiptPage() {
           unitCost: line.unitCost ?? 0,
         })),
         payment:
-          amount === null || amount === 0
+          !withSupplier || amount === null || amount === 0
             ? null
             : { amount, method: paymentMethod, reference: paymentReference },
       }),
@@ -143,35 +147,31 @@ export function ReceiptPage() {
     if (result !== null) {
       stockChanged();
       toast.success(t('receipt.saved', { number: result.value.receipt.number }));
-      navigate('suppliers.detail', { supplierId: result.value.receipt.supplierId });
+      const saved = result.value.receipt.supplierId;
+      if (saved === null) navigate('stock');
+      else navigate('suppliers.detail', { supplierId: saved });
     }
   };
 
   return (
     <>
       <PageHeader title={t('receipt.title')} description={t('receipt.description')} />
-      {suppliers.length === 0 && (
-        <p
-          role="alert"
-          className="bg-warning-soft text-warning-soft-foreground rounded-md px-4 py-3 text-sm font-medium"
-        >
-          {t('receipt.noSupplier')}
-        </p>
-      )}
       <Card>
         <CardContent className="grid grid-cols-3 gap-4 pt-6">
-          <SelectField
-            label={t('receipt.supplier')}
-            value={supplierId}
-            options={[
-              { value: NONE, label: '—' },
-              ...suppliers.map((supplier) => ({
-                value: String(supplier.id),
-                label: supplier.name,
-              })),
-            ]}
-            onValueChange={setSupplierId}
-          />
+          {suppliersEnabled && (
+            <SelectField
+              label={t('receipt.supplierOptional')}
+              value={supplierId}
+              options={[
+                { value: NONE, label: t('receipt.noSupplierChoice') },
+                ...suppliers.map((supplier) => ({
+                  value: String(supplier.id),
+                  label: supplier.name,
+                })),
+              ]}
+              onValueChange={setSupplierId}
+            />
+          )}
           <SelectField
             label={t('receipt.location')}
             value={location}
@@ -269,31 +269,33 @@ export function ReceiptPage() {
           </p>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('receipt.payment')}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-3 gap-4">
-          <TextField
-            label={t('receipt.paymentAmount')}
-            inputMode="decimal"
-            value={paymentAmount}
-            onChange={(event) => setPaymentAmount(event.target.value)}
-          />
-          <SelectField
-            label={t('receipt.paymentMethod')}
-            value={paymentMethod}
-            options={paymentOptions(t)}
-            onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}
-          />
-          <TextField
-            label={t('receipt.paymentReference')}
-            maxLength={64}
-            value={paymentReference}
-            onChange={(event) => setPaymentReference(event.target.value)}
-          />
-        </CardContent>
-      </Card>
+      {withSupplier && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('receipt.payment')}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-3 gap-4">
+            <TextField
+              label={t('receipt.paymentAmount')}
+              inputMode="decimal"
+              value={paymentAmount}
+              onChange={(event) => setPaymentAmount(event.target.value)}
+            />
+            <SelectField
+              label={t('receipt.paymentMethod')}
+              value={paymentMethod}
+              options={paymentOptions(t)}
+              onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}
+            />
+            <TextField
+              label={t('receipt.paymentReference')}
+              maxLength={64}
+              value={paymentReference}
+              onChange={(event) => setPaymentReference(event.target.value)}
+            />
+          </CardContent>
+        </Card>
+      )}
       <TextAreaField
         label={t('receipt.notes')}
         maxLength={1000}
@@ -308,7 +310,7 @@ export function ReceiptPage() {
         <Button
           size="lg"
           onClick={() => void save()}
-          disabled={saving || lines.length === 0 || supplierId === NONE || location === ''}
+          disabled={saving || lines.length === 0 || location === ''}
         >
           {t('receipt.save')}
         </Button>

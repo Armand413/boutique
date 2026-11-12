@@ -112,8 +112,8 @@ export const stockEn: Readonly<Record<keyof typeof stockFr, string>> = {
 
   'receipt.title': 'Goods receipt',
   'receipt.description': 'Receipt note: quantities, purchase prices and numbers of tracked items.',
-  'receipt.supplier': 'Supplier *',
-  'receipt.noSupplier': 'No supplier: create one in the Suppliers module.',
+  'receipt.supplierOptional': 'Supplier (optional)',
+  'receipt.noSupplierChoice': 'No supplier',
   'receipt.location': 'Receiving location',
   'receipt.date': 'Receipt date',
   'receipt.notes': 'Notes',

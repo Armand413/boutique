@@ -159,7 +159,7 @@ fait dans les services, y compris pour les exports.
 
 ## 8. Migrations et données initiales (E.7)
 
-- Fichiers numérotés dans `db/migrations` (`0001` à `0011`), **générés** depuis `db/templates` par
+- Fichiers numérotés dans `db/migrations` (`0001` à `0012`), **générés** depuis `db/templates` par
   `node scripts/build-migrations.mjs` (macros pour les contrôles de date et de Luhn). Le script refuse de modifier une
   migration existante dont le contenu changerait.
 - Une migration appliquée est **immuable** : son empreinte est vérifiée à chaque démarrage ; toute évolution passe par
@@ -184,6 +184,7 @@ fait dans les services, y compris pour les exports.
 | 0009      | appareils scannés pendant un inventaire (D60)                                       |
 | 0010      | vues de ventes et de marges hors taxe nettes des retours (D64)                      |
 | 0011      | index des clés étrangères consultées (D81)                                          |
+| 0012      | entrée de marchandise sans fournisseur (D90)                                        |
 
 ## 9. Sauvegarde et restauration
 

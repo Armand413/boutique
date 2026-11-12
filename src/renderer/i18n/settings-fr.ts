@@ -180,4 +180,19 @@ export const settingsFr = {
     '2. Si la nouvelle version a mis à jour la base, restaurez la sauvegarde « avant mise à jour » depuis Paramètres › Sauvegardes.',
   'update.rollback.note':
     'Une copie de la base est aussi faite automatiquement avant chaque mise à jour de sa structure.',
+
+  'nav.settings.modules': 'Modules',
+  'settings.modules.description':
+    'Fonctions activées dans la boutique : celles qui ne servent pas disparaissent des menus.',
+  'modules.intro':
+    'Un module désactivé disparaît des menus, de la caisse et du tableau de bord. Ses données éventuelles sont conservées et réapparaissent si vous le réactivez.',
+  'modules.suppliers': 'Fournisseurs',
+  'modules.suppliers.hint':
+    'Fiches fournisseurs, dettes et paiements, retours au fournisseur. Sans ce module, les entrées de stock se font sans fournisseur.',
+  'modules.deliveries': 'Livraisons',
+  'modules.deliveries.hint':
+    'Livraison proposée à l’encaissement, suivi des livraisons, bon de livraison.',
+  'modules.warranty': 'Garantie et SAV',
+  'modules.warranty.hint':
+    'Recherche d’un appareil et réclamations. La fin de garantie reste imprimée sur la facture.',
 } as const;

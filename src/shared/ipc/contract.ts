@@ -149,6 +149,7 @@ import { updateInstallInputSchema, updatePreviewSchema } from '../schemas/update
 import {
   allSettingsSchema,
   fraudSettingsSchema,
+  modulesSettingsSchema,
   printerSettingsSchema,
   publicSettingsSchema,
   regionalSettingsSchema,
@@ -773,6 +774,11 @@ export const ipcContract = {
   },
   'settings:saveSecurity': {
     input: securitySettingsSchema,
+    output: allSettingsSchema,
+    access: needs('settings.manage'),
+  },
+  'settings:saveModules': {
+    input: modulesSettingsSchema,
     output: allSettingsSchema,
     access: needs('settings.manage'),
   },

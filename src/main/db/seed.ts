@@ -35,6 +35,10 @@ export const DEFAULT_SETTINGS: Readonly<Record<string, unknown>> = {
   'fraud.discount_alert': 2000,
   'fraud.adjustments_per_day': 5,
   'fraud.cash_difference': 1000,
+  // Modules activables (D90) : fournisseurs, livraisons, garantie et SAV désactivés par défaut.
+  'modules.suppliers': false,
+  'modules.deliveries': false,
+  'modules.warranty': false,
   'security.idle_lock_minutes': DEFAULT_IDLE_LOCK_MINUTES,
   'security.recovery_key_hash': null,
   'inventory.double_check': false,

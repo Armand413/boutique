@@ -20,6 +20,7 @@ export const ROUTES = {
   'settings.security': { labelKey: 'nav.settings.security', parent: 'settings' },
   'settings.backup': { labelKey: 'nav.settings.backup', parent: 'settings' },
   'settings.update': { labelKey: 'nav.settings.update', parent: 'settings' },
+  'settings.modules': { labelKey: 'nav.settings.modules', parent: 'settings' },
   about: { labelKey: 'nav.about', parent: null },
   users: { labelKey: 'nav.users', parent: null },
   audit: { labelKey: 'nav.audit', parent: null },

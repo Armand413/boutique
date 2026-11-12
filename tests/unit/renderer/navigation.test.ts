@@ -16,16 +16,36 @@ describe('navigation', () => {
 
   it('cache les outils de développement en production', () => {
     const none = new Set<Permission>();
-    expect(visibleModules(MODULES, none, false).map((m) => m.route)).not.toContain('dev.gallery');
-    expect(visibleModules(MODULES, none, true).map((m) => m.route)).toContain('dev.gallery');
+    expect(visibleModules(MODULES, none, false, null).map((m) => m.route)).not.toContain(
+      'dev.gallery',
+    );
+    expect(visibleModules(MODULES, none, true, null).map((m) => m.route)).toContain('dev.gallery');
   });
 
   it('cache un module dont la permission manque', () => {
     const [first] = MODULES;
     if (first === undefined) throw new Error('Aucun module déclaré');
     const guarded: ModuleEntry[] = [{ ...first, permission: 'cost.view' }];
-    expect(visibleModules(guarded, new Set(), false)).toHaveLength(0);
-    expect(visibleModules(guarded, new Set<Permission>(['cost.view']), false)).toHaveLength(1);
+    expect(visibleModules(guarded, new Set(), false, null)).toHaveLength(0);
+    expect(visibleModules(guarded, new Set<Permission>(['cost.view']), false, null)).toHaveLength(
+      1,
+    );
+  });
+
+  it('cache les modules désactivés dans les paramètres (D90)', () => {
+    const everything = new Set<Permission>([
+      'supplier.manage',
+      'delivery.manage',
+      'warranty.manage',
+    ]);
+    const routes = (enabled: Parameters<typeof visibleModules>[3]) =>
+      visibleModules(MODULES, everything, false, enabled).map((m) => m.route);
+    const off = { suppliers: false, deliveries: false, warranty: false };
+    expect(routes(off)).not.toContain('suppliers');
+    expect(routes(off)).not.toContain('deliveries');
+    expect(routes(off)).not.toContain('warranty');
+    expect(routes(null)).not.toContain('suppliers');
+    expect(routes({ ...off, suppliers: true })).toContain('suppliers');
   });
 });
 

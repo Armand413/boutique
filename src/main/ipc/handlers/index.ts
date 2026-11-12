@@ -3,7 +3,9 @@ import { AppError } from '@shared/ipc/errors';
 import type { Session } from '../../auth/session';
 import type { PreferencesService } from '../../services/preferences-service';
 import type { AppRuntime } from '../../system/runtime';
+import { readModules } from '../../settings/settings-service';
 import type { IpcContext, IpcHandlers } from '../dispatch';
+import { requireModule, withModule } from './modules';
 
 export interface HandlerDependencies {
   preferences: PreferencesService;
@@ -19,7 +21,8 @@ function actor(context: IpcContext): Session {
 
 export function createHandlers({ preferences, runtime }: HandlerDependencies): IpcHandlers {
   const services = () => runtime.requireServices();
-  return {
+  const modules = () => readModules(services().db);
+  const handlers: IpcHandlers = {
     'app:getInfo': () => ({
       name: app.getName(),
       version: app.getVersion(),
@@ -113,17 +116,28 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
       services().stock.availableUnits(actor(context), variantId, locationId),
     'stock:exit': (input, context) => services().stock.exit(actor(context), input),
     'stock:transfer': (input, context) => services().stock.transfer(actor(context), input),
-    'suppliers:list': (_input, context) => services().suppliers.list(actor(context)),
-    'suppliers:get': ({ supplierId }, context) =>
+    'suppliers:list': withModule(modules, 'suppliers', (_input, context) =>
+      services().suppliers.list(actor(context)),
+    ),
+    'suppliers:get': withModule(modules, 'suppliers', ({ supplierId }, context) =>
       services().suppliers.detail(actor(context), supplierId),
-    'suppliers:save': (input, context) => services().suppliers.save(actor(context), input),
-    'suppliers:pay': (input, context) => services().suppliers.pay(actor(context), input),
-    'suppliers:return': (input, context) =>
+    ),
+    'suppliers:save': withModule(modules, 'suppliers', (input, context) =>
+      services().suppliers.save(actor(context), input),
+    ),
+    'suppliers:pay': withModule(modules, 'suppliers', (input, context) =>
+      services().suppliers.pay(actor(context), input),
+    ),
+    'suppliers:return': withModule(modules, 'suppliers', (input, context) =>
       services().suppliers.returnToSupplier(actor(context), input),
+    ),
     'receipts:list': ({ limit }, context) => services().suppliers.receipts(actor(context), limit),
     'receipts:get': ({ receiptId }, context) =>
       services().suppliers.receipt(actor(context), receiptId),
-    'receipts:create': (input, context) => services().suppliers.receive(actor(context), input),
+    'receipts:create': (input, context) => {
+      if (input.supplierId !== null) requireModule(modules(), 'suppliers');
+      return services().suppliers.receive(actor(context), input);
+    },
     'customers:search': ({ query, limit, withDebtOnly }, context) =>
       services().customers.search(actor(context), query, limit, withDebtOnly ?? false),
     'customers:get': ({ customerId }, context) =>
@@ -142,7 +156,10 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
     'cash:list': ({ limit }, context) => services().cashSessions.list(actor(context), limit),
     'sales:preview': ({ lines, globalDiscount, quoteId }, context) =>
       services().sales.preview(actor(context), lines, globalDiscount, quoteId),
-    'sales:checkout': (input, context) => services().sales.checkout(actor(context), input),
+    'sales:checkout': (input, context) => {
+      if (input.delivery !== null) requireModule(modules(), 'deliveries');
+      return services().sales.checkout(actor(context), input);
+    },
     'sales:hold': (input, context) => services().sales.hold(actor(context), input),
     'sales:held': (_input, context) => services().sales.heldSales(actor(context)),
     'sales:resume': ({ saleId }, context) => services().sales.resume(actor(context), saleId),
@@ -164,12 +181,13 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
     'quotes:toCart': ({ quoteId }, context) => services().quotes.toCart(actor(context), quoteId),
     'installments:list': ({ scope, limit }, context) =>
       services().followups.installments(actor(context), scope, limit),
-    'deliveries:list': ({ status, limit }, context) =>
+    'deliveries:list': withModule(modules, 'deliveries', ({ status, limit }, context) =>
       services().followups.deliveries(actor(context), status, limit),
-    'deliveries:update': ({ deliveryId, status }, context) => {
+    ),
+    'deliveries:update': withModule(modules, 'deliveries', ({ deliveryId, status }, context) => {
       services().followups.updateDelivery(actor(context), deliveryId, status);
       return null;
-    },
+    }),
     'documents:ticketText': ({ saleId }, context) => ({
       lines: services().documents.ticketText(actor(context), saleId),
     }),
@@ -199,13 +217,24 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
       services().inventories.cancel(actor(context), inventoryId),
     'inventory:export': ({ inventoryId, format }, context) =>
       services().inventoryReport.export(actor(context), inventoryId, format),
-    'warranty:lookup': ({ serial }, context) => services().warranty.lookup(actor(context), serial),
-    'warranty:open': ({ serialUnitId, issue, supplierId }, context) =>
-      services().warranty.open(actor(context), serialUnitId, issue, supplierId),
-    'warranty:update': (input, context) => services().warranty.update(actor(context), input),
-    'warranty:list': ({ scope, limit }, context) =>
+    'warranty:lookup': withModule(modules, 'warranty', ({ serial }, context) =>
+      services().warranty.lookup(actor(context), serial),
+    ),
+    'warranty:open': withModule(
+      modules,
+      'warranty',
+      ({ serialUnitId, issue, supplierId }, context) =>
+        services().warranty.open(actor(context), serialUnitId, issue, supplierId),
+    ),
+    'warranty:update': withModule(modules, 'warranty', (input, context) =>
+      services().warranty.update(actor(context), input),
+    ),
+    'warranty:list': withModule(modules, 'warranty', ({ scope, limit }, context) =>
       services().warranty.list(actor(context), scope, limit),
-    'warranty:expiring': (_input, context) => services().warranty.expiring(actor(context)),
+    ),
+    'warranty:expiring': withModule(modules, 'warranty', (_input, context) =>
+      services().warranty.expiring(actor(context)),
+    ),
     'dashboard:get': (_input, context) => services().reports.dashboard(actor(context)),
     'reports:run': (request, context) => services().reports.run(actor(context), request),
     'reports:export': ({ request, format }, context) =>
@@ -232,6 +261,8 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
     'settings:saveSecurity': (input, context) =>
       services().settings.saveSecurity(actor(context), input),
     'settings:saveFraud': (input, context) => services().settings.saveFraud(actor(context), input),
+    'settings:saveModules': (input, context) =>
+      services().settings.saveModules(actor(context), input),
     'settings:saveTaxRate': (input, context) =>
       services().settings.saveTaxRate(actor(context), input),
     'settings:chooseLogo': (_input, context) => services().settings.chooseLogo(actor(context)),
@@ -242,4 +273,5 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
     'documents:saveQuote': ({ quoteId }, context) =>
       services().documents.saveQuote(actor(context), quoteId),
   };
+  return handlers;
 }

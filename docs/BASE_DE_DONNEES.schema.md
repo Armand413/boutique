@@ -701,7 +701,7 @@ erDiagram
 | ------------ | ------- | ----- | --------------------------------------- | ------------------ |
 | id (clé)     | INTEGER | non   |                                         |                    |
 | number       | TEXT    | non   |                                         |                    |
-| supplier_id  | INTEGER | non   |                                         | suppliers.id       |
+| supplier_id  | INTEGER | oui   |                                         | suppliers.id       |
 | location_id  | INTEGER | non   |                                         | stock_locations.id |
 | received_at  | TEXT    | non   |                                         |                    |
 | total_cost   | INTEGER | non   | `0`                                     |                    |

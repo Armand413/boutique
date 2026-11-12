@@ -445,6 +445,10 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
   exécutable `BoubaStore.exe`, icône tirée de l'emblème du logo ; captures et PDF du guide régénérés. Données dans
   `%APPDATA%\Bouba Store` (une installation sous l'ancien nom se reprend par une sauvegarde).
 
+- **Simplification** (D90, demande du client) : Paramètres › Modules ; Fournisseurs, Livraisons et Garantie et SAV
+  désactivés par défaut (menus, caisse, tableau de bord, canaux refusés) ; entrée de stock sans fournisseur
+  (migration 0012). **Correctif** : création d'un client depuis la caisse (nom et téléphone, bouton toujours actif).
+
 ### Vérifications de fin de phase
 
 | Contrôle                | Résultat                                                                                                     |

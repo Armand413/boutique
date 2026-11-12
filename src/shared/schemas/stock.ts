@@ -256,8 +256,9 @@ export const supplierPaymentSchema = z.strictObject({
 export const receiptSummarySchema = z.strictObject({
   id,
   number: z.string(),
-  supplierId: id,
-  supplierName: z.string(),
+  /** Facultatif : une entrée peut se faire sans fournisseur (D90). */
+  supplierId: id.nullable(),
+  supplierName: z.string().nullable(),
   locationName: z.string(),
   receivedAt: z.string(),
   totalCost: money,
@@ -292,7 +293,8 @@ export const receiptLineInputSchema = z.strictObject({
 export type ReceiptLineInput = z.infer<typeof receiptLineInputSchema>;
 
 export const createReceiptInputSchema = z.strictObject({
-  supplierId: id,
+  /** Facultatif (D90) ; un paiement immédiat exige un fournisseur. */
+  supplierId: id.nullable(),
   locationId: id,
   receivedOn: isoDate,
   notes: optionalText(1000),

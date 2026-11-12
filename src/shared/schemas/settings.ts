@@ -67,6 +67,19 @@ export const fraudSettingsSchema = z.strictObject({
 });
 export type FraudSettings = z.infer<typeof fraudSettingsSchema>;
 
+/**
+ * Modules activables (D90) : désactivés, ils disparaissent des menus et de la caisse, et leurs
+ * opérations sont refusées ; leurs données restent en base.
+ */
+export const MODULES = ['suppliers', 'deliveries', 'warranty'] as const;
+export type ModuleName = (typeof MODULES)[number];
+export const modulesSettingsSchema = z.strictObject({
+  suppliers: z.boolean(),
+  deliveries: z.boolean(),
+  warranty: z.boolean(),
+});
+export type ModulesSettings = z.infer<typeof modulesSettingsSchema>;
+
 export const taxRateInputSchema = z.strictObject({
   id: z.number().int().positive().nullable(),
   name: z.string().trim().min(1).max(60),
@@ -84,6 +97,7 @@ export const allSettingsSchema = z.strictObject({
   printer: printerSettingsSchema,
   security: securitySettingsSchema,
   fraud: fraudSettingsSchema,
+  modules: modulesSettingsSchema,
   taxRates: z.array(
     z.strictObject({
       id: z.number().int(),
@@ -101,5 +115,6 @@ export const publicSettingsSchema = z.strictObject({
   currency: regionalSettingsSchema.shape.currency,
   dateFormat: z.enum(DATE_FORMATS),
   labelLayout: z.enum(['sheet', 'roll']),
+  modules: modulesSettingsSchema,
 });
 export type PublicSettings = z.infer<typeof publicSettingsSchema>;

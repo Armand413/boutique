@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import { CornerDownLeft } from 'lucide-react';
 import type { Permission } from '@shared/permissions';
+import type { ModulesSettings } from '@shared/schemas/settings';
 import { MODULES, visibleModules } from '../app/modules';
 import { breadcrumbOf, ROUTES, type RouteName } from '../app/routes';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../components/ui/dialog';
@@ -9,6 +10,7 @@ import { useT, type Translate } from '../i18n';
 import { errorMessage, invoke } from '../lib/ipc';
 import { toast } from '../components/ui/toast';
 import { cn } from '../lib/cn';
+import { usePublicSettings } from '../stores/public-settings';
 import { useRouter } from '../stores/router';
 import { useSession } from '../stores/session';
 
@@ -63,9 +65,13 @@ async function searchCatalog(t: Translate, query: string): Promise<Command[]> {
   ];
 }
 
-function buildCommands(t: Translate, granted: ReadonlySet<Permission>): Command[] {
+function buildCommands(
+  t: Translate,
+  granted: ReadonlySet<Permission>,
+  enabled: ModulesSettings | null,
+): Command[] {
   const allowedTopLevel = new Set(
-    visibleModules(MODULES, granted, import.meta.env.DEV).map((m) => m.route),
+    visibleModules(MODULES, granted, import.meta.env.DEV, enabled).map((m) => m.route),
   );
   return (Object.keys(ROUTES) as RouteName[])
     .filter((route) => {
@@ -98,7 +104,11 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const listId = useId();
   const permissions = useSession((state) => state.session?.permissions);
-  const commands = useMemo(() => buildCommands(t, new Set(permissions ?? [])), [t, permissions]);
+  const enabled = usePublicSettings((state) => state.settings?.modules ?? null);
+  const commands = useMemo(
+    () => buildCommands(t, new Set(permissions ?? []), enabled),
+    [t, permissions, enabled],
+  );
   const canSearchCatalog = (permissions ?? []).includes('product.view');
   const trimmed = query.trim();
   const [remote, setRemote] = useState<RemoteResults>({ query: '', commands: [] });

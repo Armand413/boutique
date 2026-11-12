@@ -75,7 +75,10 @@ Après l'installation, pensez à :
 2. remplir les **informations de la boutique** (Paramètres › Boutique) : elles s'impriment sur les tickets et les
    factures ;
 3. créer les comptes des **vendeurs** et du **gérant** (Utilisateurs) ;
-4. importer vos produits (voir [9](#9-produits-caractéristiques-et-kits)).
+4. importer vos produits (voir [9](#9-produits-caractéristiques-et-kits)) ;
+5. choisir les **modules** utiles (Paramètres › Modules) : **Fournisseurs**, **Livraisons** et **Garantie et SAV**
+   sont désactivés au départ pour garder l'application simple. Activez-les si vous en avez besoin : ils
+   apparaissent alors dans les menus, sans rien perdre.
 
 ## 3. Se connecter, verrouiller, se déconnecter
 
@@ -135,8 +138,9 @@ En début de journée, saisissez le **fond de caisse** compté dans le tiroir et
 - Quantité : boutons − et +, ou saisie directe. Corbeille pour retirer une ligne.
 - **Remise** par ligne ou globale, en pourcentage ou en montant. Elle est plafonnée selon le rôle (10 % pour un
   vendeur et 30 % pour un gérant par défaut, réglable) et ne descend jamais sous le prix minimum d'un article.
-- **Client** : **Choisir un client** pour le retrouver par nom ou téléphone, ou le créer sur place. Il est obligatoire
-  pour une vente à crédit ou une livraison.
+- **Client** : **Choisir un client** pour le retrouver par nom ou téléphone. S'il n'existe pas, cliquez sur
+  **Nouveau client**, saisissez son nom et son téléphone, puis **Créer et choisir**. Il est obligatoire pour une
+  vente à crédit ou une livraison.
 
 ### Encaisser (F4)
 
@@ -147,7 +151,7 @@ Saisissez les montants reçus par moyen de paiement : **espèces**, **carte**, *
 
 - **Paiement partiel / crédit** : encaissez un acompte et répartissez le reste en **échéances** (dates et montants).
   Le plafond de crédit du client est vérifié.
-- **Livraison** : cochez la case, puis indiquez l'adresse et la date prévue.
+- **Livraison** (module Livraisons activé) : cochez la case, puis indiquez l'adresse et la date prévue.
 
 **Valider la vente** enregistre en une seule fois le panier, les paiements et les sorties de stock : soit tout est
 enregistré, soit rien. Le récapitulatif propose le **ticket**, la **facture A4**, le **bon de garantie** et le **bon
@@ -193,7 +197,7 @@ les documents.
 - **Devis** : pour les achats importants (installation solaire, téléviseur, sonorisation). Créez le devis, fixez sa
   date de validité, imprimez-le en PDF. Vous pouvez **réserver** les appareils pendant la validité. Un devis accepté se
   **transforme en vente** en un clic ; un devis échu expire seul.
-- **Livraisons** : à livrer, livrées, annulées. Marquez une livraison comme faite, imprimez le bon de livraison.
+- **Livraisons** (module Livraisons activé) : à livrer, livrées, annulées. Marquez une livraison comme faite, imprimez le bon de livraison.
 
 ## 9. Produits, caractéristiques et kits
 
@@ -239,14 +243,14 @@ numéro de série).
 mouvements** (date, article, numéro, quantité, stock après, motif, document, utilisateur) et la **valorisation**
 (au coût moyen et au prix de vente, par emplacement et par famille ; réservée à qui voit les prix d'achat).
 
-- **Entrée de marchandise** : choisissez le fournisseur et l'emplacement, scannez les articles, saisissez quantités et
-  prix d'achat, et pour chaque appareil suivi son IMEI ou son numéro de série (IMEI 2 facultatif). Un bon
-  `BR-AAAA-NNNNN` est créé ; le coût moyen pondéré est recalculé. Un paiement au fournisseur peut être saisi en même
-  temps.
+- **Entrée de marchandise** : choisissez l'emplacement, scannez les articles, saisissez quantités et prix d'achat, et
+  pour chaque appareil suivi son IMEI ou son numéro de série (IMEI 2 facultatif). Un bon `BR-AAAA-NNNNN` est créé ;
+  le coût moyen pondéré est recalculé. Avec le module Fournisseurs, vous pouvez en plus choisir le fournisseur
+  (facultatif) et saisir un paiement.
 - **Sortie** (perte, casse, vol, usage interne) et **ajustement** : motif obligatoire.
 - **Transfert** entre emplacements (magasin, dépôt) et **retour au fournisseur**.
 - **Emplacements** : créez le dépôt, choisissez l'emplacement par défaut.
-- **Fournisseurs** : fiche, historique des entrées, paiements, **reste dû**.
+- **Fournisseurs** (module Fournisseurs activé) : fiche, historique des entrées, paiements, **reste dû**, retours.
 
 Le stock ne devient jamais négatif : une vente ou une sortie au-delà du stock est refusée.
 
@@ -263,6 +267,9 @@ Le stock ne devient jamais négatif : une vente ou une sortie au-delà du stock 
 5. **Rapport** PDF et Excel, avec signataires. L'historique des inventaires est conservé.
 
 ## 12. Garantie et SAV
+
+Écran disponible quand le module **Garantie et SAV** est activé (Paramètres › Modules). Sans lui, la fin de
+garantie reste imprimée sur la facture et le bon de garantie.
 
 ![Garantie et SAV](images/garantie.png)
 
@@ -319,6 +326,7 @@ les marges n'apparaissent jamais dans les rapports ni les exports d'un vendeur.
 | **Sécurité et anti-fraude**   | Délai de verrouillage, plafonds de remise par rôle, double contrôle, seuils d'alerte           |
 | **Sauvegardes**               | Voir [16](#16-sauvegarde-et-restauration)                                                      |
 | **Mise à jour**               | Voir [17](#17-mettre-à-jour-lapplication)                                                      |
+| **Modules**                   | Fournisseurs, Livraisons, Garantie et SAV : activés ou masqués, données conservées             |
 | **Apparence**                 | Thème, taille du texte, langue (propres à l'ordinateur)                                        |
 
 ## 16. Sauvegarde et restauration
