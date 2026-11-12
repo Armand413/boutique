@@ -421,8 +421,54 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
   à surveiller sur un vrai poste de boutique.
 - Temps mesurés sur le poste de développement ; à refaire sur le matériel de la boutique.
 
-## Phase 10 — Packaging et documentation : à faire
+## Phase 10 — Packaging et documentation : terminée (12/11/2026)
 
-setup.exe NSIS, désinstallation propre, signature configurable, mises à jour ; thread des rapports dans l'archive
-asar ; GUIDE_UTILISATEUR.md, GUIDE_TECHNIQUE.md, BASE_DE_DONNEES.md (diagramme Mermaid), rapport final exigence par
-exigence.
+### Fait
+
+- **Installateur** (`electron-builder.yml`, D83 à D85) : setup.exe NSIS assisté, par utilisateur, sans droit
+  d'administrateur, raccourcis bureau et menu Démarrer ; désinstallation propre (programme, raccourcis, registre) qui
+  garde les données ; archive asar minimale (out/ et dépendances de production), modules natifs N-API hors archive ;
+  icône `build/icon.svg` → `.ico`.
+- **Signature configurable** (D84) : `CSC_LINK` / `CSC_KEY_PASSWORD`, `npm run dist:signed` (signature imposée).
+- **Mise à jour par clé USB** (D82, accord du client) : Paramètres › Mise à jour ; copie du setup vérifiée par Windows
+  (Authenticode, produit, version), même signataire exigé pour une application signée, accord explicite pour un setup
+  non signé, mot de passe, sauvegarde chiffrée, audit, puis lancement de l'assistant. Écran du retour arrière.
+- **Anonymisation d'un client** sur demande (B.3, D87), trouvée manquante en rédigeant le rapport final.
+- **Test de l'application installée** (`npm run test:packaged`, D86) : installation silencieuse, démarrage, profil
+  isolé, thread des rapports dans l'archive, DevTools fermés, proposition de mise à jour avec un setup de la version
+  suivante, désinstallation vérifiée.
+- **Documentation** (D88) : `docs/GUIDE_UTILISATEUR.md` et `GUIDE_UTILISATEUR.pdf` (22 pages illustrées par les
+  captures de l'application sur les données de démonstration), `GUIDE_TECHNIQUE.md`, `BASE_DE_DONNEES.md` (diagramme
+  Mermaid) et `BASE_DE_DONNEES.schema.md` (généré depuis les migrations), `RAPPORT_FINAL.md` (exigence par exigence).
+
+### Vérifications de fin de phase
+
+| Contrôle                | Résultat                                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `npm run typecheck`     | 0 erreur                                                                                                     |
+| `npm run lint`          | 0 erreur, 0 avertissement                                                                                    |
+| `npm test`              | 273 tests verts (8 pour la mise à jour, 2 pour le contrôle d'intégrité au démarrage, 1 pour l'anonymisation) |
+| `npm run test:e2e`      | 39 tests verts sur l'application compilée (+ 3 ignorés hors demande : captures et application installée)     |
+| `npm run test:packaged` | vert : setup.exe installé, application testée, désinstallation vérifiée                                      |
+| `npm run test:load`     | 7 tests verts (phase 9)                                                                                      |
+| WCAG AA                 | axe-core clair et sombre : écran Mise à jour                                                                 |
+| `npm audit`             | 0 faille en production ; 15 modérées dans les outils de développement (D13), aucune critique                 |
+
+### Corrigé pendant la phase
+
+- Sous `/S`, le setup rend la main avant la fin de la copie : le test attend le désinstallateur, écrit en dernier.
+- Un fichier qui n'est pas un exécutable donne « UnknownError » à `Get-AuthenticodeSignature` : traité comme une
+  signature invalide (refus), testé avec un nom de fichier piégé.
+
+### Reste à valider / limites
+
+- **Signature** avec un vrai certificat : configurée, non testée (aucun certificat).
+- Sur ce poste, la prise de contrôle par Playwright d'un exécutable **fraîchement installé** reste parfois bloquée une
+  à trois minutes (l'application, elle, affiche sa fenêtre en moins d'une seconde dans ses journaux, et un lancement
+  normal n'est pas concerné) : `test:packaged` fait jusqu'à trois essais espacés d'une minute.
+- Un test de performance du catalogue (première page sans filtre < 100 ms) a mesuré 246 ms une fois, suite complète
+  lancée en parallèle avec d'autres travaux ; vert seul et sur deux passages complets suivants. Seuil inchangé.
+- L'anonymisation laisse l'adresse des livraisons déjà faites (base figée) : effacement possible par une migration,
+  décision du client (D87).
+- Matériel (imprimante thermique, tiroir, lecteur, étiquettes, écran tactile), Windows 10 avec 4 Go, DPAPI sur un
+  autre compte Windows, test d'utilisabilité et formation : à faire à la recette (voir `docs/RAPPORT_FINAL.md` §9).

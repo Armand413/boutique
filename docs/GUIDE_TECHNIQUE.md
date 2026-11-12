@@ -188,8 +188,8 @@ codes-barres USB en mode clavier terminant par Entrée, imprimante A4 standard p
 
 ## 10. Qualité et performances mesurées
 
-Fin de phase 10 : typecheck et lint sans erreur, 273 tests unitaires, 41 tests de bout en bout (dont l'application
-installée), test de charge vert. Mesures sur 50 000 produits et 100 000 ventes : recherche < 11 ms, ajout au panier
+Fin de phase 10 : typecheck et lint sans erreur, 273 tests unitaires, 39 tests de bout en bout sur l'application
+compilée et le test de l'application installée (`npm run test:packaged`), test de charge vert. Mesures sur 50 000 produits et 100 000 ventes : recherche < 11 ms, ajout au panier
 < 1 ms, validation d'une vente 8 ms, ouverture de la base 1,2 s ; rapports de 0,1 à 4 s et tableau de bord 4,8 s,
 calculés hors du thread de l'interface (voir PROGRESS.md, phase 9).
 
