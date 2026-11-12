@@ -468,7 +468,6 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
   normal n'est pas concerné) : `test:packaged` fait jusqu'à trois essais espacés d'une minute.
 - Un test de performance du catalogue (première page sans filtre < 100 ms) a mesuré 246 ms une fois, suite complète
   lancée en parallèle avec d'autres travaux ; vert seul et sur deux passages complets suivants. Seuil inchangé.
-- L'anonymisation laisse l'adresse des livraisons déjà faites (base figée) : effacement possible par une migration,
-  décision du client (D87).
+- Décision du client : l'anonymisation garde l'adresse des livraisons déjà faites, sur le bon de livraison (D87).
 - Matériel (imprimante thermique, tiroir, lecteur, étiquettes, écran tactile), Windows 10 avec 4 Go, DPAPI sur un
   autre compte Windows, test d'utilisabilité et formation : à faire à la recette (voir `docs/RAPPORT_FINAL.md` §9).
