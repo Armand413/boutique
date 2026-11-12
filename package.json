@@ -1,6 +1,6 @@
 {
   "name": "boutique-gestion",
-  "productName": "Boutique Gestion",
+  "productName": "Bouba Store",
   "version": "0.1.0",
   "description": "Gestion de boutique multi-familles : stock, inventaire, caisse, clients, fournisseurs, rapports",
   "private": true,

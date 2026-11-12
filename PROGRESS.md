@@ -441,6 +441,10 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
   captures de l'application sur les données de démonstration), `GUIDE_TECHNIQUE.md`, `BASE_DE_DONNEES.md` (diagramme
   Mermaid) et `BASE_DE_DONNEES.schema.md` (généré depuis les migrations), `RAPPORT_FINAL.md` (exigence par exigence).
 
+- **Identité Bouba Store** (D89, après la phase) : nom de l'application, setup `Bouba-Store-Setup-0.1.0.exe`,
+  exécutable `BoubaStore.exe`, icône tirée de l'emblème du logo ; captures et PDF du guide régénérés. Données dans
+  `%APPDATA%\Bouba Store` (une installation sous l'ancien nom se reprend par une sauvegarde).
+
 ### Vérifications de fin de phase
 
 | Contrôle                | Résultat                                                                                                     |

@@ -13,7 +13,7 @@ export const fr = {
   ...inventoryFr,
   ...reportsFr,
   ...settingsFr,
-  'app.name': 'Boutique Gestion',
+  'app.name': 'Bouba Store',
   'app.skipToContent': 'Aller au contenu principal',
 
   'nav.label': 'Navigation principale',

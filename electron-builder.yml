@@ -1,8 +1,8 @@
-# Installateur Windows (phase 10, D82 à D85). `npm run dist` produit dist/Boutique-Gestion-Setup-<version>.exe.
+# Installateur Windows (phase 10, D82 à D85). `npm run dist` produit dist/Bouba-Store-Setup-<version>.exe.
 # Signature : définir CSC_LINK (certificat .pfx ou chemin) et CSC_KEY_PASSWORD avant `npm run dist:signed`
 # (D84) ; sans certificat, `npm run dist` produit un installateur non signé.
 appId: ci.boutique.gestion
-productName: Boutique Gestion
+productName: Bouba Store
 copyright: Copyright © 2026 Armand
 directories:
   output: dist
@@ -29,9 +29,9 @@ win:
     - target: nsis
       arch: x64
   icon: build/icon.ico
-  executableName: BoutiqueGestion
+  executableName: BoubaStore
   requestedExecutionLevel: asInvoker
-  legalTrademarks: Boutique Gestion
+  legalTrademarks: Bouba Store
 nsis:
   oneClick: false
   perMachine: false
@@ -39,9 +39,9 @@ nsis:
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: always
   createStartMenuShortcut: true
-  shortcutName: Boutique Gestion
-  uninstallDisplayName: Boutique Gestion
-  # Les données (base chiffrée, clés, sauvegardes) vivent dans %APPDATA%\Boutique Gestion : jamais
+  shortcutName: Bouba Store
+  uninstallDisplayName: Bouba Store
+  # Les données (base chiffrée, clés, sauvegardes) vivent dans %APPDATA%\Bouba Store : jamais
   # effacées à la désinstallation (D83).
   deleteAppDataOnUninstall: false
   runAfterFinish: true
@@ -50,6 +50,6 @@ nsis:
   installerLanguages:
     - fr_FR
   language: '1036'
-  artifactName: Boutique-Gestion-Setup-${version}.${ext}
+  artifactName: Bouba-Store-Setup-${version}.${ext}
   differentialPackage: false
 publish: null

@@ -55,7 +55,7 @@ function reportPdf(request: ReportRequest, result: ReportResult): Promise<Buffer
   const period = periodText(request);
   const wide = result.columns.length > 9;
   const document: TDocumentDefinitions = {
-    info: { title: reportTitle(request), creator: 'Boutique Gestion' },
+    info: { title: reportTitle(request), creator: 'Bouba Store' },
     pageOrientation: 'landscape',
     pageMargins: [24, 28, 24, 28],
     defaultStyle: { font: 'Helvetica', fontSize: wide ? 7 : 9 },

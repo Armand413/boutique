@@ -8,7 +8,7 @@ import { join } from 'node:path';
 
 const root = join(import.meta.dirname, '..');
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
-const setup = join(root, 'dist', `Boutique-Gestion-Setup-${version}.exe`);
+const setup = join(root, 'dist', `Bouba-Store-Setup-${version}.exe`);
 if (!existsSync(setup)) throw new Error(`Installateur absent : ${setup} (lancez npm run dist).`);
 
 function nextVersion() {
@@ -18,7 +18,7 @@ function nextVersion() {
 
 // Setup de la version suivante, construit à chaque essai dans un dossier temporaire neuf (même code, version + 1).
 const nextDirectory = mkdtempSync(join(tmpdir(), 'boutique-suivante-'));
-const nextSetup = join(nextDirectory, `Boutique-Gestion-Setup-${nextVersion()}.exe`);
+const nextSetup = join(nextDirectory, `Bouba-Store-Setup-${nextVersion()}.exe`);
 execSync(
   `npx electron-builder --win nsis -c.extraMetadata.version=${nextVersion()} -c.directories.output="${nextDirectory}"`,
   { cwd: root, stdio: 'inherit' },
@@ -28,8 +28,8 @@ execSync(
 // peut rester bloqué par l'analyse antivirus, et Playwright n'en prend pas le contrôle (constaté sur ce poste).
 const directory = mkdtempSync(join(root, 'dist', 'installe-'));
 const target = join(directory, 'app');
-const executable = join(target, 'BoutiqueGestion.exe');
-const uninstaller = join(target, 'Uninstall BoutiqueGestion.exe');
+const executable = join(target, 'BoubaStore.exe');
+const uninstaller = join(target, 'Uninstall BoubaStore.exe');
 let testStatus = null;
 try {
   execFileSync(setup, ['/S', `/D=${target}`], { stdio: 'inherit' });

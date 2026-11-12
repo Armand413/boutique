@@ -14,7 +14,7 @@ export const en: Readonly<Record<TranslationKey, string>> = {
   ...inventoryEn,
   ...reportsEn,
   ...settingsEn,
-  'app.name': 'Shop Manager',
+  'app.name': 'Bouba Store',
   'app.skipToContent': 'Skip to main content',
 
   'nav.label': 'Main navigation',

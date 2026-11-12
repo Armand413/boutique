@@ -211,7 +211,7 @@ export class AppRuntime {
     this.assertRestoreAllowed(actor);
     const path = await this.options.dialogs.openFile({
       title: 'Choisir une sauvegarde à restaurer',
-      filters: [{ name: 'Sauvegarde Boutique Gestion', extensions: [BACKUP_EXTENSION] }],
+      filters: [{ name: 'Sauvegarde Bouba Store', extensions: [BACKUP_EXTENSION] }],
     });
     if (path === null) return null;
     return previewBackup(path, this.restoreTokens.issue(path));

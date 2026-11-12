@@ -1,6 +1,6 @@
 # Base de données
 
-Une seule base SQLite chiffrée, locale, par poste : `%APPDATA%\Boutique Gestion\donnees\boutique.db`. Ce document
+Une seule base SQLite chiffrée, locale, par poste : `%APPDATA%\Bouba Store\donnees\boutique.db`. Ce document
 décrit son organisation et ses règles. Le détail colonne par colonne (40 tables, 15 vues, 99 triggers, 68 index) est
 **généré** à partir des migrations dans [BASE_DE_DONNEES.schema.md](BASE_DE_DONNEES.schema.md) (`npm run docs:db`).
 La conception de référence est l'Annexe E du cahier des charges ; les écarts sont notés dans

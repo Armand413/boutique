@@ -23,7 +23,7 @@ test.afterEach(async () => {
 
 test('démarre sur l’interface servie par app://, sans outil de développement', async () => {
   const { page } = launched;
-  await expect(page).toHaveTitle('Boutique Gestion');
+  await expect(page).toHaveTitle('Bouba Store');
   expect(page.url()).toBe('app://renderer/index.html');
   await expect(nav(page).getByRole('button', { name: 'Paramètres' })).toBeVisible();
   await expect(nav(page).getByRole('button', { name: 'Galerie des composants' })).toHaveCount(0);

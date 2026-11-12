@@ -288,7 +288,7 @@ de charge vert sur 50 000 produits, 98 746 ventes et 522 361 mouvements ; `npm a
 | Raccourci bureau et menu Démarrer                                | Livré     | vérifié après installation                                                                         |
 | Désinstallation propre                                           | Livré     | programme, raccourcis et entrée du registre supprimés ; données gardées (D83)                      |
 | Assistant de premier lancement                                   | Livré     | e2e `auth`                                                                                         |
-| Données dans un dossier utilisateur distinct                     | Livré     | `%APPDATA%\Boutique Gestion` ; vérifié sur l'application installée                                 |
+| Données dans un dossier utilisateur distinct                     | Livré     | `%APPDATA%\Bouba Store` ; vérifié sur l'application installée                                      |
 | Procédure de mise à jour documentée                              | Livré     | guide utilisateur §17, guide technique §8                                                          |
 | Migration des données existantes (import Excel/CSV)              | Livré     | import du catalogue                                                                                |
 | Code source, base avec migrations                                | Livré     | dépôt Git                                                                                          |

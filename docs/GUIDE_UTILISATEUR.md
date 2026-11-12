@@ -1,4 +1,4 @@
-# Boutique Gestion — Guide utilisateur
+# Bouba Store — Guide utilisateur
 
 Ce guide s'adresse au patron, au gérant et aux vendeurs. Il suit l'ordre d'une journée de travail : installer,
 se connecter, vendre, gérer le stock, contrôler, sauvegarder. Les captures viennent de l'application, remplie avec
@@ -34,7 +34,7 @@ chiffrées.
 **Poste conseillé** : Windows 10 ou 11 (64 bits), 4 Go de mémoire au minimum, 500 Mo libres, disque SSD de
 préférence, écran de 1366 × 768 au moins.
 
-1. Double-cliquez sur `Boutique-Gestion-Setup-<version>.exe`.
+1. Double-cliquez sur `Bouba-Store-Setup-<version>.exe`.
 2. Si Windows affiche « Windows a protégé votre ordinateur », vérifiez que le fichier vient bien de votre prestataire,
    puis cliquez sur **Informations complémentaires** › **Exécuter quand même**. Cet avertissement disparaît quand
    l'installateur est signé par un certificat de signature de code.
@@ -42,15 +42,15 @@ préférence, écran de 1366 × 768 au moins.
    pour votre compte Windows : aucun droit d'administrateur n'est demandé.
 4. À la fin, laissez cochée la case qui lance l'application.
 
-L'installation crée un raccourci **Boutique Gestion** sur le bureau et dans le menu Démarrer.
+L'installation crée un raccourci **Bouba Store** sur le bureau et dans le menu Démarrer.
 
-**Où sont les données ?** Dans `%APPDATA%\Boutique Gestion\donnees` (base chiffrée, clés protégées, sauvegardes
+**Où sont les données ?** Dans `%APPDATA%\Bouba Store\donnees` (base chiffrée, clés protégées, sauvegardes
 automatiques). Ce dossier est distinct du programme : une mise à jour ou une réinstallation ne l'écrase jamais.
 
-**Désinstaller** : Paramètres de Windows › Applications › Boutique Gestion › Désinstaller. Le programme et ses
+**Désinstaller** : Paramètres de Windows › Applications › Bouba Store › Désinstaller. Le programme et ses
 raccourcis sont supprimés ; **les données de la boutique sont conservées**, pour qu'une réinstallation les retrouve.
 Pour les effacer vraiment (ordinateur vendu ou donné), supprimez ensuite à la main le dossier
-`%APPDATA%\Boutique Gestion`, après avoir fait une sauvegarde sur une clé USB.
+`%APPDATA%\Bouba Store`, après avoir fait une sauvegarde sur une clé USB.
 
 ## 2. Premier lancement
 
@@ -348,7 +348,7 @@ Votre prestataire vous remet le programme d'installation de la nouvelle version,
 
 1. Terminez les ventes en cours.
 2. **Paramètres › Mise à jour › Choisir le programme d'installation**, puis choisissez le fichier sur la clé.
-3. L'application vérifie le fichier : qu'il s'agit bien de Boutique Gestion, que la version est plus récente, et sa
+3. L'application vérifie le fichier : qu'il s'agit bien de Bouba Store, que la version est plus récente, et sa
    **signature**. Une fois l'application installée par un setup signé, seul un fichier signé par le même éditeur est
    accepté. Un fichier non signé n'est proposé que si l'application elle-même ne l'est pas, et après votre
    confirmation explicite. Une signature invalide est toujours refusée.
@@ -373,7 +373,7 @@ précédente, puis, si la nouvelle version avait modifié la base, restaurez la 
 | Imprimante de tickets muette                            | Paramètres › Impression : vérifiez l'adresse, imprimez un ticket d'essai.                                                                                            |
 | Le lecteur de codes-barres n'ajoute rien                | Vérifiez que le curseur est dans le champ de recherche de la caisse ; le lecteur doit être en mode clavier et finir par Entrée.                                      |
 
-Les journaux techniques (sans aucune donnée sensible) sont dans `%APPDATA%\Boutique Gestion\logs` : votre prestataire
+Les journaux techniques (sans aucune donnée sensible) sont dans `%APPDATA%\Bouba Store\logs` : votre prestataire
 peut vous les demander.
 
 ## 19. Raccourcis clavier

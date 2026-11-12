@@ -18,7 +18,7 @@ import { safeStorageProtector } from '../../src/main/security/safe-storage';
 import { AppRuntime, type Services } from '../../src/main/system/runtime';
 import { DEMO_SCALE, generate } from './generator';
 
-const PRODUCT_NAME = 'Boutique Gestion';
+const PRODUCT_NAME = 'Bouba Store';
 
 function argument(name: string): string | null {
   const index = process.argv.indexOf(name);
@@ -126,7 +126,7 @@ async function seed(): Promise<number> {
 app.setName(PRODUCT_NAME);
 app.setPath('userData', argument('--user-data') ?? join(app.getPath('appData'), PRODUCT_NAME));
 if (!app.requestSingleInstanceLock()) {
-  say('Fermez Boutique Gestion avant de charger les données de démonstration.');
+  say('Fermez Bouba Store avant de charger les données de démonstration.');
   app.exit(1);
 } else {
   app

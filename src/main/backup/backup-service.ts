@@ -150,7 +150,7 @@ export class BackupService {
     const path = await this.deps.dialogs.saveFile({
       title: 'Enregistrer la sauvegarde',
       defaultName: `sauvegarde-${stamp(this.now())}.${BACKUP_EXTENSION}`,
-      filters: [{ name: 'Sauvegarde Boutique Gestion', extensions: [BACKUP_EXTENSION] }],
+      filters: [{ name: 'Sauvegarde Bouba Store', extensions: [BACKUP_EXTENSION] }],
     });
     if (path === null) return { saved: false };
     await this.createBackup('manual', path);

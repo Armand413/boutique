@@ -15,7 +15,7 @@ import { AppRuntime } from '../../../src/main/system/runtime';
 import { ADMIN, fakeDialogs, fakeProtector } from '../auth/harness';
 
 vi.mock('electron', () => ({
-  app: { getName: () => 'Boutique Gestion', getVersion: () => '0.0.0-test', isPackaged: false },
+  app: { getName: () => 'Bouba Store', getVersion: () => '0.0.0-test', isPackaged: false },
 }));
 vi.mock('../../../src/main/logging/logger', () => ({
   logger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },

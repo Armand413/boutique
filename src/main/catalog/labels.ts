@@ -79,7 +79,7 @@ export async function renderLabels(
     labels.map((label) => labelContent(label, format.width, format.height)),
   );
   const document: TDocumentDefinitions = {
-    info: { title: 'Étiquettes', creator: 'Boutique Gestion' },
+    info: { title: 'Étiquettes', creator: 'Bouba Store' },
     defaultStyle: { font: 'Helvetica' },
     pageMargins: layout === 'a4' ? [0, 0.5 * MM, 0, 0] : [0, 0, 0, 0],
     pageSize: layout === 'a4' ? 'A4' : { width: format.width, height: format.height },

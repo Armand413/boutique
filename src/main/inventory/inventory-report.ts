@@ -33,7 +33,7 @@ function reportPdf(detail: InventoryDetail): Promise<Buffer> {
   const { inventory } = detail;
   const withValue = inventory.differenceValue !== null;
   const document: TDocumentDefinitions = {
-    info: { title: `Inventaire ${inventory.name}`, creator: 'Boutique Gestion' },
+    info: { title: `Inventaire ${inventory.name}`, creator: 'Bouba Store' },
     pageOrientation: 'landscape',
     defaultStyle: { font: 'Helvetica', fontSize: 9 },
     content: [

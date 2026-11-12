@@ -80,7 +80,7 @@ describe('mise à jour depuis un setup.exe', () => {
 
   beforeEach(async () => {
     directory = mkdtempSync(join(tmpdir(), 'boutique-update-'));
-    installer = join(directory, 'Boutique-Gestion-Setup-1.1.0.exe');
+    installer = join(directory, 'Bouba-Store-Setup-1.1.0.exe');
     writeFileSync(installer, 'programme d’installation');
     inspected = info();
     launched.length = 0;
@@ -126,7 +126,7 @@ describe('mise à jour depuis un setup.exe', () => {
     const { updates, db } = runtime.requireServices();
     const preview = await updates.choose(admin());
     expect(preview).toMatchObject({
-      fileName: 'Boutique-Gestion-Setup-1.1.0.exe',
+      fileName: 'Bouba-Store-Setup-1.1.0.exe',
       version: '1.1.0',
       currentVersion: '1.0.0',
       verdict: 'unsigned',

@@ -45,7 +45,9 @@ describe('traductions', () => {
   });
 
   it('traduit une clé dans la langue demandée', () => {
-    expect(translate('fr', 'app.name')).toBe(fr['app.name']);
-    expect(translate('en', 'app.name')).toBe('Shop Manager');
+    expect(translate('fr', 'nav.settings')).toBe(fr['nav.settings']);
+    expect(translate('en', 'nav.settings')).toBe('Settings');
+    // Le nom de l'application est une marque : identique dans toutes les langues.
+    expect(translate('en', 'app.name')).toBe('Bouba Store');
   });
 });

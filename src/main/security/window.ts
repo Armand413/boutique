@@ -14,7 +14,7 @@ export function createMainWindow({ preloadPath, allowDevTools }: MainWindowOptio
     minWidth: 1024,
     minHeight: 640,
     show: false,
-    title: 'Boutique Gestion',
+    title: 'Bouba Store',
     backgroundColor: '#0f172a',
     autoHideMenuBar: true,
     webPreferences: {

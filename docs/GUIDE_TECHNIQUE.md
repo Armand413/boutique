@@ -1,4 +1,4 @@
-# Boutique Gestion — Guide technique
+# Bouba Store — Guide technique
 
 Pour le développeur ou le prestataire qui installe, construit, maintient ou fait évoluer l'application. Le cahier des
 charges (`docs/CAHIER_DES_CHARGES.md`) reste la source de vérité ; les choix faits pendant la réalisation sont dans
@@ -102,7 +102,7 @@ npm ci
 | `npm run docs:db`       | régénère `docs/BASE_DE_DONNEES.schema.md` depuis les migrations                                                                              |
 
 En développement et dans les tests, la variable `BOUTIQUE_TEST_USER_DATA` isole le profil ; elle est ignorée par
-l'application installée. Pour isoler le profil d'une application installée : `BoutiqueGestion.exe
+l'application installée. Pour isoler le profil d'une application installée : `BoubaStore.exe
 --user-data-dir=<dossier>`.
 
 ## 5. Faire évoluer la base
@@ -123,10 +123,11 @@ l'application installée. Pour isoler le profil d'une application installée : `
   les modules natifs sont sortis de l'archive (`asarUnpack: **/*.node`) ; rien de `tools/`, `tests/` ni `out-demo/` ;
 - la désinstallation supprime le programme, les raccourcis et l'entrée du registre, **jamais les données**
   (`deleteAppDataOnUninstall: false`, D83) ;
-- icône : `build/icon.svg`, convertie par `npx electron scripts/make-icon.cjs` en `build/icon.ico`.
+- icône : l'emblème rond du logo de la boutique (`build/logo-bouba-store.webp`), recadré par
+  `npx electron scripts/make-icon.cjs` en `build/icon.ico` et `build/icon.png` (D89).
 
-Installation silencieuse (déploiement) : `Boutique-Gestion-Setup-<version>.exe /S /D=C:\chemin`. Désinstallation
-silencieuse : `"Uninstall BoutiqueGestion.exe" /S`.
+Installation silencieuse (déploiement) : `Bouba-Store-Setup-<version>.exe /S /D=C:\chemin`. Désinstallation
+silencieuse : `"Uninstall BoubaStore.exe" /S`.
 
 ## 7. Signature du code (configurable)
 
@@ -141,7 +142,7 @@ npm run dist:signed
 
 `dist:signed` force la signature (`forceCodeSigning`) : sans certificat valide, la construction échoue au lieu de
 produire un installateur non signé. electron-builder signe l'exécutable, le désinstallateur et le setup. Vérification :
-`Get-AuthenticodeSignature .\dist\Boutique-Gestion-Setup-<version>.exe` doit afficher `Valid`. Un certificat EV ou un
+`Get-AuthenticodeSignature .\dist\Bouba-Store-Setup-<version>.exe` doit afficher `Valid`. Un certificat EV ou un
 service de signature (Azure Trusted Signing, option `win.azureSignOptions`) supprime l'avertissement SmartScreen dès la
 première installation.
 
@@ -155,7 +156,7 @@ Contrôles faits par l'application (`src/main/update`, D82) :
 
 - le fichier choisi est **copié** dans `donnees\mise-a-jour`, et c'est cette copie qui est vérifiée puis lancée
   (empreinte SHA-256 recontrôlée juste avant) ;
-- `Get-AuthenticodeSignature` et les informations de version (produit « Boutique Gestion », version strictement plus
+- `Get-AuthenticodeSignature` et les informations de version (produit « Bouba Store », version strictement plus
   récente) sont lus par PowerShell, le chemin passant par une variable d'environnement, jamais dans le script ;
 - application signée : le setup doit être signé par le **même certificat** (empreinte) ; application non signée :
   setup signé accepté, setup non signé accepté seulement après accord explicite ; signature invalide toujours refusée ;
@@ -167,7 +168,7 @@ la base a été migrée (une version ne lit pas une base d'un schéma plus réce
 
 ## 9. Exploitation
 
-| Élément                | Emplacement (`%APPDATA%\Boutique Gestion`)                                                                    |
+| Élément                | Emplacement (`%APPDATA%\Bouba Store`)                                                                         |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Base chiffrée          | `donnees\boutique.db` (+ `-wal`, `-shm`)                                                                      |
 | Clé (DPAPI), séquestre | `donnees\boutique.key`, `donnees\boutique.key.recovery`                                                       |

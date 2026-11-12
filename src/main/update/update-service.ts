@@ -11,7 +11,7 @@ import type { FileDialogs } from '../files/file-dialogs';
 import { logger } from '../logging/logger';
 import type { ExecutableInfo, ExecutableInspector } from './installer-inspector';
 
-export const PRODUCT_NAME = 'Boutique Gestion';
+export const PRODUCT_NAME = 'Bouba Store';
 const TOKEN_TTL_MS = 15 * 60_000;
 
 /** Lance l'installateur vérifié puis ferme l'application (l'installateur remplace ses fichiers). */

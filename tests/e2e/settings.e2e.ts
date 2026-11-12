@@ -271,11 +271,11 @@ test('mise à jour : un fichier qui n’est pas un installateur de l’applicati
   await openSection(page, 'Mise à jour');
   const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
   await expect(page.getByText(`Version installée : ${version}`)).toBeVisible();
-  // L'exécutable d'Electron : un vrai programme Windows, mais pas un installateur de Boutique Gestion.
+  // L'exécutable d'Electron : un vrai programme Windows, mais pas un installateur de Bouba Store.
   await stubFileDialogs(app, { open: electronBinary });
   await page.getByRole('button', { name: 'Choisir le programme d’installation' }).click();
   await expect(
-    page.getByRole('alert').filter({ hasText: 'n’est pas un installateur de Boutique Gestion' }),
+    page.getByRole('alert').filter({ hasText: 'n’est pas un installateur de Bouba Store' }),
   ).toBeVisible();
   await expect(page.getByRole('button', { name: 'Installer la mise à jour' })).toHaveCount(0);
   await expect(page.getByText('Revenir à la version précédente')).toBeVisible();
