@@ -195,13 +195,13 @@ test('devis réservé, envoyé puis converti en vente', async () => {
   await page.getByLabel('Ajouter un article').fill('câble');
   await page.getByRole('button', { name: 'Ajouter Câble USB-C' }).click();
   await page.getByLabel('Quantité de Câble USB-C').fill('3');
+  // Création directe, sans recherche préalable : nom et téléphone saisis dans le formulaire.
   await page.getByRole('button', { name: 'Choisir un client' }).click();
-  await page
-    .getByRole('dialog')
-    .getByLabel('Rechercher un client (nom ou téléphone)')
-    .fill('Kouamé');
   await page.getByRole('dialog').getByRole('button', { name: 'Nouveau client' }).click();
+  await page.getByRole('dialog').getByLabel('Nom complet *').fill('Kouamé');
+  await page.getByRole('dialog').getByLabel('Téléphone', { exact: true }).fill('0505050505');
   await page.getByRole('dialog').getByRole('button', { name: 'Créer et choisir' }).click();
+  await expect(page.getByRole('button', { name: 'Kouamé' })).toBeVisible();
   await checkAccessibility(page, 'Devis');
   await page.getByRole('button', { name: 'Enregistrer le devis' }).click();
   await toastShown(page, 'Devis enregistré.');

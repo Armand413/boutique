@@ -197,6 +197,7 @@ export function CustomerDialog({
   const [query, setQuery] = useState('');
   const [found, setFound] = useState<Customer[]>([]);
   const [creating, setCreating] = useState(false);
+  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   useEffect(() => {
     let active = true;
@@ -215,10 +216,19 @@ export function CustomerDialog({
       window.clearTimeout(timer);
     };
   }, [query]);
+  /** La recherche tapée préremplit le formulaire : un numéro va au téléphone, un texte au nom. */
+  const startCreating = (): void => {
+    const typed = query.trim();
+    const looksLikePhone = /^[\d\s+().-]{3,}$/.test(typed);
+    setName(looksLikePhone ? '' : typed);
+    setPhone(looksLikePhone ? typed : '');
+    setCreating(true);
+  };
   const create = async (): Promise<void> => {
+    if (name.trim() === '') return;
     const created = await submit(() =>
       invoke('customers:save', {
-        fullName: query,
+        fullName: name,
         phone,
         address: null,
         notes: null,
@@ -271,24 +281,40 @@ export function CustomerDialog({
           ))}
         </ul>
         {creating ? (
-          <div className="flex flex-col gap-3">
+          <form
+            className="border-border flex flex-col gap-3 rounded-md border p-4"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void create();
+            }}
+          >
+            <p className="text-sm font-semibold">{t('customer.form.createTitle')}</p>
+            <TextField
+              label={t('customer.form.name')}
+              autoFocus
+              autoComplete="off"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
             <TextField
               label={t('customer.form.phone')}
               type="tel"
+              autoComplete="off"
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
             />
             <FormError message={error} />
-            <Button onClick={() => void create()} disabled={query.trim() === ''}>
-              {t('customer.quickCreate')}
-            </Button>
-          </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={() => setCreating(false)}>
+                {t('common.cancel')}
+              </Button>
+              <Button type="submit" disabled={name.trim() === ''}>
+                {t('customer.quickCreate')}
+              </Button>
+            </div>
+          </form>
         ) : (
-          <Button
-            variant="secondary"
-            onClick={() => setCreating(true)}
-            disabled={query.trim() === ''}
-          >
+          <Button variant="secondary" onClick={startCreating}>
             <UserPlus aria-hidden="true" />
             {t('customer.new')}
           </Button>
