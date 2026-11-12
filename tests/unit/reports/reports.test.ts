@@ -238,10 +238,20 @@ describe('service des rapports', () => {
     try {
       const seller = h.as('seller');
       await expect(service.run(seller, request)).rejects.toThrow(/droit/);
+      // Vendeur (D93) : ventes du jour seulement, sans marge ni semaine ni mois.
       const board = await service.dashboard(seller);
-      expect(board.month.margin).toBeNull();
+      expect(board.todayOnly).toBe(true);
+      expect([board.week, board.month, board.lowStock, board.latestMovements]).toEqual([
+        null,
+        null,
+        null,
+        null,
+      ]);
+      expect(board.today.margin).toBeNull();
       expect(board.latestSales[0]?.total).toBe(11_800);
-      expect((await service.dashboard(h.manager)).month.margin).toBe(9000);
+      const manager = await service.dashboard(h.manager);
+      expect(manager.todayOnly).toBe(false);
+      expect(manager.month?.margin).toBe(9000);
 
       expect(await service.export(h.manager, request, 'xlsx')).toEqual({ saved: true });
       expect(existsSync(join(dir, 'ventes.xlsx'))).toBe(true);

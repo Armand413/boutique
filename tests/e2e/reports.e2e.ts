@@ -156,11 +156,16 @@ test('tableau de bord et rapports : ventes, marges, stock, caisse et exports', a
   await expect(page.getByRole('row', { name: /Grossiste/ })).toContainText('Fournisseur');
 });
 
-test('vendeur : tableau de bord sans bénéfice, rapports inaccessibles', async () => {
+test('vendeur : ventes du jour seulement, sans bénéfice, rapports inaccessibles', async () => {
   const { page } = launched;
   await seedShop(page);
   await signInAsNewSeller(page);
   await expect(page.getByRole('heading', { level: 1, name: 'Tableau de bord' })).toBeVisible();
+  // Tableau du vendeur (D93) : uniquement les ventes du jour.
+  await expect(page.getByText('Ventes du jour', { exact: true })).toBeVisible();
+  await expect(page.getByText('Cette semaine')).toHaveCount(0);
+  await expect(page.getByText('Ce mois-ci')).toHaveCount(0);
+  await expect(page.getByText('Derniers mouvements de stock')).toHaveCount(0);
   await expect(page.getByText(/Bénéfice estimé/)).toHaveCount(0);
   await expect(nav(page).getByRole('button', { name: 'Rapports' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Entrée de stock' })).toHaveCount(0);

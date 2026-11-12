@@ -72,7 +72,8 @@ describe('analyse d’un fichier de catalogue', () => {
     expect(redmi?.newBrandName).toBe('Xiaomi');
     expect(redmi?.input).toMatchObject({
       productType: 'phone',
-      trackingMode: 'imei',
+      // Plus de suivi unitaire (D93) : un téléphone importé se gère par quantité.
+      trackingMode: 'none',
       warrantyMonths: 12,
     });
     expect(

@@ -86,7 +86,7 @@ export async function enableModules(page: Page, labels: readonly string[]): Prom
 }
 
 /** Libellé du champ du lecteur de codes-barres de la caisse (D91). */
-export const SCAN_LABEL = 'Scanner un code (code-barres, IMEI ou numéro de série)';
+export const SCAN_LABEL = 'Scanner un code-barres';
 
 /**
  * Choisit un article par les listes successives (D91) : famille, puis l'article dont le libellé

@@ -27,6 +27,7 @@ export const reportsFr = {
   'dashboard.chart.noData': 'Aucune vente sur la période.',
   'dashboard.chart.summary': 'Total : {value}. Meilleur jour : {best}.',
   'dashboard.latestSales': 'Dernières ventes',
+  'dashboard.todaySales': 'Ventes du jour',
   'dashboard.latestMovements': 'Derniers mouvements de stock',
   'dashboard.noSales': 'Aucune vente pour le moment.',
   'dashboard.noMovements': 'Aucun mouvement de stock.',

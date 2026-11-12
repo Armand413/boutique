@@ -460,7 +460,7 @@ export class ProductService {
       throw new AppError(
         'VALIDATION_ERROR',
         input.productType === 'phone'
-          ? 'Un téléphone est toujours suivi par IMEI.'
+          ? 'Un téléphone se suit par IMEI ou sans suivi, pas par numéro de série.'
           : 'Un service ou un kit n’a pas de suivi unitaire.',
       );
     }

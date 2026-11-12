@@ -26,7 +26,8 @@ function upgradedDatabase() {
       .run(variantId, IMEI).lastInsertRowid,
   );
   move(db, { variantId, delta: 1, userId, serialUnitId: unitId });
-  const applied = migrate(db, bundledMigrations());
+  // Jusqu'à la 0007 : la 0013 retire ensuite le suivi unitaire (D93).
+  const applied = migrate(db, bundledMigrations().slice(0, 7));
   return { db, applied, unitId, variantId, userId };
 }
 

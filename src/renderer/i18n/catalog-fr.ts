@@ -325,5 +325,5 @@ export const catalogFr = {
   'cascade.stock': 'stock {count}',
   'cascade.tooMany':
     'Seuls les {count} premiers articles sont proposés : choisissez une catégorie plus précise.',
-  'cascade.scanLabel': 'Scanner un code (code-barres, IMEI ou numéro de série)',
+  'cascade.scanLabel': 'Scanner un code-barres',
 } as const;

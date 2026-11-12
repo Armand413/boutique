@@ -40,11 +40,11 @@ export function isStockedType(type: ProductType): boolean {
 }
 
 /**
- * Modes de suivi permis pour un type : un téléphone est toujours suivi par IMEI,
- * un service ou un kit jamais.
+ * Modes de suivi permis pour un type : un téléphone sans suivi ou par IMEI (sans IMEI par défaut
+ * depuis D93), un service ou un kit jamais.
  */
 export function allowedTrackingModes(type: ProductType): readonly TrackingMode[] {
-  if (type === 'phone') return ['imei'];
+  if (type === 'phone') return ['none', 'imei'];
   if (!isStockedType(type)) return ['none'];
   return TRACKING_MODES;
 }

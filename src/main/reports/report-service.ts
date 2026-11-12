@@ -38,6 +38,8 @@ export class ReportService {
       canSeeCost: actor.permissions.has('cost.view'),
       canSeeStock: actor.permissions.has('stock.view'),
       canSeeAudit: actor.permissions.has('audit.view'),
+      // Le vendeur (sans accès aux rapports) ne voit que les ventes du jour (D93).
+      todayOnly: !actor.permissions.has('report.view'),
       nowIso: this.clock().toISOString(),
     });
   }

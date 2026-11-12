@@ -24,13 +24,7 @@ import { FormError, SelectField, TextAreaField, TextField } from '../../componen
 import { toast } from '../../components/ui/toast';
 import { useT, type Translate } from '../../i18n';
 import { invoke } from '../../lib/ipc';
-import {
-  categoryOptions,
-  parseOptionalInt,
-  trackingOptions,
-  typeOptions,
-  useCan,
-} from './catalog-ui';
+import { categoryOptions, parseOptionalInt, typeOptions, useCan } from './catalog-ui';
 import {
   emptyVariantValues,
   VariantFields,
@@ -383,20 +377,7 @@ export function ProductFormDialog({
                 />
               )}
             />
-            <Controller
-              control={control}
-              name="trackingMode"
-              render={({ field }) => (
-                <SelectField
-                  label={t('product.form.tracking')}
-                  value={field.value}
-                  options={trackingOptions(t, productType)}
-                  onValueChange={field.onChange}
-                  disabled={locked}
-                  hint={locked ? t('product.form.trackingLocked') : undefined}
-                />
-              )}
-            />
+            {/* Plus de choix du suivi unitaire (D93) : les articles se gèrent par quantité. */}
             <Controller
               control={control}
               name="taxRateId"

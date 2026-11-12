@@ -105,7 +105,7 @@ saisissez la clé de récupération. Une nouvelle clé est alors générée : re
 
 - **Barre latérale** : les modules. Ceux que votre rôle ne permet pas n'apparaissent pas.
 - **En-tête** : fil d'Ariane et bouton retour, indicateur d'**alertes de stock**, recherche globale.
-- **Recherche globale (Ctrl+K)** : un produit, un IMEI ou un numéro de série, un client, une facture, ou un écran.
+- **Recherche globale (Ctrl+K)** : un produit, un client, une facture, ou un écran.
   Flèches pour choisir, Entrée pour ouvrir, Échap pour fermer.
 - **Apparence** (Paramètres › Apparence) : thème clair, sombre ou celui de Windows, taille du texte, langue (français
   ou anglais). Ces réglages sont propres à l'ordinateur.
@@ -114,11 +114,11 @@ saisissez la clé de récupération. Une nouvelle clé est alors générée : re
 
 Les trois rôles :
 
-| Rôle               | Ce qu'il peut faire                                                                                                                                               |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Vendeur**        | Caisse, encaissement, impression, devis, clients, livraisons, garantie, consultation des produits et du stock. Ne voit **jamais** les prix d'achat ni les marges. |
-| **Gérant**         | En plus : produits et prix, prix d'achat et marges, entrées et sorties de stock, inventaires, fournisseurs, annulations et retours, rapports et exports.          |
-| **Administrateur** | Tout, y compris les utilisateurs, les paramètres, les sauvegardes, la mise à jour et le journal d'audit.                                                          |
+| Rôle               | Ce qu'il peut faire                                                                                                                                                                                                         |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Vendeur**        | Caisse, encaissement, impression, devis, clients, livraisons, garantie, consultation des produits et du stock. Son tableau de bord ne montre que les **ventes du jour**. Ne voit **jamais** les prix d'achat ni les marges. |
+| **Gérant**         | En plus : produits et prix, prix d'achat et marges, entrées et sorties de stock, inventaires, fournisseurs, annulations et retours, rapports et exports.                                                                    |
+| **Administrateur** | Tout, y compris les utilisateurs, les paramètres, les sauvegardes, la mise à jour et le journal d'audit.                                                                                                                    |
 
 ## 5. Vendre à la caisse
 
@@ -135,10 +135,10 @@ En début de journée, saisissez le **fond de caisse** compté dans le tiroir et
   (une ligne par variante, avec le prix et le stock). On peut s'arrêter à n'importe quel niveau : la liste des
   articles montre tout ce qu'il contient. La même façon de choisir sert à l'entrée de stock, aux sorties et
   transferts, aux devis et à la composition d'un kit.
-- **Lecteur de codes-barres** : le curseur est dans le petit champ **Scanner un code** ; scannez le code-barres, ou
-  tapez un IMEI ou un numéro de série, puis **Entrée**. Un bip confirme le scan.
-- **Téléphone ou article suivi** (téléviseur, panneau, onduleur, batterie…) : l'application demande l'**unité
-  exacte**. Scannez son IMEI ou son numéro de série : on ne vend jamais un appareil « au hasard ».
+- **Lecteur de codes-barres** : le curseur est dans le petit champ **Scanner un code-barres** ; scannez le
+  code-barres de l'article. Un bip confirme le scan.
+- **Pas d'IMEI ni de numéro de série** à saisir : téléphones, téléviseurs, panneaux… se vendent par quantité, comme
+  n'importe quel article.
 - **Kit** (ex. kit solaire) : il s'ajoute comme un seul article ; ses composants sortent du stock à la validation.
   Si un composant manque, la vente est refusée en entier.
 - **Service** (livraison, installation) : ligne sans stock.
@@ -230,8 +230,6 @@ caractéristiques de la catégorie affinent encore la liste.
 
 - Nom, marque, modèle, catégorie, description, photo, taxe, seuil d'alerte, durée de **garantie**.
 - **Type** : téléphone, accessoire, électronique, électroménager, solaire, pièce détachée, service ou kit.
-- **Suivi** : aucun (câbles, petits accessoires), **numéro de série** (téléviseurs, panneaux, onduleurs…) ou **IMEI**
-  (téléphones, toujours). Un article suivi se vend à l'unité.
 - **Variantes** : couleur, stockage, RAM, état (neuf, reconditionné, occasion), code-barres, référence, prix de vente
   et prix minimum. Chaque variante a son propre stock.
 - **Kits** : composants et quantités. La fiche compare le prix du kit à la somme des composants.
@@ -247,8 +245,7 @@ confirmation ; il se fait en entier ou pas du tout.
 
 ### Étiquettes
 
-**Étiquettes** produit un PDF de codes-barres (planche A4 ou rouleau), par variante ou par appareil suivi (avec son
-numéro de série).
+**Étiquettes** produit un PDF de codes-barres (planche A4 ou rouleau), par variante.
 
 ## 10. Stock, entrées de marchandise et fournisseurs
 
@@ -258,8 +255,8 @@ numéro de série).
 mouvements** (date, article, numéro, quantité, stock après, motif, document, utilisateur) et la **valorisation**
 (au coût moyen et au prix de vente, par emplacement et par famille ; réservée à qui voit les prix d'achat).
 
-- **Entrée de marchandise** : choisissez l'emplacement, choisissez les articles dans les listes (ou scannez-les), saisissez quantités et prix d'achat, et
-  pour chaque appareil suivi son IMEI ou son numéro de série (IMEI 2 facultatif). Un bon `BR-AAAA-NNNNN` est créé ;
+- **Entrée de marchandise** : choisissez l'emplacement, choisissez les articles dans les listes (ou scannez-les), saisissez quantités et prix d'achat. Aucun IMEI
+  ni numéro de série n'est demandé. Un bon `BR-AAAA-NNNNN` est créé ;
   le coût moyen pondéré est recalculé. Avec le module Fournisseurs, vous pouvez en plus choisir le fournisseur
   (facultatif) et saisir un paiement.
 - **Sortie** (perte, casse, vol, usage interne) et **ajustement** : motif obligatoire.
@@ -274,7 +271,7 @@ Le stock ne devient jamais négatif : une vente ou une sortie au-delà du stock 
 ![Inventaire](images/inventaire.png)
 
 1. **Nouvel inventaire** : complet, par marque ou par famille/catégorie, pour un emplacement.
-2. **Comptage** : scannez les articles (le numéro de série d'abord pour un appareil suivi) ou saisissez les quantités.
+2. **Comptage** : scannez les articles ou saisissez les quantités comptées.
    Mettez explicitement à zéro ce qui n'a pas été trouvé.
 3. **Écarts** : stock attendu, stock compté, écart, et sa valeur pour qui voit les coûts.
 4. **Validation** (gérant ou administrateur ; double contrôle possible dans les paramètres) : les ajustements sont
@@ -283,8 +280,9 @@ Le stock ne devient jamais négatif : une vente ou une sortie au-delà du stock 
 
 ## 12. Garantie et SAV
 
-Écran disponible quand le module **Garantie et SAV** est activé (Paramètres › Modules). Sans lui, la fin de
-garantie reste imprimée sur la facture et le bon de garantie.
+Écran disponible quand le module **Garantie et SAV** est activé (Paramètres › Modules). Il ne sert que pour des
+appareils suivis par numéro de série ou IMEI, que l'application n'utilise plus par défaut (D93) : la durée de garantie
+de chaque produit reste imprimée sur la facture et le bon de garantie.
 
 ![Garantie et SAV](images/garantie.png)
 
@@ -300,6 +298,8 @@ Le **tableau de bord** montre les ventes du jour, de la semaine et du mois (avec
 marges), les produits en alerte, les échéances en retard, les réclamations en cours, les activités sensibles (pour
 l'administrateur), les graphiques des 30 derniers jours et des familles, les dernières ventes et les derniers
 mouvements.
+
+Pour un **vendeur**, le tableau de bord se limite au total et à la liste des **ventes du jour**.
 
 ![Rapports](images/rapports.png)
 

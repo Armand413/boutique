@@ -278,12 +278,32 @@ export function DashboardPage() {
           onRetry={reload}
         />
       )}
-      {state.status === 'ready' && (
+      {state.status === 'ready' && state.data.todayOnly && (
+        // Vendeur (D93) : seulement les ventes du jour.
         <div className="flex flex-col gap-4">
           <section aria-label={t('dashboard.title')} className="grid gap-4 md:grid-cols-3">
             <PeriodCard title={t('dashboard.today')} totals={state.data.today} />
-            <PeriodCard title={t('dashboard.week')} totals={state.data.week} />
-            <PeriodCard title={t('dashboard.month')} totals={state.data.month} />
+          </section>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('dashboard.todaySales')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LatestSales sales={state.data.latestSales} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+      {state.status === 'ready' && !state.data.todayOnly && (
+        <div className="flex flex-col gap-4">
+          <section aria-label={t('dashboard.title')} className="grid gap-4 md:grid-cols-3">
+            <PeriodCard title={t('dashboard.today')} totals={state.data.today} />
+            {state.data.week !== null && (
+              <PeriodCard title={t('dashboard.week')} totals={state.data.week} />
+            )}
+            {state.data.month !== null && (
+              <PeriodCard title={t('dashboard.month')} totals={state.data.month} />
+            )}
           </section>
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {state.data.lowStock !== null && (

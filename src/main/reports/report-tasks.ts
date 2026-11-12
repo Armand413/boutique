@@ -17,6 +17,7 @@ export type ReportTask =
       canSeeCost: boolean;
       canSeeStock: boolean;
       canSeeAudit: boolean;
+      todayOnly: boolean;
       nowIso: string;
     }
   /** Copie cohérente de la base (`VACUUM INTO`), chiffrée avec la même clé, vers `path`. */
@@ -55,6 +56,7 @@ export function executeTask(db: Db, task: ReportTask): TaskData {
       canSeeCost: task.canSeeCost,
       canSeeStock: task.canSeeStock,
       canSeeAudit: task.canSeeAudit,
+      todayOnly: task.todayOnly,
       now,
     });
   }

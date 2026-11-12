@@ -42,7 +42,7 @@ function upgradedDatabase() {
     `INSERT INTO supplier_payments (supplier_id, receipt_id, amount, method, paid_at, user_id)
      VALUES (?, ?, 1000, 'cash', ?, ?)`,
   ).run(supplierId, receiptId, NOW, userId);
-  const applied = migrate(db, bundledMigrations());
+  const applied = migrate(db, bundledMigrations().slice(0, 12));
   return { db, applied, receiptId, variantId, location, userId };
 }
 

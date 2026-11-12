@@ -2,12 +2,7 @@ import { openSync, readSync, closeSync, statSync } from 'node:fs';
 import ExcelJS from 'exceljs';
 import { AppError } from '@shared/ipc/errors';
 import { parseMoney } from '@shared/format/money';
-import {
-  coerceTrackingMode,
-  type Condition,
-  type ProductType,
-  type TrackingMode,
-} from '@shared/catalog/constants';
+import { type Condition, type ProductType, type TrackingMode } from '@shared/catalog/constants';
 import { categoryPath, effectiveAttributes } from '@shared/catalog/tree';
 import type {
   AttributeDefinition,
@@ -100,11 +95,6 @@ const TYPES = wordLookup(TYPE_WORDS, {
   telephonie: 'phone',
   piece: 'part',
   electromenager: 'appliance',
-});
-const TRACKINGS = wordLookup(TRACKING_WORDS, {
-  serie: 'serial',
-  'n° de serie': 'serial',
-  sans: 'none',
 });
 const CONDITIONS = wordLookup(CONDITION_WORDS, { reconditionne: 'refurbished', usage: 'used' });
 
@@ -346,11 +336,8 @@ function parseProduct(
   const category = findCategory(context.categories, cell('category'));
   const productType = TYPES.get(fold(cell('type')));
   if (productType === undefined) throw new RowError(`type « ${cell('type')} » inconnu`);
-  const trackingText = cell('tracking');
-  const tracking =
-    trackingText === '' ? category.defaultTrackingMode : TRACKINGS.get(fold(trackingText));
-  if (tracking === undefined) throw new RowError(`suivi « ${trackingText} » inconnu`);
-  const trackingMode = trackingText === '' ? coerceTrackingMode(productType, tracking) : tracking;
+  // Plus de suivi unitaire (D93) : la colonne « Suivi » d'un ancien fichier est ignorée.
+  const trackingMode: TrackingMode = 'none';
   const { brandId, newBrandName } = resolveBrand(cell('brand'), context);
   const taxText = cell('tax');
   const tax =

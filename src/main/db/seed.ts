@@ -9,11 +9,14 @@ import {
 } from '@shared/permissions';
 import type { Db } from './types';
 
-/** Familles de premier niveau (section 4.12) ; l'administrateur pourra les renommer. */
+/**
+ * Familles de premier niveau (section 4.12) ; l'administrateur pourra les renommer. Aucun suivi
+ * unitaire par défaut (D93) : les articles s'entrent et se vendent par quantité.
+ */
 const FAMILIES = [
-  { name: 'Téléphonie', tracking: 'imei', warranty: 12 },
-  { name: 'Électronique et audio', tracking: 'serial', warranty: 12 },
-  { name: 'Électroménager', tracking: 'serial', warranty: 12 },
+  { name: 'Téléphonie', tracking: 'none', warranty: 12 },
+  { name: 'Électronique et audio', tracking: 'none', warranty: 12 },
+  { name: 'Électroménager', tracking: 'none', warranty: 12 },
   { name: 'Énergie solaire', tracking: 'none', warranty: 12 },
 ] as const;
 

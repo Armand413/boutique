@@ -22,10 +22,6 @@ test.afterEach(async () => {
   removeUserData(launched.userData);
 });
 
-const IMEI_A = '490154203237518';
-const IMEI_A2 = '352099001761481';
-const IMEI_B = '356938035643809';
-
 test('réception fournisseur, transfert, sortie, paiement et alertes de stock', async () => {
   const { app, page, userData } = launched;
   await enableModules(page, ['Fournisseurs']);
@@ -70,7 +66,6 @@ test('réception fournisseur, transfert, sortie, paiement et alertes de stock', 
   await pickArticle(page, page, 'Téléphonie', 'Galaxy A15');
   await page.getByLabel('Quantité reçue de Galaxy A15').fill('2');
   await page.getByLabel('Prix d’achat unitaire de Galaxy A15').fill('90 000');
-  await page.getByLabel(/Numéros de Galaxy A15/).fill(`${IMEI_A} ${IMEI_A2}\n${IMEI_B}`);
   await page.getByLabel('Montant payé').fill('50000');
   await expect(page.getByText('Total : 190 000')).toBeVisible();
   await checkAccessibility(page, 'Entrée de marchandise');
@@ -81,7 +76,7 @@ test('réception fournisseur, transfert, sortie, paiement et alertes de stock', 
   await checkAccessibility(page, 'Fiche fournisseur');
 
   await page.getByRole('button', { name: /^Voir le bon BR-/ }).click();
-  await expect(page.getByRole('dialog').getByText(`${IMEI_A}, ${IMEI_B}`)).toBeVisible();
+  await expect(page.getByRole('dialog').getByText('Galaxy A15').first()).toBeVisible();
   await page.getByRole('dialog').getByRole('button', { name: 'Fermer' }).click();
 
   await page.getByRole('button', { name: 'Enregistrer un paiement' }).click();
@@ -94,7 +89,8 @@ test('réception fournisseur, transfert, sortie, paiement et alertes de stock', 
   await page.getByRole('button', { name: 'Transfert' }).click();
   let dialog = page.getByRole('dialog');
   await pickArticle(page, dialog, 'Téléphonie', 'Galaxy A15');
-  await dialog.getByLabel(IMEI_B).check();
+  // Sans suivi unitaire (D93) : on transfère une quantité.
+  await dialog.getByLabel('Quantité').fill('1');
   await checkAccessibility(page, 'Transfert');
   await dialog.getByRole('button', { name: 'Transférer' }).click();
   await toastShown(page, 'Transfert enregistré.');
@@ -128,8 +124,8 @@ test('réception fournisseur, transfert, sortie, paiement et alertes de stock', 
   await checkAccessibility(page, 'Valorisation');
 
   await page.keyboard.press('Control+k');
-  await page.getByRole('combobox', { name: /Écran, produit/ }).fill(IMEI_A2);
-  await expect(page.getByRole('option', { name: new RegExp(`${IMEI_A}.*En stock`) })).toBeVisible();
+  await page.getByRole('combobox', { name: /Écran, produit/ }).fill('Galaxy');
+  await expect(page.getByRole('option', { name: /Galaxy A15/ }).first()).toBeVisible();
   await page.keyboard.press('Escape');
 
   await page.getByRole('button', { name: 'Alertes de stock : 1' }).click();

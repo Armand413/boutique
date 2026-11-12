@@ -28,6 +28,7 @@ export const reportsEn: Readonly<Record<keyof typeof reportsFr, string>> = {
   'dashboard.chart.noData': 'No sales over the period.',
   'dashboard.chart.summary': 'Total: {value}. Best day: {best}.',
   'dashboard.latestSales': 'Latest sales',
+  'dashboard.todaySales': 'Today’s sales',
   'dashboard.latestMovements': 'Latest stock movements',
   'dashboard.noSales': 'No sales yet.',
   'dashboard.noMovements': 'No stock movement.',

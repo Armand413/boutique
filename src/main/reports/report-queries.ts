@@ -34,7 +34,12 @@ export interface DashboardContext {
   canSeeStock: boolean;
   canSeeAudit: boolean;
   now: Date;
+  /** Vendeur (sans accès aux rapports) : seulement les ventes du jour (D93). */
+  todayOnly?: boolean;
 }
+
+/** Nombre maximal de ventes du jour listées au vendeur. */
+const TODAY_SALES_LIMIT = 200;
 
 interface DayTotals {
   count: number;
@@ -105,10 +110,11 @@ function familySeries(db: Db, period: { from: string; to: string }, canSeeCost: 
     }));
 }
 
-function latestSales(db: Db): Dashboard['latestSales'] {
+/** Dernières ventes ; `since` : seulement celles faites depuis cet instant (ventes du jour). */
+function latestSales(db: Db, since: string | null = null): Dashboard['latestSales'] {
   return db
     .prepare<
-      [],
+      [string | null, string | null, number],
       {
         saleId: number;
         invoiceNumber: string;
@@ -120,10 +126,10 @@ function latestSales(db: Db): Dashboard['latestSales'] {
       `SELECT s.id AS saleId, s.invoice_number AS invoiceNumber, s.completed_at AS completedAt,
               c.full_name AS customerName, s.total
        FROM sales s LEFT JOIN customers c ON c.id = s.customer_id
-       WHERE s.status = 'completed'
-       ORDER BY s.completed_at DESC, s.id DESC LIMIT 6`,
+       WHERE s.status = 'completed' AND (? IS NULL OR s.completed_at >= ?)
+       ORDER BY s.completed_at DESC, s.id DESC LIMIT ?`,
     )
-    .all();
+    .all(since, since, since === null ? 6 : TODAY_SALES_LIMIT);
 }
 
 function latestMovements(db: Db): NonNullable<Dashboard['latestMovements']> {
@@ -146,11 +152,13 @@ function count(db: Db, sql: string): number {
 
 /** Tableau de bord (4.8, A.4) : ventes du jour, de la semaine et du mois, alertes, dernières opérations. */
 export function dashboard(db: Db, context: DashboardContext): Dashboard {
+  if (context.todayOnly === true) return todayDashboard(db, context);
   const periods = currentPeriods(context.now);
   const earliest =
     [periods.last30.from, periods.month.from, periods.week.from].sort()[0] ?? periods.today.from;
   const days = dailyTotals(db, { from: earliest, to: periods.today.to });
   return {
+    todayOnly: false,
     today: periodTotals(days, periods.today, context.canSeeCost),
     week: periodTotals(days, periods.week, context.canSeeCost),
     month: periodTotals(days, periods.month, context.canSeeCost),
@@ -167,5 +175,26 @@ export function dashboard(db: Db, context: DashboardContext): Dashboard {
     families: familySeries(db, periods.month, context.canSeeCost),
     latestSales: latestSales(db),
     latestMovements: context.canSeeStock ? latestMovements(db) : null,
+  };
+}
+
+/** Tableau du vendeur (D93) : total et liste des ventes du jour, rien d'autre. */
+function todayDashboard(db: Db, context: DashboardContext): Dashboard {
+  const { today } = currentPeriods(context.now);
+  const days = dailyTotals(db, today);
+  const [since] = utcBounds(today);
+  return {
+    todayOnly: true,
+    today: periodTotals(days, today, context.canSeeCost),
+    week: null,
+    month: null,
+    lowStock: null,
+    overdueInstallments: 0,
+    sensitive: null,
+    openClaims: 0,
+    days: [],
+    families: [],
+    latestSales: latestSales(db, since),
+    latestMovements: null,
   };
 }

@@ -137,9 +137,11 @@ const amountWithCount = z.strictObject({
 });
 
 export const dashboardSchema = z.strictObject({
+  /** Tableau du vendeur (D93) : uniquement les ventes du jour ; semaine, mois et alertes absents. */
+  todayOnly: z.boolean(),
   today: amountWithCount,
-  week: amountWithCount,
-  month: amountWithCount,
+  week: amountWithCount.nullable(),
+  month: amountWithCount.nullable(),
   lowStock: z.number().int().nullable(),
   overdueInstallments: z.number().int(),
   openClaims: z.number().int(),

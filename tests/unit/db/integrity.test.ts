@@ -128,8 +128,9 @@ describe('stock (E.4)', () => {
 });
 
 describe('numéros de série et IMEI (E.4)', () => {
-  it('impose le suivi IMEI pour un téléphone', () => {
-    expect(() => insertVariant(db, { type: 'phone', tracking: 'none' })).toThrow(/CHECK/);
+  it('accepte un téléphone sans suivi (D93), mais pas un service suivi', () => {
+    insertVariant(db, { type: 'phone', tracking: 'none' });
+    expect(() => insertVariant(db, { type: 'service', tracking: 'serial' })).toThrow(/CHECK/);
   });
 
   it('refuse un IMEI invalide (longueur ou clé de Luhn)', () => {

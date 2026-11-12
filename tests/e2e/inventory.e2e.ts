@@ -53,8 +53,11 @@ async function stockOf(page: Page, name: string): Promise<number> {
   return search.rows.find((row) => row.name === name)?.stock ?? -1;
 }
 
-/** Catalogue (import CSV) puis réception fournisseur : 10 câbles et deux téléphones suivis par IMEI. */
-async function seedShop(page: Page): Promise<void> {
+/**
+ * Catalogue (import CSV) puis entrée de stock : 10 câbles et deux téléphones. `tracked` : les
+ * téléphones sont suivis par IMEI (le moteur le permet encore, sans écran pour le choisir, D93).
+ */
+async function seedShop(page: Page, tracked = false): Promise<void> {
   await openModule(page, 'Produits');
   await importCsv(launched.app, page, launched.userData, [
     'Nom;Catégorie;Type;Code-barres;Prix de vente;Prix minimum;Garantie (mois)',
@@ -62,7 +65,7 @@ async function seedShop(page: Page): Promise<void> {
     'Galaxy A15;Téléphonie;Téléphone;;120000;0;12',
   ]);
   const result = await page.evaluate(
-    async ({ imeis }) => {
+    async ({ imeis, withImei }) => {
       const call: Call = async (channel, input) => {
         const response = (await window.api.invoke(
           channel as Parameters<typeof window.api.invoke>[0],
@@ -76,8 +79,27 @@ async function seedShop(page: Page): Promise<void> {
         sort: 'name',
         offset: 0,
         limit: 10,
-      })) as { rows: { variantId: number; name: string }[] };
+      })) as { rows: { variantId: number; productId: number; name: string }[] };
       const id = (name: string) => search.rows.find((row) => row.name === name)?.variantId ?? 0;
+      if (withImei) {
+        const productId = search.rows.find((row) => row.name === 'Galaxy A15')?.productId ?? 0;
+        const product = (await call('products:get', { productId })) as Record<string, unknown>;
+        await call('products:update', {
+          id: productId,
+          name: product.name,
+          brandId: product.brandId,
+          categoryId: product.categoryId,
+          model: product.model,
+          description: product.description,
+          productType: product.productType,
+          trackingMode: 'imei',
+          taxRateId: product.taxRateId,
+          reorderLevel: product.reorderLevel,
+          warrantyMonths: product.warrantyMonths,
+          weightKg: product.weightKg,
+          attributes: product.attributes,
+        });
+      }
       const locations = (await call('locations:list')) as { id: number }[];
       await call('receipts:create', {
         supplierId: null,
@@ -91,13 +113,15 @@ async function seedShop(page: Page): Promise<void> {
             variantId: id('Galaxy A15'),
             quantity: 2,
             unitCost: 90000,
-            serials: imeis.map((serialNumber) => ({ serialNumber, imei2: null })),
+            ...(withImei
+              ? { serials: imeis.map((serialNumber) => ({ serialNumber, imei2: null })) }
+              : {}),
           },
         ],
       });
       return 'ok';
     },
-    { imeis: [IMEI_A, IMEI_B] },
+    { imeis: [IMEI_A, IMEI_B], withImei: tracked },
   );
   expect(result).toBe('ok');
 }
@@ -129,9 +153,11 @@ test('inventaire : scan, comptage, écarts, validation, ajustement du stock et r
   await scanInventory(page, '0011');
   await expect(page.getByRole('status').getByText('Câble USB-C : 1')).toBeVisible();
   await expect(page.getByLabel('Quantité comptée de Câble USB-C')).toHaveValue('1');
-  await scanInventory(page, IMEI_A);
-  await expect(page.getByText(`appareil ${IMEI_A} compté (1)`)).toBeVisible();
-  await expect(page.getByText('1 appareil(s) scanné(s)')).toBeVisible();
+  // Sans suivi unitaire (D93) : un téléphone se compte en quantité, comme un câble.
+  const phones = page.getByLabel('Quantité comptée de Galaxy A15');
+  await phones.fill('1');
+  await phones.press('Enter');
+  await expect(phones).toHaveValue('1');
   await scanInventory(page, 'INCONNU-42');
   await expect(page.getByLabel('Quantité comptée de Câble USB-C')).toHaveValue('1');
   const count = page.getByLabel('Quantité comptée de Câble USB-C');
@@ -143,7 +169,6 @@ test('inventaire : scan, comptage, écarts, validation, ajustement du stock et r
   await page.getByRole('button', { name: 'Terminer le comptage' }).click();
   await expect(page.getByText('Écarts (étape en cours)')).toBeVisible();
   await expect(page.getByText(/^2 écart\(s\) · valeur : −?-?\d/)).toBeVisible();
-  await expect(page.getByText(`Non scannés : ${IMEI_B}`)).toBeVisible();
   await expect(page.getByRole('row', { name: /Câble USB-C/ })).toContainText('-2');
   await checkAccessibility(page, 'Inventaire (écarts)');
 
@@ -175,7 +200,7 @@ test('inventaire : scan, comptage, écarts, validation, ajustement du stock et r
 test('garantie : recherche par IMEI, réclamation ouverte, envoyée au fournisseur puis clôturée', async () => {
   const { page } = launched;
   await enableModules(page, ['Garantie et SAV', 'Fournisseurs']);
-  await seedShop(page);
+  await seedShop(page, true);
 
   await openModule(page, 'Caisse');
   await page.getByLabel('Fond de caisse').fill('0');

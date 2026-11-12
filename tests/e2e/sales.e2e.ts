@@ -24,7 +24,6 @@ test.afterEach(async () => {
   removeUserData(launched.userData);
 });
 
-const IMEI = '490154203237518';
 const year = String(new Date().getFullYear());
 
 /** Catalogue et stock de départ : import CSV puis réception fournisseur par les canaux de l'application. */
@@ -36,7 +35,7 @@ async function seedShop(page: Page): Promise<void> {
     'Galaxy A15;Téléphonie;Téléphone;;120000;0',
     'Installation;Énergie solaire;Service;;25000;0',
   ]);
-  const result = await page.evaluate(async (imei) => {
+  const result = await page.evaluate(async () => {
     const call = async (channel: string, input?: unknown): Promise<unknown> => {
       const response = (await window.api.invoke(
         channel as Parameters<typeof window.api.invoke>[0],
@@ -67,16 +66,12 @@ async function seedShop(page: Page): Promise<void> {
       payment: null,
       lines: [
         { variantId: id('Câble USB-C'), quantity: 10, unitCost: 1000 },
-        {
-          variantId: id('Galaxy A15'),
-          quantity: 1,
-          unitCost: 90000,
-          serials: [{ serialNumber: imei, imei2: null }],
-        },
+        // Plus de suivi unitaire (D93) : le téléphone entre en stock par quantité.
+        { variantId: id('Galaxy A15'), quantity: 1, unitCost: 90000 },
       ],
     });
     return 'ok';
-  }, IMEI);
+  });
   expect(result).toBe('ok');
 }
 
@@ -94,7 +89,7 @@ async function scan(page: Page, code: string): Promise<void> {
   await search.press('Enter');
 }
 
-test('vente complète au clavier : scan, IMEI, service, attente, encaissement, retour et clôture', async () => {
+test('vente complète : scan, listes, service, attente, encaissement, retour et clôture', async () => {
   const { page, app, userData } = launched;
   await seedShop(page);
   await openTill(page);
@@ -104,8 +99,8 @@ test('vente complète au clavier : scan, IMEI, service, attente, encaissement, r
   await expect(page.getByText('Câble USB-C', { exact: true })).toBeVisible();
   await scan(page, '0011');
   await expect(page.getByLabel('Quantité de Câble USB-C')).toHaveValue('2');
-  await scan(page, IMEI);
-  await toastShown(page, `Unité ${IMEI} ajoutée.`);
+  await pickArticle(page, page, 'Téléphonie', 'Galaxy A15');
+  await expect(page.getByText('Galaxy A15', { exact: true })).toBeVisible();
   await pickArticle(page, page, 'Énergie solaire', 'Installation');
   // Prix négocié (D92) : 2 250 au lieu de 2 500, soit 500 de moins sur les deux câbles.
   await page.getByLabel('Prix convenu pour Câble USB-C').fill('2250');
@@ -162,8 +157,7 @@ test('vente complète au clavier : scan, IMEI, service, attente, encaissement, r
 
   await openModule(page, 'Ventes');
   await page.getByRole('button', { name: `Ouvrir la vente FAC-${year}-000001` }).click();
-  await expect(page.getByText(`N° ${IMEI}`)).toBeVisible();
-  await expect(page.getByText(/Garantie jusqu’au/)).toBeVisible();
+  await expect(page.getByText('Galaxy A15').first()).toBeVisible();
   await checkAccessibility(page, 'Détail de la vente');
   await page.getByRole('main').getByRole('button', { name: 'Retour', exact: true }).click();
   const returnDialog = page.getByRole('dialog');

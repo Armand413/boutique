@@ -326,5 +326,5 @@ export const catalogEn: Readonly<Record<keyof typeof catalogFr, string>> = {
   'cascade.empty': 'No item here',
   'cascade.stock': 'stock {count}',
   'cascade.tooMany': 'Only the first {count} items are listed: choose a narrower category.',
-  'cascade.scanLabel': 'Scan a code (barcode, IMEI or serial number)',
+  'cascade.scanLabel': 'Scan a barcode',
 };
