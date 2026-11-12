@@ -7,7 +7,16 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  globalIgnores(['out/', 'out-demo/', 'dist/', 'release/', 'coverage/', 'test-results/', 'playwright-report/']),
+  globalIgnores([
+    'out/',
+    'out-demo/',
+    'dist/',
+    'dist-next/',
+    'release/',
+    'coverage/',
+    'test-results/',
+    'playwright-report/',
+  ]),
   js.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
@@ -58,7 +67,7 @@ export default defineConfig(
     languageOptions: { globals: globals.node },
   },
   {
-    files: ['**/*.mjs'],
+    files: ['**/*.{mjs,cjs}'],
     extends: [tseslint.configs.disableTypeChecked],
     languageOptions: { globals: globals.node },
   },

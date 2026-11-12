@@ -16,3 +16,4 @@ playwright-report/
 *.db-wal
 *.db-shm
 .vite/
+dist-next/

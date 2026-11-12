@@ -21,7 +21,9 @@
     "test:e2e": "npm run build && electron-vite build -c electron.vite.demo.config.ts && playwright test",
     "test:load": "vitest run --config vitest.load.config.mts",
     "seed": "electron-vite build -c electron.vite.demo.config.ts && electron out-demo/seed-main.js",
-    "dist": "npm run build && electron-builder --win nsis"
+    "dist": "npm run build && electron-builder --win nsis",
+    "dist:signed": "npm run build && electron-builder --win nsis -c.win.forceCodeSigning=true",
+    "test:packaged": "node scripts/test-packaged.mjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "5.3.0",
