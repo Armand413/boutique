@@ -231,6 +231,11 @@ export const salesEn: Readonly<Record<keyof typeof salesFr, string>> = {
   'customer.limit': 'Credit limit: {amount}',
   'customer.history': 'Purchases',
   'customer.noSales': 'No purchase for this customer.',
+  'customer.anonymize': 'Anonymize',
+  'customer.anonymize.title': 'Anonymize {name}?',
+  'customer.anonymize.description':
+    'This customer’s name, phone, address and notes are permanently erased. Their purchases stay in the history, without personal data. This cannot be undone.',
+  'customer.anonymize.done': 'Customer personal data erased.',
   'customer.payDebt': 'Record a repayment',
   'customer.payDebt.title': 'Repayment from {name}',
   'customer.payDebt.description':

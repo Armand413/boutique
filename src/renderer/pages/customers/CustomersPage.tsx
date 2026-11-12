@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Banknote, Contact, Pencil, UserPlus } from 'lucide-react';
+import { Banknote, Contact, Pencil, UserPlus, UserX } from 'lucide-react';
 import { formatDateTime } from '@shared/format/date';
 import { formatMoney } from '@shared/format/money';
 import type { Customer, SaleSummary } from '@shared/schemas/sales';
@@ -10,6 +10,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../components/states/st
 import { Card, CardContent, CardHeader, CardTitle, Input, Label } from '../../components/ui/basic';
 import { Button } from '../../components/ui/button';
 import {
+  ConfirmDialog,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -343,6 +344,7 @@ export function CustomerDetailPage() {
   const navigate = useRouter((state) => state.navigate);
   const canPay = useCan('pos.use');
   const canSeeSales = useCan('sale.view');
+  const canAnonymize = useCan('user.manage');
   const loader = useCallback(async () => {
     if (customerId === undefined) throw new Error(t('customer.error'));
     const customer = await invoke('customers:get', { customerId });
@@ -352,7 +354,7 @@ export function CustomerDetailPage() {
     return { customer, sales };
   }, [customerId, canSeeSales, t]);
   const { state, reload } = useRemote(loader);
-  const [dialog, setDialog] = useState<'edit' | 'pay' | null>(null);
+  const [dialog, setDialog] = useState<'edit' | 'pay' | 'anonymize' | null>(null);
   if (state.status === 'loading') return <LoadingState label={t('state.loading')} rows={5} />;
   if (state.status === 'error') {
     return (
@@ -370,6 +372,16 @@ export function CustomerDetailPage() {
     setDialog(null);
     reload();
   };
+  const anonymize = async (): Promise<void> => {
+    try {
+      await invoke('customers:anonymize', { customerId: customer.id });
+      toast.success(t('customer.anonymize.done'));
+      done();
+    } catch (failure) {
+      setDialog(null);
+      toast.error(errorMessage(failure));
+    }
+  };
   return (
     <>
       <PageHeader
@@ -383,10 +395,18 @@ export function CustomerDetailPage() {
                 {t('customer.payDebt')}
               </Button>
             )}
-            <Button variant="secondary" onClick={() => setDialog('edit')}>
-              <Pencil aria-hidden="true" />
-              {t('common.edit')}
-            </Button>
+            {!customer.anonymized && (
+              <Button variant="secondary" onClick={() => setDialog('edit')}>
+                <Pencil aria-hidden="true" />
+                {t('common.edit')}
+              </Button>
+            )}
+            {canAnonymize && !customer.anonymized && (
+              <Button variant="secondary" onClick={() => setDialog('anonymize')}>
+                <UserX aria-hidden="true" />
+                {t('customer.anonymize')}
+              </Button>
+            )}
           </div>
         }
       />
@@ -473,6 +493,17 @@ export function CustomerDetailPage() {
       )}
       {dialog === 'pay' && (
         <PayDebtDialog customer={customer} onOpenChange={() => setDialog(null)} onDone={done} />
+      )}
+      {dialog === 'anonymize' && (
+        <ConfirmDialog
+          open
+          title={t('customer.anonymize.title', { name: customer.fullName })}
+          description={t('customer.anonymize.description')}
+          confirmLabel={t('customer.anonymize')}
+          cancelLabel={t('common.cancel')}
+          onOpenChange={(open) => !open && setDialog(null)}
+          onConfirm={() => void anonymize()}
+        />
       )}
     </>
   );

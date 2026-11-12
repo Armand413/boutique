@@ -15,11 +15,12 @@ interface CustomerRow {
   notes: string | null;
   credit_limit: number;
   is_active: number;
+  anonymized_at: string | null;
   balance: number;
 }
 
 const SELECT = `
-  SELECT c.id, c.full_name, c.phone, c.address, c.notes, c.credit_limit, c.is_active, b.balance
+  SELECT c.id, c.full_name, c.phone, c.address, c.notes, c.credit_limit, c.is_active, c.anonymized_at, b.balance
   FROM customers c JOIN v_customer_balances b ON b.customer_id = c.id`;
 
 function toCustomer(row: CustomerRow): Customer {
@@ -31,6 +32,7 @@ function toCustomer(row: CustomerRow): Customer {
     notes: row.notes,
     creditLimit: row.credit_limit,
     isActive: row.is_active === 1,
+    anonymized: row.anonymized_at !== null,
     balance: row.balance,
   };
 }
@@ -71,10 +73,61 @@ export class CustomerService {
     return this.existing(id);
   }
 
+  /**
+   * Anonymisation sur demande du client (B.3), réservée à l'administrateur, définitive : nom remplacé,
+   * téléphone, adresse et notes effacés ; ventes, paiements et garanties restent (montants, numéros).
+   * Refusée tant qu'un solde, une livraison à faire ou un devis en cours le concerne.
+   */
+  anonymize(actor: Session, id: number): Customer {
+    requirePermission(actor, 'customer.manage');
+    requirePermission(actor, 'user.manage');
+    const customer = this.existing(id);
+    if (customer.anonymized) throw new AppError('CONFLICT', 'Ce client est déjà anonymisé.');
+    if (customer.balance !== 0) {
+      throw new AppError(
+        'CONFLICT',
+        'Ce client a un solde en cours (dette ou avoir) : réglez-le avant d’effacer ses données.',
+      );
+    }
+    const pending = this.db
+      .prepare<[number, number], number>(
+        `SELECT (SELECT count(*) FROM deliveries d JOIN sales s ON s.id = d.sale_id
+                 WHERE s.customer_id = ? AND d.status = 'to_deliver')
+              + (SELECT count(*) FROM quotes q WHERE q.customer_id = ? AND q.status IN ('draft', 'sent', 'accepted'))`,
+      )
+      .pluck()
+      .get(id, id);
+    if ((pending ?? 0) > 0) {
+      throw new AppError(
+        'CONFLICT',
+        'Une livraison à faire ou un devis en cours concerne ce client : terminez-les d’abord.',
+      );
+    }
+    const now = nowIsoUtc();
+    this.db.transaction(() => {
+      this.db
+        .prepare(
+          `UPDATE customers SET full_name = ?, phone = NULL, address = NULL, notes = NULL, credit_limit = 0,
+             is_active = 0, anonymized_at = ?, updated_at = ? WHERE id = ?`,
+        )
+        .run(`Client anonymisé n° ${String(id)}`, now, now, id);
+      appendAudit(this.db, {
+        userId: actor.userId,
+        action: 'customer.anonymized',
+        entityType: 'customer',
+        entityId: id,
+      });
+    })();
+    return this.existing(id);
+  }
+
   /** Le plafond de crédit est fixé par le gérant (permission sale.cancel) : 0 par défaut (D22). */
   save(actor: Session, input: SaveCustomerInput): Customer {
     requirePermission(actor, 'customer.manage');
     const current = input.id === undefined ? null : this.existing(input.id);
+    if (current?.anonymized === true) {
+      throw new AppError('CONFLICT', 'Ce client a été anonymisé : sa fiche ne se modifie plus.');
+    }
     if (input.creditLimit !== (current?.creditLimit ?? 0)) requirePermission(actor, 'sale.cancel');
     const phone = normalizePhone(input.phone);
     if (phone !== null) {

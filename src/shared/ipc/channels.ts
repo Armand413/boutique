@@ -66,6 +66,7 @@ export const IPC_CHANNELS = [
   'customers:get',
   'customers:save',
   'customers:payDebt',
+  'customers:anonymize',
   'cash:current',
   'cash:open',
   'cash:move',

@@ -460,6 +460,11 @@ export const ipcContract = {
     output: customerSchema,
     access: needs('customer.manage'),
   },
+  'customers:anonymize': {
+    input: customerIdInputSchema,
+    output: customerSchema,
+    access: needs('user.manage'),
+  },
   'customers:save': {
     input: saveCustomerInputSchema,
     output: customerSchema,

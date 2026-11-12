@@ -633,3 +633,45 @@ describe('livraisons et règles de la base', () => {
     expect(sale.taxIncluded).toBe(0);
   });
 });
+
+describe('anonymisation d’un client sur demande (B.3)', () => {
+  it('refuse tant qu’il doit, réserve l’action à l’administrateur et garde ses ventes', () => {
+    const variantId = cable(10, 10_000);
+    h.sessions.open(h.manager, 0);
+    const customerId = customer(50_000);
+    const sale = h.sales.checkout(
+      h.manager,
+      h.checkoutInput({
+        customerId,
+        lines: [{ variantId, quantity: 2, discount: null }],
+        payments: [{ method: 'cash', amount: 5000, reference: null }],
+        installments: [{ dueDate: '2099-01-15', amount: 15_000 }],
+      }),
+    );
+    const admin = h.as('admin');
+    expect(() => h.customers.anonymize(h.manager, customerId)).toThrow(/droit/);
+    expect(() => h.customers.anonymize(admin, customerId)).toThrow(/solde en cours/);
+    h.customers.payDebt(h.manager, { customerId, amount: 15_000, method: 'cash', reference: null });
+    const erased = h.customers.anonymize(admin, customerId);
+    expect(erased).toMatchObject({
+      fullName: `Client anonymisé n° ${String(customerId)}`,
+      phone: null,
+      address: null,
+      notes: null,
+      anonymized: true,
+      isActive: false,
+    });
+    expect(h.customers.search(h.manager, 'Aya', 10)).toEqual([]);
+    expect(h.sales.detail(h.manager, sale.id).total).toBe(20_000);
+    expect(() =>
+      h.customers.save(h.manager, { ...erased, fullName: 'Aya Koné', phone: '0707070707' }),
+    ).toThrow(/anonymisé/);
+    expect(() => h.customers.anonymize(admin, customerId)).toThrow(/déjà anonymisé/);
+    expect(
+      h.test.db
+        .prepare("SELECT details FROM audit_log WHERE action = 'customer.anonymized'")
+        .pluck()
+        .all(),
+    ).toEqual(['{}']);
+  });
+});

@@ -35,6 +35,8 @@ export const customerSchema = z.strictObject({
   notes: z.string().nullable(),
   creditLimit: money,
   isActive: z.boolean(),
+  /** Données personnelles effacées sur demande (B.3) : la fiche ne garde que l'historique. */
+  anonymized: z.boolean(),
   /** Reste dû (ventes à crédit − paiements − avoirs), calculé par la vue. */
   balance: z.number().int(),
 });

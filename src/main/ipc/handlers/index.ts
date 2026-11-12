@@ -129,6 +129,8 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
     'customers:get': ({ customerId }, context) =>
       services().customers.get(actor(context), customerId),
     'customers:save': (input, context) => services().customers.save(actor(context), input),
+    'customers:anonymize': ({ customerId }, context) =>
+      services().customers.anonymize(actor(context), customerId),
     'customers:payDebt': (input, context) => services().customers.payDebt(actor(context), input),
     'cash:current': (_input, context) => services().cashSessions.current(actor(context)),
     'cash:open': ({ openingFloat }, context) =>

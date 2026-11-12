@@ -232,6 +232,11 @@ export const salesFr = {
   'customer.limit': 'Plafond de crédit : {amount}',
   'customer.history': 'Achats',
   'customer.noSales': 'Aucun achat pour ce client.',
+  'customer.anonymize': 'Anonymiser',
+  'customer.anonymize.title': 'Anonymiser {name} ?',
+  'customer.anonymize.description':
+    'Le nom, le téléphone, l’adresse et les notes de ce client sont effacés définitivement. Ses achats restent dans l’historique, sans ses données personnelles. Cette action ne peut pas être annulée.',
+  'customer.anonymize.done': 'Données personnelles du client effacées.',
   'customer.payDebt': 'Encaisser un remboursement',
   'customer.payDebt.title': 'Remboursement de {name}',
   'customer.payDebt.description':
