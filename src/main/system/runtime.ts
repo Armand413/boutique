@@ -16,7 +16,7 @@ import { UserService } from '../auth/user-service';
 import { WrongKeyError, closeDatabase, integrityProblems, openDatabase } from '../db/connection';
 import { copyDatabaseFile, type FileBackup } from '../db/file-backup';
 import { KeyStore, KeyUnavailableError, type KeyProtector } from '../db/keystore';
-import { MigrationError, bundledMigrations, migrate } from '../db/migrations';
+import { MigrationError, bundledMigrations, migrate, pendingMigrations } from '../db/migrations';
 import { seedSystem } from '../db/seed';
 import type { Db } from '../db/types';
 import { logger } from '../logging/logger';
@@ -84,6 +84,18 @@ export interface Services {
  * Cycle de vie de la base au démarrage (B.3, B.4, E.7) : clé protégée, ouverture chiffrée,
  * contrôle d'intégrité, sauvegarde puis migrations, seed système, vérification de l'audit.
  */
+const INTEGRITY_FAILURE: SystemStatus = {
+  state: 'error',
+  code: 'INTEGRITY',
+  message: 'La base de données est endommagée. Restaurez la dernière sauvegarde.',
+};
+
+/** Erreur SQLite qui révèle une base endommagée (page illisible ou authentification de page). */
+function isCorruption(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /malformed|corrupt|not a database/i.test(message);
+}
+
 export class AppRuntime {
   private status: SystemStatus = {
     state: 'error',
@@ -92,6 +104,9 @@ export class AppRuntime {
   };
   private services: Services | null = null;
   private auditChainBroken = false;
+  private integrityCheck: Promise<void> = Promise.resolve();
+  /** Base refermée par le contrôle d'intégrité lancé à l'ouverture (prévaut sur tout autre état). */
+  private damaged = false;
   readonly databaseFile: string;
   readonly backupDirectory: string;
   private readonly keyStore: KeyStore;
@@ -117,7 +132,7 @@ export class AppRuntime {
       this.status = await this.openWithStoredKey();
     } catch (error) {
       logger.error('Démarrage de la base impossible', { error });
-      this.status = {
+      this.status = isCorruption(error) ? INTEGRITY_FAILURE : {
         state: 'error',
         code: 'STARTUP',
         message: 'La base de données n’a pas pu être ouverte.',
@@ -127,6 +142,7 @@ export class AppRuntime {
   }
 
   getStatus(): SystemStatus {
+    if (this.damaged) return INTEGRITY_FAILURE;
     if (this.status.state !== 'ready' || this.services === null) return this.status;
     return {
       state: 'ready',
@@ -347,15 +363,9 @@ export class AppRuntime {
   }
 
   private prepareOpened(db: Db, key: Buffer): SystemStatus {
-    const problems = integrityProblems(db);
-    if (problems.length > 0) {
-      logger.error('Contrôle d’intégrité en échec', { problems: problems.slice(0, 10) });
+    if (!this.integrityBeforeMigrationOk(db)) {
       db.close();
-      return {
-        state: 'error',
-        code: 'INTEGRITY',
-        message: 'La base de données est endommagée. Restaurez la dernière sauvegarde.',
-      };
+      return INTEGRITY_FAILURE;
     }
     const migrated = this.migrate(db);
     if (migrated !== null) {
@@ -367,12 +377,79 @@ export class AppRuntime {
     this.auditChainBroken = !audit.ok;
     if (!audit.ok) logger.error('Journal d’audit altéré', { brokenAtId: audit.brokenAtId });
     this.services = this.createServices(db, key);
+    this.damaged = false;
+    this.startIntegrityCheck(db, key);
     return {
       state: 'ready',
       setupCompleted: false,
       shopName: '',
       auditChainBroken: this.auditChainBroken,
     };
+  }
+
+  /**
+   * Avant les migrations, seul le contrôle d'intégrité est bloquant quand une migration attend
+   * (on ne migre pas une base endommagée) ; sinon le contrôle complet part dans un thread (D77).
+   */
+  private integrityBeforeMigrationOk(db: Db): boolean {
+    if (pendingMigrations(db, bundledMigrations()).length === 0) return true;
+    const problems = integrityProblems(db);
+    if (problems.length > 0) {
+      logger.error('Contrôle d’intégrité en échec', { problems: problems.slice(0, 10) });
+    }
+    return problems.length === 0;
+  }
+
+  /**
+   * `PRAGMA integrity_check` complet au démarrage (E, maintenance) dans un thread dédié, en lecture
+   * seule : plusieurs dizaines de secondes sur une très grosse base, sans retarder l'ouverture ni
+   * le thread des rapports. Une base endommagée est aussitôt refermée et l'écran d'erreur s'affiche.
+   */
+  private startIntegrityCheck(db: Db, key: Buffer): void {
+    const executor = this.newExecutor(db, key);
+    this.integrityCheck = executor
+      .execute({ type: 'integrity' })
+      .then((problems) => {
+        if (problems.length === 0) {
+          logger.info('Contrôle d’intégrité au démarrage : base saine');
+          return;
+        }
+        logger.error('Contrôle d’intégrité en échec', { problems: problems.slice(0, 10) });
+        this.refuseDamaged(db);
+      })
+      .catch((error: unknown) => {
+        logger.error('Contrôle d’intégrité impossible', { error });
+        if (isCorruption(error)) this.refuseDamaged(db);
+      })
+      .finally(() => executor.close());
+  }
+
+  /** Base endommagée découverte après l'ouverture : sessions fermées, base refermée. */
+  private refuseDamaged(db: Db): void {
+    const services = this.services;
+    if (services?.db !== db) return;
+    this.damaged = true;
+    this.status = INTEGRITY_FAILURE;
+    this.services = null;
+    services.sessions.end();
+    void services.reports.close();
+    db.close();
+  }
+
+  /** Fin du contrôle d'intégrité lancé à l'ouverture (attendue par les tests). */
+  integrityChecked(): Promise<void> {
+    return this.integrityCheck;
+  }
+
+  private newExecutor(db: Db, key: Buffer): ReportExecutor {
+    return (
+      this.options.executorFactory?.(db, this.databaseFile, key) ??
+      new WorkerExecutor(
+        this.options.reportWorkerScript ?? join(__dirname, 'report-worker.js'),
+        this.databaseFile,
+        key,
+      )
+    );
   }
 
   /** Applique les migrations ; renvoie un statut d'erreur en cas d'échec, null sinon. */
@@ -414,13 +491,7 @@ export class AppRuntime {
     expireQuotes(db);
     const inventories = new InventoryService(db);
     const images = new ImageStore(join(this.options.dataDirectory, 'images'));
-    const executor =
-      this.options.executorFactory?.(db, this.databaseFile, key) ??
-      new WorkerExecutor(
-        this.options.reportWorkerScript ?? join(__dirname, 'report-worker.js'),
-        this.databaseFile,
-        key,
-      );
+    const executor = this.newExecutor(db, key);
     const auth = new AuthService({
       db,
       sessions,

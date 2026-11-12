@@ -19,9 +19,13 @@ function isIpcResult(value: unknown): value is IpcResult<unknown> {
   );
 }
 
-/** Erreurs qui signifient que la session a changé (fermée, verrouillée, mot de passe à changer). */
+/**
+ * Erreurs qui signifient que la session ou l'état de la base a changé (session fermée ou
+ * verrouillée, mot de passe à changer, base refermée après un contrôle d'intégrité en échec).
+ */
 const SESSION_ERRORS: ReadonlySet<IpcErrorCode> = new Set([
   'UNAUTHENTICATED',
+  'UNAVAILABLE',
   'SESSION_LOCKED',
   'PASSWORD_CHANGE_REQUIRED',
 ]);

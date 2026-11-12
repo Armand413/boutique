@@ -1,4 +1,5 @@
 import type { Dashboard, ReportRequest, ReportResult } from '@shared/schemas/reports';
+import { integrityProblems } from '../db/connection';
 import type { Db } from '../db/types';
 import { dashboard, runReport } from './report-queries';
 
@@ -19,13 +20,17 @@ export type ReportTask =
       nowIso: string;
     }
   /** Copie cohérente de la base (`VACUUM INTO`), chiffrée avec la même clé, vers `path`. */
-  | { type: 'snapshot'; path: string };
+  | { type: 'snapshot'; path: string }
+  /** `PRAGMA integrity_check` complet, lancé au démarrage hors du processus principal (D77). */
+  | { type: 'integrity' };
 
 export type TaskResult<T extends ReportTask> = T extends { type: 'report' }
   ? ReportResult
   : T extends { type: 'dashboard' }
     ? Dashboard
-    : null;
+    : T extends { type: 'integrity' }
+      ? string[]
+      : null;
 
 /** Copie la base vers `path` ; la connexion du thread est en lecture seule, la copie reste possible. */
 export function snapshot(db: Db, path: string): null {
@@ -39,8 +44,11 @@ export function snapshot(db: Db, path: string): null {
   return null;
 }
 
-export function executeTask(db: Db, task: ReportTask): ReportResult | Dashboard | null {
+type TaskData = ReportResult | Dashboard | string[] | null;
+
+export function executeTask(db: Db, task: ReportTask): TaskData {
   if (task.type === 'snapshot') return snapshot(db, task.path);
+  if (task.type === 'integrity') return integrityProblems(db);
   const now = new Date(task.nowIso);
   if (task.type === 'dashboard') {
     return dashboard(db, {
@@ -55,5 +63,5 @@ export function executeTask(db: Db, task: ReportTask): ReportResult | Dashboard 
 
 /** Message échangé avec le thread : une réponse par identifiant de demande. */
 export type WorkerReply =
-  | { id: number; ok: true; data: ReportResult | Dashboard | null }
+  | { id: number; ok: true; data: TaskData }
   | { id: number; ok: false; code: string; message: string };

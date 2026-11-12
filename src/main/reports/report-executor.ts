@@ -27,7 +27,11 @@ export class InlineExecutor implements ReportExecutor {
   constructor(private readonly db: Db) {}
 
   execute<T extends ReportTask>(task: T): Promise<TaskResult<T>> {
-    return Promise.resolve(executeTask(this.db, task) as TaskResult<T>);
+    try {
+      return Promise.resolve(executeTask(this.db, task) as TaskResult<T>);
+    } catch (error) {
+      return Promise.reject(error instanceof Error ? error : new Error(String(error)));
+    }
   }
 
   close(): Promise<void> {

@@ -5,12 +5,15 @@ import { SessionManager, type Session } from '../../src/main/auth/session';
 import { ProductService } from '../../src/main/catalog/product-service';
 import { ReferenceService } from '../../src/main/catalog/reference-service';
 import { closeDatabase, integrityProblems, openDatabase } from '../../src/main/db/connection';
+import { verifyAuditChain } from '../../src/main/audit/audit-log';
 import { bundledMigrations, pendingMigrations } from '../../src/main/db/migrations';
+import { seedSystem } from '../../src/main/db/seed';
 import { localDay } from '../../src/main/reports/period';
 import { dashboard, runReport } from '../../src/main/reports/report-queries';
 import { snapshot } from '../../src/main/reports/report-tasks';
 import { CashSessionService } from '../../src/main/sales/cash-session-service';
 import { CustomerService } from '../../src/main/sales/customer-service';
+import { expireQuotes } from '../../src/main/sales/quote-service';
 import { SaleService } from '../../src/main/sales/sale-service';
 import { SupplierService } from '../../src/main/stock/supplier-service';
 import type { ReportRequest } from '../../src/shared/schemas/reports';
@@ -154,14 +157,23 @@ describe('temps cibles (5.1)', () => {
     expect(timings['validation d’une vente']).toBeLessThan(500);
   });
 
-  it('rouvre la base (contrôle d’intégrité compris) sous 3 s', () => {
+  it('rouvre la base sous 3 s (étapes bloquantes du démarrage)', () => {
     closeDatabase(test.db);
     const started = performance.now();
     test.db = openDatabase(test.file, test.key);
-    expect(integrityProblems(test.db)).toEqual([]);
     expect(pendingMigrations(test.db, bundledMigrations())).toEqual([]);
-    timings['ouverture + integrity_check'] = Math.round(performance.now() - started);
-    expect(timings['ouverture + integrity_check']).toBeLessThan(3000);
+    seedSystem(test.db);
+    expect(verifyAuditChain(test.db).ok).toBe(true);
+    expireQuotes(test.db);
+    timings['ouverture de la base'] = Math.round(performance.now() - started);
+    expect(timings['ouverture de la base']).toBeLessThan(3000);
+  });
+
+  it('termine le contrôle d’intégrité complet (thread du démarrage, D77)', () => {
+    const started = performance.now();
+    expect(integrityProblems(test.db)).toEqual([]);
+    timings['integrity_check (arrière-plan)'] = Math.round(performance.now() - started);
+    expect(timings['integrity_check (arrière-plan)']).toBeLessThan(5 * 60_000);
   });
 
   it('calcule tableau de bord et rapports dans le thread des rapports en temps raisonnable', () => {
