@@ -49,7 +49,7 @@ export const LOAD_SCALE: Scale = {
   customers: 5000,
   suppliers: 30,
   sales: 100_000,
-  restockLines: 160_000,
+  restockLines: 200_000,
 };
 
 export interface Actors {
