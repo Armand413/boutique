@@ -314,4 +314,16 @@ export const catalogEn: Readonly<Record<keyof typeof catalogFr, string>> = {
   'search.screens': 'Screens',
   'search.device': '{serial} · {product} · {status}',
   'search.searching': 'Searching…',
+
+  'cascade.family': 'Family',
+  'cascade.category': 'Category',
+  'cascade.subcategory': 'Subcategory',
+  'cascade.chooseFamily': 'Choose a family…',
+  'cascade.allArticles': 'All items',
+  'cascade.article': 'Item',
+  'cascade.chooseArticle': 'Choose among {count} items…',
+  'cascade.empty': 'No item here',
+  'cascade.stock': 'stock {count}',
+  'cascade.tooMany': 'Only the first {count} items are listed: choose a narrower category.',
+  'cascade.scanLabel': 'Scan a code (barcode, IMEI or serial number)',
 };

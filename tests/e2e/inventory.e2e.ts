@@ -3,7 +3,14 @@ import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { checkAccessibility } from './a11y';
 import { launchReady, removeUserData, type LaunchedApp } from './fixtures';
-import { enableModules, importCsv, openModule, stubFileDialogs, toastShown } from './helpers';
+import {
+  enableModules,
+  importCsv,
+  openModule,
+  SCAN_LABEL,
+  stubFileDialogs,
+  toastShown,
+} from './helpers';
 
 let launched: LaunchedApp;
 
@@ -174,7 +181,7 @@ test('garantie : recherche par IMEI, réclamation ouverte, envoyée au fournisse
   await page.getByLabel('Fond de caisse').fill('0');
   await page.getByRole('button', { name: 'Ouvrir la caisse' }).click();
   await toastShown(page, 'Caisse ouverte.');
-  const search = page.getByLabel('Rechercher ou scanner un article');
+  const search = page.getByLabel(SCAN_LABEL);
   await search.fill(IMEI_A);
   await search.press('Enter');
   await toastShown(page, `Unité ${IMEI_A} ajoutée.`);

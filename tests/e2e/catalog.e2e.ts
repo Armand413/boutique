@@ -11,6 +11,7 @@ import {
   removeUserData,
   type LaunchedApp,
 } from './fixtures';
+import { pickArticle } from './helpers';
 
 let launched: LaunchedApp;
 
@@ -178,8 +179,7 @@ test('importe un fichier CSV, compose un kit et retrouve un produit par Ctrl+K',
 
   await page.getByRole('button', { name: 'Modifier la composition' }).click();
   const kit = page.getByRole('dialog');
-  await kit.getByLabel('Ajouter un composant').fill('câble');
-  await kit.getByRole('button', { name: 'Ajouter Câble USB-C' }).click();
+  await pickArticle(page, kit, 'Téléphonie', 'Câble USB-C');
   await kit.getByRole('button', { name: 'Quantité +1 : Câble USB-C' }).click();
   await checkAccessibility(page, 'Composition du kit');
   await kit.getByRole('button', { name: 'Enregistrer' }).click();

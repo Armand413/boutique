@@ -19,6 +19,7 @@ export const salesFr = {
   'pos.opened': 'Caisse ouverte.',
   'pos.session': 'Caisse ouverte par {name} · {date}',
   'pos.search': 'Article, code-barres, IMEI ou numéro de série',
+  'pos.chooseArticle': 'Ajouter un article',
   'pos.searchLabel': 'Rechercher ou scanner un article',
   'pos.searchHint': 'Entrée ajoute le premier résultat.',
   'pos.noResult': 'Aucun article trouvé.',

@@ -75,8 +75,8 @@ export const stockEn: Readonly<Record<keyof typeof stockFr, string>> = {
   'stock.serial': 'No. {serial}',
 
   'picker.label': 'Add an item',
-  'picker.placeholder': 'Name, reference or barcode (Enter for the first)',
-  'picker.noResult': 'No stocked item matches.',
+  'picker.scanLabel': 'Scan a barcode or reference',
+  'picker.noResult': 'No item has this code.',
   'picker.add': 'Add {name}',
   'picker.selected': 'Item: {name}',
   'picker.change': 'Change item',

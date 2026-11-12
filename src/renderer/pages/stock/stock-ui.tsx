@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useId, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { useCallback, useId, useState } from 'react';
 import type { ProductRow } from '@shared/schemas/catalog';
 import { MOVEMENT_TYPES, PAYMENT_METHODS, type AvailableUnit } from '@shared/schemas/stock';
+import { CascadePicker } from '../../components/catalog/CascadePicker';
 import { Input, Label } from '../../components/ui/basic';
-import { Button } from '../../components/ui/button';
 import type { SelectOption } from '../../components/ui/radix';
 import { toast } from '../../components/ui/toast';
 import { useT, type Translate } from '../../i18n';
@@ -55,8 +54,8 @@ export function parseSerialLines(text: string): { serialNumber: string; imei2: s
 }
 
 /**
- * Choix d'un article stocké, au clavier ou au lecteur : Entrée ajoute le premier résultat
- * (un code-barres exact arrive en tête).
+ * Choix d'un article (D91) : listes successives famille, catégorie, article, plus un petit champ
+ * pour le lecteur de codes-barres (code-barres ou référence exacts, puis Entrée).
  */
 export function VariantPicker({
   onPick,
@@ -70,95 +69,54 @@ export function VariantPicker({
 }) {
   const t = useT();
   const inputId = useId();
-  const [query, setQuery] = useState('');
-  const [found, setFound] = useState<{ query: string; rows: ProductRow[] }>({
-    query: '',
-    rows: [],
-  });
-  const trimmed = query.trim();
-  const rows = trimmed.length >= 2 && found.query === trimmed ? found.rows : [];
+  const [code, setCode] = useState('');
 
-  useEffect(() => {
-    if (trimmed.length < 2) return;
-    let active = true;
-    const timer = window.setTimeout(() => {
-      invoke('products:search', {
-        query: trimmed,
+  const scan = async (): Promise<void> => {
+    const text = code.trim();
+    if (text === '') return;
+    try {
+      const found = await invoke('products:search', {
+        query: text,
         status: 'active',
         excludeKits: !includeAll,
         sort: 'name',
         offset: 0,
         limit: 8,
-      }).then(
-        (result) => {
-          if (active)
-            setFound({
-              query: trimmed,
-              rows: includeAll ? result.rows : result.rows.filter((row) => row.isStocked),
-            });
-        },
-        (error: unknown) => {
-          if (active) toast.error(errorMessage(error));
-        },
+      });
+      const exact = found.rows.find(
+        (row) =>
+          (row.barcode === text || row.sku.toLowerCase() === text.toLowerCase()) &&
+          (includeAll || row.isStocked),
       );
-    }, 120);
-    return () => {
-      active = false;
-      window.clearTimeout(timer);
-    };
-  }, [trimmed, includeAll]);
-
-  const pick = (row: ProductRow): void => {
-    onPick(row);
-    setQuery('');
+      if (exact === undefined) {
+        toast.error(t('picker.noResult'));
+        return;
+      }
+      onPick(exact);
+      setCode('');
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
   };
   return (
-    <div className="flex flex-col gap-2">
-      <Label htmlFor={inputId}>{t('picker.label')}</Label>
-      <Input
-        id={inputId}
-        type="search"
-        autoComplete="off"
-        autoFocus={autoFocus}
-        placeholder={t('picker.placeholder')}
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key !== 'Enter') return;
-          event.preventDefault();
-          const [first] = rows;
-          if (first !== undefined) pick(first);
-        }}
-      />
-      {trimmed.length >= 2 && found.query === trimmed && (
-        <ul
-          className="border-border flex flex-col rounded-md border"
-          aria-label={t('search.results')}
-        >
-          {rows.length === 0 && (
-            <li className="text-muted-foreground px-3 py-2 text-sm">{t('picker.noResult')}</li>
-          )}
-          {rows.map((row) => (
-            <li
-              key={row.variantId}
-              className="border-border flex items-center justify-between gap-2 border-t px-3 py-2 first:border-t-0"
-            >
-              <span className="min-w-0 text-sm">
-                <span className="font-medium">{rowName(row)}</span>{' '}
-                <span className="text-muted-foreground font-mono">{row.barcode ?? row.sku}</span>
-              </span>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => pick(row)}
-                aria-label={t('picker.add', { name: rowName(row) })}
-              >
-                <Plus aria-hidden="true" />
-              </Button>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="flex flex-col gap-3">
+      <p className="text-base font-semibold">{t('picker.label')}</p>
+      <CascadePicker onPick={onPick} stockedOnly={!includeAll} showPrice={includeAll} />
+      <div className="flex flex-col gap-2">
+        <Label htmlFor={inputId}>{t('picker.scanLabel')}</Label>
+        <Input
+          id={inputId}
+          autoComplete="off"
+          autoFocus={autoFocus}
+          value={code}
+          onChange={(event) => setCode(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            void scan();
+          }}
+        />
+      </div>
     </div>
   );
 }

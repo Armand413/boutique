@@ -128,8 +128,13 @@ En début de journée, saisissez le **fond de caisse** compté dans le tiroir et
 
 ### Composer le panier
 
-- Le curseur est toujours dans le champ **Rechercher ou scanner un article**. Scannez le code-barres, ou tapez un nom,
-  une référence, un IMEI ou un numéro de série ; **Entrée** ajoute le premier résultat. Un bip confirme le scan.
+- **Choisir un article** : dans **Ajouter un article**, choisissez la **Famille** (Téléphonie, Électronique et
+  audio…), puis la **Catégorie** et la sous-catégorie si elles existent, puis l'**Article** dans la dernière liste
+  (une ligne par variante, avec le prix et le stock). On peut s'arrêter à n'importe quel niveau : la liste des
+  articles montre tout ce qu'il contient. La même façon de choisir sert à l'entrée de stock, aux sorties et
+  transferts, aux devis et à la composition d'un kit.
+- **Lecteur de codes-barres** : le curseur est dans le petit champ **Scanner un code** ; scannez le code-barres, ou
+  tapez un IMEI ou un numéro de série, puis **Entrée**. Un bip confirme le scan.
 - **Téléphone ou article suivi** (téléviseur, panneau, onduleur, batterie…) : l'application demande l'**unité
   exacte**. Scannez son IMEI ou son numéro de série : on ne vend jamais un appareil « au hasard ».
 - **Kit** (ex. kit solaire) : il s'ajoute comme un seul article ; ses composants sortent du stock à la validation.
@@ -243,7 +248,7 @@ numéro de série).
 mouvements** (date, article, numéro, quantité, stock après, motif, document, utilisateur) et la **valorisation**
 (au coût moyen et au prix de vente, par emplacement et par famille ; réservée à qui voit les prix d'achat).
 
-- **Entrée de marchandise** : choisissez l'emplacement, scannez les articles, saisissez quantités et prix d'achat, et
+- **Entrée de marchandise** : choisissez l'emplacement, choisissez les articles dans les listes (ou scannez-les), saisissez quantités et prix d'achat, et
   pour chaque appareil suivi son IMEI ou son numéro de série (IMEI 2 facultatif). Un bon `BR-AAAA-NNNNN` est créé ;
   le coût moyen pondéré est recalculé. Avec le module Fournisseurs, vous pouvez en plus choisir le fournisseur
   (facultatif) et saisir un paiement.
@@ -392,7 +397,7 @@ peut vous les demander.
 | **F4**     | Encaisser                                         |
 | **F8**     | Mettre le panier en attente                       |
 | **Échap**  | Annuler / fermer la fenêtre                       |
-| **Entrée** | Ajouter le premier résultat (caisse)              |
+| **Entrée** | Ajouter l'article scanné (caisse)                 |
 | **Ctrl+K** | Recherche globale                                 |
 | **Ctrl+L** | Verrouiller la session                            |
 | **Tab**    | Passer au champ suivant (tout se fait au clavier) |

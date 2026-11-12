@@ -74,8 +74,8 @@ export const stockFr = {
   'stock.serial': 'N° {serial}',
 
   'picker.label': 'Ajouter un article',
-  'picker.placeholder': 'Nom, référence ou code-barres (Entrée pour le premier)',
-  'picker.noResult': 'Aucun article stocké ne correspond.',
+  'picker.scanLabel': 'Scanner un code-barres ou une référence',
+  'picker.noResult': 'Aucun article ne porte ce code.',
   'picker.add': 'Ajouter {name}',
   'picker.selected': 'Article : {name}',
   'picker.change': 'Changer d’article',

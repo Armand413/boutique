@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import type { ProductDetail, ProductRow, VariantDetail } from '@shared/schemas/catalog';
@@ -13,11 +13,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../components/ui/dialog';
-import { CheckboxField, FormError, SelectField, TextField } from '../../components/ui/form-field';
+import { CheckboxField, FormError, SelectField } from '../../components/ui/form-field';
 import { Money } from '../../components/ui/money';
 import { toast } from '../../components/ui/toast';
+import { CascadePicker } from '../../components/catalog/CascadePicker';
 import { useT } from '../../i18n';
-import { errorMessage, invoke } from '../../lib/ipc';
+import { invoke } from '../../lib/ipc';
 import { useCan } from './catalog-ui';
 import {
   emptyVariantValues,
@@ -144,36 +145,7 @@ export function KitDialog({
       quantity: component.quantity,
     })),
   );
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<ProductRow[]>([]);
   const [saving, setSaving] = useState(false);
-
-  const searching = query.trim().length >= 2;
-  useEffect(() => {
-    if (!searching) return;
-    let active = true;
-    const timer = window.setTimeout(() => {
-      invoke('products:search', {
-        query,
-        status: 'active',
-        excludeKits: true,
-        sort: 'name',
-        offset: 0,
-        limit: 8,
-      }).then(
-        (found) => {
-          if (active) setResults(found.rows);
-        },
-        (failure: unknown) => {
-          if (active) toast.error(errorMessage(failure));
-        },
-      );
-    }, 150);
-    return () => {
-      active = false;
-      window.clearTimeout(timer);
-    };
-  }, [query, searching]);
 
   const add = (row: ProductRow): void => {
     setLines((current) =>
@@ -190,7 +162,6 @@ export function KitDialog({
             },
           ],
     );
-    setQuery('');
   };
   const setQuantity = (variantId: number, quantity: number): void =>
     setLines((current) =>
@@ -222,50 +193,7 @@ export function KitDialog({
           <DialogTitle>{t('kit.form.title', { name: product.name })}</DialogTitle>
           <DialogDescription>{t('kit.form.description')}</DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-2">
-          <TextField
-            label={t('kit.form.search')}
-            placeholder={t('kit.form.searchPlaceholder')}
-            value={query}
-            autoFocus
-            autoComplete="off"
-            onChange={(event) => setQuery(event.target.value)}
-          />
-          {query.trim().length >= 2 && (
-            <ul
-              className="border-border flex flex-col rounded-md border"
-              aria-label={t('search.results')}
-            >
-              {results.length === 0 && (
-                <li className="text-muted-foreground px-3 py-2 text-sm">
-                  {t('kit.form.noResult')}
-                </li>
-              )}
-              {results.map((row) => {
-                const name = [row.name, row.variantLabel].filter((part) => part !== '').join(' · ');
-                return (
-                  <li
-                    key={row.variantId}
-                    className="border-border flex items-center justify-between gap-2 border-t px-3 py-2 first:border-t-0"
-                  >
-                    <span className="min-w-0 text-sm">
-                      <span className="font-medium">{name}</span>{' '}
-                      <span className="text-muted-foreground font-mono">{row.sku}</span>
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => add(row)}
-                      aria-label={t('kit.form.add', { name })}
-                    >
-                      <Plus aria-hidden="true" />
-                    </Button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+        <CascadePicker excludeKits onPick={add} />
         {lines.length === 0 ? (
           <p className="text-muted-foreground text-sm">{t('detail.kit.empty')}</p>
         ) : (

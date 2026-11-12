@@ -8,6 +8,7 @@ import {
   enableModules,
   importCsv,
   openModule,
+  SCAN_LABEL,
   signInAsNewSeller,
   stubFileDialogs,
   toastShown,
@@ -81,7 +82,7 @@ async function sellCables(page: Page): Promise<void> {
   await page.getByLabel('Fond de caisse').fill('0');
   await page.getByRole('button', { name: 'Ouvrir la caisse' }).click();
   await toastShown(page, 'Caisse ouverte.');
-  const search = page.getByLabel('Rechercher ou scanner un article');
+  const search = page.getByLabel(SCAN_LABEL);
   await search.fill('0011');
   await search.press('Enter');
   await page.getByLabel('Quantité de Câble USB-C').fill('6');

@@ -20,7 +20,6 @@ import { Badge, Card, CardContent, Input, Kbd, Label } from '../../components/ui
 import { Button } from '../../components/ui/button';
 import { ConfirmDialog } from '../../components/ui/dialog';
 import { FormError, TextField } from '../../components/ui/form-field';
-import { Money } from '../../components/ui/money';
 import { toast } from '../../components/ui/toast';
 import { useHotkey } from '../../hotkeys/hotkeys';
 import { useT } from '../../i18n';
@@ -36,6 +35,7 @@ import {
   HeldDialog,
   UnitDialog,
 } from './PosDialogs';
+import { CascadePicker } from '../../components/catalog/CascadePicker';
 import { beep, missingUnits, posLinesFrom } from './pos-ui';
 
 type SessionState =
@@ -288,17 +288,13 @@ function CartLineRow({
   );
 }
 
-/** Caisse (A.5) : au clavier et au scanner, recherche à gauche, panier et total à droite. */
+/** Caisse (A.5) : choix de l'article par listes (ou au scanner) à gauche, panier et total à droite. */
 export function PosPage() {
   const t = useT();
   const pos = usePos();
   const searchRef = useRef<HTMLInputElement>(null);
   const [session, setSession] = useState<SessionState>({ status: 'loading' });
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<{ query: string; rows: ProductRow[] }>({
-    query: '',
-    rows: [],
-  });
   const [computed, setPreview] = useState<CartPreview | null>(null);
   const [heldCount, setHeldCount] = useState(0);
   const [dialog, setDialog] = useState<PosDialog>(null);
@@ -317,31 +313,6 @@ export function PosPage() {
   useEffect(loadSession, [loadSession]);
 
   const trimmed = query.trim();
-  useEffect(() => {
-    if (trimmed.length < 2) return;
-    let active = true;
-    const timer = window.setTimeout(() => {
-      invoke('products:search', {
-        query: trimmed,
-        status: 'active',
-        sort: 'name',
-        offset: 0,
-        limit: 8,
-      }).then(
-        (found) => {
-          if (active) setResults({ query: trimmed, rows: found.rows });
-        },
-        (error: unknown) => {
-          if (active) toast.error(errorMessage(error));
-        },
-      );
-    }, 100);
-    return () => {
-      active = false;
-      window.clearTimeout(timer);
-    };
-  }, [trimmed]);
-  const rows = results.query === trimmed && trimmed.length >= 2 ? results.rows : [];
 
   const lines = pos.lines;
   const preview = lines.length === 0 ? null : computed;
@@ -584,49 +555,25 @@ export function PosPage() {
       )}
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-6">
         <div className="flex flex-col gap-3">
-          <Label htmlFor="pos-search">{t('pos.searchLabel')}</Label>
-          <Input
-            ref={searchRef}
-            id="pos-search"
-            className="h-12 text-lg"
-            autoFocus
-            autoComplete="off"
-            placeholder={t('pos.search')}
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key !== 'Enter') return;
-              event.preventDefault();
-              void scan();
-            }}
-          />
-          <p className="text-muted-foreground text-sm">{t('pos.searchHint')}</p>
-          {trimmed.length >= 2 && results.query === trimmed && rows.length === 0 && (
-            <p className="text-muted-foreground text-sm">{t('pos.noResult')}</p>
-          )}
-          <ul className="flex flex-col gap-2">
-            {rows.map((row) => {
-              const name = row.variantLabel === '' ? row.name : `${row.name} (${row.variantLabel})`;
-              return (
-                <li key={row.variantId}>
-                  <button
-                    type="button"
-                    className="border-border hover:bg-muted flex min-h-14 w-full items-center justify-between gap-3 rounded-md border px-4 py-2 text-left"
-                    aria-label={t('pos.add', { name })}
-                    onClick={() => void addRow(row)}
-                  >
-                    <span className="min-w-0">
-                      <span className="block truncate font-medium">{name}</span>
-                      <span className="text-muted-foreground block text-sm">
-                        {row.isStocked ? t('pos.stock', { count: row.stock }) : t('pos.service')}
-                      </span>
-                    </span>
-                    <Money amount={row.salePrice} className="font-semibold" />
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+          <h2 className="text-xl font-semibold">{t('pos.chooseArticle')}</h2>
+          {/* Choix par listes successives : famille, catégorie, article (D91). */}
+          <CascadePicker showPrice onPick={(row) => void addRow(row)} />
+          <div className="border-border flex flex-col gap-2 border-t pt-3">
+            <Label htmlFor="pos-search">{t('cascade.scanLabel')}</Label>
+            <Input
+              ref={searchRef}
+              id="pos-search"
+              autoFocus
+              autoComplete="off"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                void scan();
+              }}
+            />
+          </div>
         </div>
         <Card>
           <CardContent className="flex flex-col gap-4 pt-6">

@@ -118,10 +118,19 @@ interface SelectProps {
   options: readonly SelectOption[];
   onValueChange: (value: string) => void;
   disabled?: boolean;
+  placeholder?: string;
   'aria-labelledby'?: string;
 }
 
-export function Select({ id, value, options, onValueChange, disabled, ...aria }: SelectProps) {
+export function Select({
+  id,
+  value,
+  options,
+  onValueChange,
+  disabled,
+  placeholder,
+  ...aria
+}: SelectProps) {
   return (
     <SelectPrimitive.Root
       value={value}
@@ -133,7 +142,9 @@ export function Select({ id, value, options, onValueChange, disabled, ...aria }:
         {...aria}
         className="border-input bg-surface text-surface-foreground inline-flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 text-base disabled:opacity-50"
       >
-        <SelectPrimitive.Value />
+        <span className="min-w-0 truncate text-left">
+          <SelectPrimitive.Value {...(placeholder === undefined ? {} : { placeholder })} />
+        </span>
         <SelectPrimitive.Icon>
           <ChevronDown className="size-4" aria-hidden="true" />
         </SelectPrimitive.Icon>

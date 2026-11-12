@@ -6,6 +6,7 @@ import {
   enableModules,
   importCsv,
   openModule,
+  pickArticle,
   signInAsNewSeller,
   toastShown,
 } from './helpers';
@@ -63,14 +64,10 @@ test('réception fournisseur, transfert, sortie, paiement et alertes de stock', 
   await expect(
     page.getByRole('heading', { level: 1, name: 'Entrée de marchandise' }),
   ).toBeVisible();
-  const picker = page.getByLabel('Ajouter un article');
-  await picker.fill('câble');
-  await expect(page.getByRole('button', { name: 'Ajouter Câble USB-C' })).toBeVisible();
-  await picker.press('Enter');
+  await pickArticle(page, page, 'Téléphonie', 'Câble USB-C');
   await page.getByLabel('Quantité reçue de Câble USB-C').fill('10');
   await page.getByLabel('Prix d’achat unitaire de Câble USB-C').fill('1000');
-  await picker.fill('galaxy');
-  await page.getByRole('button', { name: 'Ajouter Galaxy A15' }).click();
+  await pickArticle(page, page, 'Téléphonie', 'Galaxy A15');
   await page.getByLabel('Quantité reçue de Galaxy A15').fill('2');
   await page.getByLabel('Prix d’achat unitaire de Galaxy A15').fill('90 000');
   await page.getByLabel(/Numéros de Galaxy A15/).fill(`${IMEI_A} ${IMEI_A2}\n${IMEI_B}`);
@@ -96,8 +93,7 @@ test('réception fournisseur, transfert, sortie, paiement et alertes de stock', 
   await expect(page.getByRole('button', { name: /Alertes de stock/ })).toHaveCount(0);
   await page.getByRole('button', { name: 'Transfert' }).click();
   let dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Ajouter un article').fill('galaxy');
-  await dialog.getByRole('button', { name: 'Ajouter Galaxy A15' }).click();
+  await pickArticle(page, dialog, 'Téléphonie', 'Galaxy A15');
   await dialog.getByLabel(IMEI_B).check();
   await checkAccessibility(page, 'Transfert');
   await dialog.getByRole('button', { name: 'Transférer' }).click();
@@ -105,8 +101,7 @@ test('réception fournisseur, transfert, sortie, paiement et alertes de stock', 
 
   await page.getByRole('button', { name: 'Sortie ou ajustement' }).click();
   dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Ajouter un article').fill('câble');
-  await dialog.getByRole('button', { name: 'Ajouter Câble USB-C' }).click();
+  await pickArticle(page, dialog, 'Téléphonie', 'Câble USB-C');
   await choose(page, 'Nature', 'Casse');
   await dialog.getByLabel('Quantité').fill('7');
   await dialog.getByRole('button', { name: 'Enregistrer le mouvement' }).click();

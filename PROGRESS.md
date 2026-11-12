@@ -449,6 +449,9 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
   désactivés par défaut (menus, caisse, tableau de bord, canaux refusés) ; entrée de stock sans fournisseur
   (migration 0012). **Correctif** : création d'un client depuis la caisse (nom et téléphone, bouton toujours actif).
 
+- **Choix d'un article par listes** (D91, demande du client) : Famille › Catégorie › Article à la caisse, à
+  l'entrée de stock, aux sorties et transferts, aux devis et dans les kits ; champ de scan conservé.
+
 ### Vérifications de fin de phase
 
 | Contrôle                | Résultat                                                                                                     |

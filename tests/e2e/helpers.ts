@@ -1,6 +1,6 @@
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { expect, type ElectronApplication, type Page } from '@playwright/test';
+import { expect, type ElectronApplication, type Locator, type Page } from '@playwright/test';
 import { login, logout, nav } from './fixtures';
 
 /** Les fenêtres d'ouverture et d'enregistrement de fichiers renvoient les chemins du test. */
@@ -83,4 +83,29 @@ export async function enableModules(page: Page, labels: readonly string[]): Prom
   for (const label of labels) await page.getByLabel(label, { exact: true }).check();
   await page.getByRole('button', { name: 'Enregistrer' }).click();
   await toastShown(page, 'Paramètres enregistrés.');
+}
+
+/** Libellé du champ du lecteur de codes-barres de la caisse (D91). */
+export const SCAN_LABEL = 'Scanner un code (code-barres, IMEI ou numéro de série)';
+
+/**
+ * Choisit un article par les listes successives (D91) : famille, puis l'article dont le libellé
+ * commence par `article`. `scope` : la page ou la fenêtre qui contient le sélecteur.
+ */
+export async function pickArticle(
+  page: Page,
+  scope: Page | Locator,
+  family: string,
+  article: string,
+): Promise<void> {
+  await scope.getByRole('combobox', { name: 'Famille', exact: true }).click();
+  await page.getByRole('option', { name: family, exact: true }).click();
+  const articles = scope.getByRole('combobox', { name: 'Article', exact: true });
+  await expect(articles).toBeEnabled();
+  await articles.click();
+  const escaped = article.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  await page
+    .getByRole('option', { name: new RegExp(`^${escaped}`) })
+    .first()
+    .click();
 }

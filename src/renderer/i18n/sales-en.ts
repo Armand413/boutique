@@ -20,6 +20,7 @@ export const salesEn: Readonly<Record<keyof typeof salesFr, string>> = {
   'pos.opened': 'Till opened.',
   'pos.session': 'Till opened by {name} · {date}',
   'pos.search': 'Item, barcode, IMEI or serial number',
+  'pos.chooseArticle': 'Add an item',
   'pos.searchLabel': 'Search or scan an item',
   'pos.searchHint': 'Enter adds the first result.',
   'pos.noResult': 'No item found.',

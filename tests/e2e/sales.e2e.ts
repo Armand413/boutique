@@ -3,7 +3,15 @@ import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { checkAccessibility } from './a11y';
 import { launchReady, nav, removeUserData, type LaunchedApp } from './fixtures';
-import { importCsv, openModule, signInAsNewSeller, stubFileDialogs, toastShown } from './helpers';
+import {
+  importCsv,
+  openModule,
+  pickArticle,
+  SCAN_LABEL,
+  signInAsNewSeller,
+  stubFileDialogs,
+  toastShown,
+} from './helpers';
 
 let launched: LaunchedApp;
 
@@ -81,7 +89,7 @@ async function openTill(page: Page, float = '10000'): Promise<void> {
 }
 
 async function scan(page: Page, code: string): Promise<void> {
-  const search = page.getByLabel('Rechercher ou scanner un article');
+  const search = page.getByLabel(SCAN_LABEL);
   await search.fill(code);
   await search.press('Enter');
 }
@@ -98,8 +106,7 @@ test('vente complète au clavier : scan, IMEI, service, attente, encaissement, r
   await expect(page.getByLabel('Quantité de Câble USB-C')).toHaveValue('2');
   await scan(page, IMEI);
   await toastShown(page, `Unité ${IMEI} ajoutée.`);
-  await page.getByLabel('Rechercher ou scanner un article').fill('install');
-  await page.getByRole('button', { name: 'Ajouter Installation' }).click();
+  await pickArticle(page, page, 'Énergie solaire', 'Installation');
   await page.getByLabel('Remise sur Câble USB-C').fill('10');
   await expect(page.getByTestId('pos-total')).toHaveText(/149\s500/);
   await checkAccessibility(page, 'Caisse (panier)');
@@ -184,8 +191,7 @@ test('devis réservé, envoyé puis converti en vente', async () => {
 
   await openModule(page, 'Devis');
   await page.getByRole('button', { name: 'Nouveau devis' }).first().click();
-  await page.getByLabel('Ajouter un article').fill('câble');
-  await page.getByRole('button', { name: 'Ajouter Câble USB-C' }).click();
+  await pickArticle(page, page, 'Téléphonie', 'Câble USB-C');
   await page.getByLabel('Quantité de Câble USB-C').fill('3');
   // Création directe, sans recherche préalable : nom et téléphone saisis dans le formulaire.
   await page.getByRole('button', { name: 'Choisir un client' }).click();

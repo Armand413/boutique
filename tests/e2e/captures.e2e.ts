@@ -10,6 +10,7 @@ import {
   nav,
   removeUserData,
 } from './fixtures';
+import { enableModules } from './helpers';
 
 /** Le paquet `electron` exporte, sous Node, le chemin de l'exécutable. */
 const electronBinary = electronPath as unknown as string;
@@ -92,11 +93,12 @@ test('@guide écrans du guide utilisateur', async () => {
       await page.getByLabel('Fond de caisse').fill('50000');
       await opening.click();
     }
-    const search = page.getByLabel('Rechercher ou scanner un article');
-    for (const term of ['câble', 'coque', 'écouteurs']) {
-      await search.fill(term);
-      await page.waitForTimeout(300);
-      await search.press('Enter');
+    // Listes successives (D91) : famille, puis les premiers articles proposés.
+    await page.getByRole('combobox', { name: 'Famille', exact: true }).click();
+    await page.getByRole('option', { name: 'Téléphonie', exact: true }).click();
+    for (const index of [0, 1, 2]) {
+      await page.getByRole('combobox', { name: 'Article', exact: true }).click();
+      await page.getByRole('option').nth(index).click();
     }
     await shot('caisse');
     await page.keyboard.press('F4');
@@ -117,6 +119,8 @@ test('@guide écrans du guide utilisateur', async () => {
     await shot('ventes');
     await open('Clients');
     await shot('clients');
+    // Module désactivé par défaut (D90) : activé pour illustrer le guide.
+    await enableModules(page, ['Garantie et SAV']);
     await open('Garantie et SAV');
     await shot('garantie');
     await open('Rapports');

@@ -312,4 +312,17 @@ export const catalogFr = {
   'search.screens': 'Écrans',
   'search.device': '{serial} · {product} · {status}',
   'search.searching': 'Recherche…',
+
+  'cascade.family': 'Famille',
+  'cascade.category': 'Catégorie',
+  'cascade.subcategory': 'Sous-catégorie',
+  'cascade.chooseFamily': 'Choisissez une famille…',
+  'cascade.allArticles': 'Tous les articles',
+  'cascade.article': 'Article',
+  'cascade.chooseArticle': 'Choisissez parmi {count} articles…',
+  'cascade.empty': 'Aucun article ici',
+  'cascade.stock': 'stock {count}',
+  'cascade.tooMany':
+    'Seuls les {count} premiers articles sont proposés : choisissez une catégorie plus précise.',
+  'cascade.scanLabel': 'Scanner un code (code-barres, IMEI ou numéro de série)',
 } as const;

@@ -163,6 +163,8 @@ export interface SelectFieldProps {
   disabled?: boolean;
   hint?: string | undefined;
   error?: string | undefined;
+  /** Texte affiché tant qu'aucune valeur n'est choisie (valeur vide). */
+  placeholder?: string;
 }
 
 /** Liste de choix avec son libellé (relié par aria-labelledby) et une aide facultative. */
@@ -174,6 +176,7 @@ export function SelectField({
   disabled,
   hint,
   error,
+  placeholder,
 }: SelectFieldProps) {
   const labelId = useId();
   const hintId = useId();
@@ -186,6 +189,7 @@ export function SelectField({
         options={options}
         onValueChange={onValueChange}
         {...(disabled === undefined ? {} : { disabled })}
+        {...(placeholder === undefined ? {} : { placeholder })}
       />
       {hint !== undefined && error === undefined && (
         <p id={hintId} className="text-muted-foreground text-sm">
