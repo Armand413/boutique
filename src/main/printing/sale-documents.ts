@@ -12,6 +12,11 @@ const money = (value: number): string => plain(formatMoney(value));
 
 const METHOD_LABELS: Readonly<Record<string, string>> = {
   cash: 'Espèces',
+  orange_money: 'Orange Money',
+  moov_money: 'Moov Money',
+  telecel_money: 'Telecel Money',
+  wave: 'Wave',
+  // Anciens moyens (D94), pour réimprimer une vente enregistrée avant.
   card: 'Carte',
   mobile_money: 'Mobile money',
   transfer: 'Virement',

@@ -23,6 +23,10 @@ export const stockEn: Readonly<Record<keyof typeof stockFr, string>> = {
   'payment.cash': 'Cash',
   'payment.card': 'Card',
   'payment.mobile_money': 'Mobile money',
+  'payment.orange_money': 'Orange Money',
+  'payment.moov_money': 'Moov Money',
+  'payment.telecel_money': 'Telecel Money',
+  'payment.wave': 'Wave',
   'payment.transfer': 'Bank transfer',
   'payment.cheque': 'Cheque',
 

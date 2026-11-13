@@ -33,7 +33,7 @@ function upgradedDatabase() {
       .run(variantId, IMEI).lastInsertRowid,
   );
   move(db, { variantId, delta: 1, userId, serialUnitId: unitId });
-  const applied = migrate(db, bundledMigrations());
+  const applied = migrate(db, bundledMigrations().slice(0, 13));
   return { db, applied, productId, variantId, userId };
 }
 

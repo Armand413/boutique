@@ -250,7 +250,7 @@ describe('fournisseurs et paiements', () => {
         supplierId,
         receiptId: detail.receipt.id,
         amount: 7000,
-        method: 'transfer',
+        method: 'telecel_money',
         reference: null,
         paidOn: '2026-11-12',
       }),
@@ -259,7 +259,7 @@ describe('fournisseurs et paiements', () => {
       supplierId,
       receiptId: null,
       amount: 6000,
-      method: 'mobile_money',
+      method: 'wave',
       reference: 'OM-42',
       paidOn: '2026-11-12',
     });

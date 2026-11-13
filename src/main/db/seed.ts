@@ -45,7 +45,7 @@ export const DEFAULT_SETTINGS: Readonly<Record<string, unknown>> = {
   'security.idle_lock_minutes': DEFAULT_IDLE_LOCK_MINUTES,
   'security.recovery_key_hash': null,
   'inventory.double_check': false,
-  'payment.methods': ['cash', 'mobile_money', 'card', 'transfer', 'cheque'],
+  'payment.methods': ['cash', 'orange_money', 'moov_money', 'telecel_money', 'wave'],
   // Plafonds de remise en centièmes de pourcent (1000 = 10 %) ; null = sans plafond (D52).
   'pos.discount_caps': { seller: 1000, manager: 3000, admin: null },
   // Imprimante de tickets : null = simulateur (fichier) ; « tcp://adresse:9100 » pour une imprimante réseau (D55).

@@ -21,6 +21,10 @@ export const stockFr = {
   'payment.cash': 'Espèces',
   'payment.card': 'Carte',
   'payment.mobile_money': 'Mobile money',
+  'payment.orange_money': 'Orange Money',
+  'payment.moov_money': 'Moov Money',
+  'payment.telecel_money': 'Telecel Money',
+  'payment.wave': 'Wave',
   'payment.transfer': 'Virement',
   'payment.cheque': 'Chèque',
 

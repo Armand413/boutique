@@ -548,7 +548,7 @@ export async function generate(
     const paid = credit ? Math.round(total * 0.3) : total;
     const payments: PaymentInput[] =
       paid > 0
-        ? [{ method: rand() < 0.7 ? 'cash' : 'mobile_money', amount: paid, reference: null }]
+        ? [{ method: rand() < 0.7 ? 'cash' : 'orange_money', amount: paid, reference: null }]
         : [];
     try {
       sales.checkout(seller, {

@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import { UserPlus } from 'lucide-react';
 import { formatMoney } from '@shared/format/money';
 import type { CashSession, Customer, HeldSale, SaleUnit } from '@shared/schemas/sales';
+import { PAYMENT_METHODS } from '@shared/schemas/stock';
 import { useSubmit } from '../../auth/use-submit';
 import { Input, Label } from '../../components/ui/basic';
 import { Button } from '../../components/ui/button';
@@ -425,11 +426,12 @@ export function CloseSessionDialog({
         </p>
         <div className="flex flex-col gap-1">
           <p className="text-sm font-semibold">{t('session.close.byMethod')}</p>
-          {row(t('payment.cash'), session.byMethod.cash)}
-          {row(t('payment.card'), session.byMethod.card)}
-          {row(t('payment.mobile_money'), session.byMethod.mobile_money)}
-          {row(t('payment.transfer'), session.byMethod.transfer)}
-          {row(t('payment.cheque'), session.byMethod.cheque)}
+          {PAYMENT_METHODS.map((method) => (
+            <Fragment key={method}>
+              {row(t(`payment.${method}`), session.byMethod[method])}
+            </Fragment>
+          ))}
+          {session.otherMethods > 0 && row(t('session.close.otherMethods'), session.otherMethods)}
         </div>
         <div className="flex flex-col gap-1">
           {row(t('session.close.float'), session.openingFloat)}

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PAYMENT_METHODS } from './stock';
+import { PAYMENT_METHODS, RECORDED_PAYMENT_METHODS } from './stock';
 
 const id = z.number().int().positive();
 const money = z.number().int().min(0).max(1e13);
@@ -15,7 +15,10 @@ const optionalText = (max: number) =>
     .nullable()
     .transform((value) => (value === '' ? null : value));
 
+/** Moyen saisi (encaissement, remboursement) : seulement ceux proposés par la boutique (D94). */
 export const paymentMethodSchema = z.enum(PAYMENT_METHODS);
+/** Moyen lu dans l'historique : anciens moyens compris. */
+export const recordedPaymentMethodSchema = z.enum(RECORDED_PAYMENT_METHODS);
 export const REFUND_METHODS = [...PAYMENT_METHODS, 'credit_note'] as const;
 
 /** Remise en montant (plus petite unité) ou en pourcentage (centièmes : 1000 = 10 %). */
@@ -79,8 +82,10 @@ export const cashSessionSchema = z.strictObject({
   closedAt: z.string().nullable(),
   closedBy: z.string().nullable(),
   openingFloat: money,
-  /** Encaissements par moyen de paiement. */
+  /** Encaissements par moyen de paiement proposé. */
   byMethod: z.record(paymentMethodSchema, money),
+  /** Encaissements par d'anciens moyens (carte, mobile money, virement, chèque), avant D94. */
+  otherMethods: money,
   cashMovementsIn: money,
   cashMovementsOut: money,
   cashRefunds: money,
@@ -278,7 +283,7 @@ export const saleDetailSchema = z.strictObject({
   payments: z.array(
     z.strictObject({
       id,
-      method: paymentMethodSchema,
+      method: recordedPaymentMethodSchema,
       amount: money,
       reference: z.string().nullable(),
       paidAt: z.string(),

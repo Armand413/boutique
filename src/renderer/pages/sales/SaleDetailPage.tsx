@@ -3,6 +3,7 @@ import { Ban, Undo2 } from 'lucide-react';
 import { formatDate, formatDateTime } from '@shared/format/date';
 import { formatMoney } from '@shared/format/money';
 import type { REFUND_METHODS, SaleDetail } from '@shared/schemas/sales';
+import { PAYMENT_METHODS } from '@shared/schemas/stock';
 import { useSubmit } from '../../auth/use-submit';
 import { ErrorState, LoadingState } from '../../components/states/states';
 import { Badge, Card, CardContent, CardHeader, CardTitle, Input } from '../../components/ui/basic';
@@ -194,7 +195,7 @@ function ReturnDialog({
             ...(sale.customer === null
               ? []
               : [{ value: 'credit_note', label: t('sale.return.creditNote') }]),
-            ...(['cash', 'mobile_money', 'card', 'transfer', 'cheque'] as const).map((value) => ({
+            ...PAYMENT_METHODS.map((value) => ({
               value,
               label: t(`payment.${value}`),
             })),

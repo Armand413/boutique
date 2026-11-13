@@ -159,7 +159,7 @@ fait dans les services, y compris pour les exports.
 
 ## 8. Migrations et données initiales (E.7)
 
-- Fichiers numérotés dans `db/migrations` (`0001` à `0013`), **générés** depuis `db/templates` par
+- Fichiers numérotés dans `db/migrations` (`0001` à `0014`), **générés** depuis `db/templates` par
   `node scripts/build-migrations.mjs` (macros pour les contrôles de date et de Luhn). Le script refuse de modifier une
   migration existante dont le contenu changerait.
 - Une migration appliquée est **immuable** : son empreinte est vérifiée à chaque démarrage ; toute évolution passe par
@@ -186,6 +186,7 @@ fait dans les services, y compris pour les exports.
 | 0011      | index des clés étrangères consultées (D81)                                          |
 | 0012      | entrée de marchandise sans fournisseur (D90)                                        |
 | 0013      | plus de suivi unitaire : téléphones sans IMEI (D93)                                 |
+| 0014      | moyens de paiement : Orange, Moov, Telecel Money, Wave (D94)                        |
 
 ## 9. Sauvegarde et restauration
 

@@ -165,8 +165,9 @@ En début de journée, saisissez le **fond de caisse** compté dans le tiroir et
 
 ![Encaissement](images/encaissement.png)
 
-Saisissez les montants reçus par moyen de paiement : **espèces**, **carte**, **Mobile Money**, **virement**,
-**chèque**, ou plusieurs à la fois (paiement mixte). La monnaie à rendre s'affiche.
+Saisissez les montants reçus par moyen de paiement : **espèces**, **Orange Money**, **Moov Money**,
+**Telecel Money**, **Wave**, ou plusieurs à la fois (paiement mixte). Pour un paiement mobile, notez le **n° de
+transaction**. La monnaie à rendre s'affiche.
 
 - **Paiement partiel / crédit** : encaissez un acompte et répartissez le reste en **échéances** (dates et montants).
   Le plafond de crédit du client est vérifié.
@@ -184,7 +185,8 @@ Un client hésite ? **F8** met le panier de côté pour servir le suivant ; **Pa
 
 - **Entrée d'espèces** et **Sortie d'espèces** (achat de crédit, dépôt en banque…) avec un motif.
 - **Clôturer la caisse** en fin de journée : l'application affiche les totaux par moyen de paiement et le montant
-  attendu dans le tiroir ; saisissez l'argent réellement compté ; l'écart est enregistré.
+  attendu dans le tiroir ; saisissez l'argent réellement compté ; l'écart est enregistré. Les paiements Orange Money,
+  Moov Money, Telecel Money et Wave sont totalisés à part : ils ne sont pas dans le tiroir.
 
 ## 6. Ventes, retours et annulations
 

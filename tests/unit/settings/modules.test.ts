@@ -117,9 +117,10 @@ describe('modules activables (D90)', () => {
       ['deliveries:list', { status: 'all', limit: 10 }],
       ['warranty:list', { scope: 'open', limit: 10 }],
     ] as const) {
+      const moduleMessage: unknown = expect.stringMatching(/Paramètres › Modules/);
       expect(await call(channel, input), channel).toMatchObject({
         ok: false,
-        error: { code: 'FORBIDDEN', message: expect.stringMatching(/Paramètres › Modules/) },
+        error: { code: 'FORBIDDEN', message: moduleMessage },
       });
     }
   });

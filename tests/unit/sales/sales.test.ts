@@ -92,7 +92,7 @@ describe('vente au comptant', () => {
         lines: [{ variantId, quantity: 3, discount: null }],
         payments: [
           { method: 'cash', amount: 5000, reference: null },
-          { method: 'mobile_money', amount: 2500, reference: 'OM-1' },
+          { method: 'orange_money', amount: 2500, reference: 'OM-1' },
         ],
       }),
     );
@@ -105,12 +105,12 @@ describe('vente au comptant', () => {
     expect(h.stockOf(variantId)).toBe(7);
     const session = h.sessions.current(h.manager);
     expect(session).toMatchObject({ expectedCash: 15_000, salesCount: 1, salesTotal: 7500 });
-    expect(session?.byMethod.mobile_money).toBe(2500);
+    expect(session?.byMethod.orange_money).toBe(2500);
     const second = h.sales.checkout(
       h.manager,
       h.checkoutInput({
         lines: [{ variantId, quantity: 1, discount: null }],
-        payments: [{ method: 'card', amount: 2500, reference: null }],
+        payments: [{ method: 'wave', amount: 2500, reference: null }],
       }),
     );
     expect(second.invoiceNumber).toBe(`FAC-${year}-000002`);
@@ -264,7 +264,7 @@ describe('articles suivis, kits et services', () => {
           { variantId: kit, quantity: 2, discount: null },
           { variantId: install, quantity: 1, discount: null },
         ],
-        payments: [{ method: 'transfer', amount: 625_000, reference: 'VIR-1' }],
+        payments: [{ method: 'moov_money', amount: 625_000, reference: 'MM-1' }],
       }),
     );
     expect(sale.lines.map((l) => [l.lineType, l.name, l.quantity, l.lineTotal])).toEqual([

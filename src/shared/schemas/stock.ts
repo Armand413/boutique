@@ -34,8 +34,19 @@ export type MovementType = (typeof MOVEMENT_TYPES)[number];
 
 /** Sorties et corrections manuelles (4.3) ; le motif est obligatoire. */
 export const MANUAL_EXIT_TYPES = ['loss', 'damage', 'theft', 'internal_use'] as const;
-export const PAYMENT_METHODS = ['cash', 'card', 'mobile_money', 'transfer', 'cheque'] as const;
+/** Moyens de paiement proposés par la boutique (D94). */
+export const PAYMENT_METHODS = [
+  'cash',
+  'orange_money',
+  'moov_money',
+  'telecel_money',
+  'wave',
+] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+/** Moyens abandonnés, encore lisibles dans l'historique (ventes et paiements enregistrés avant D94). */
+export const LEGACY_PAYMENT_METHODS = ['card', 'mobile_money', 'transfer', 'cheque'] as const;
+export const RECORDED_PAYMENT_METHODS = [...PAYMENT_METHODS, ...LEGACY_PAYMENT_METHODS] as const;
+export type RecordedPaymentMethod = (typeof RECORDED_PAYMENT_METHODS)[number];
 
 // ---------------------------------------------------------------- Emplacements
 
@@ -247,7 +258,7 @@ export const supplierPaymentSchema = z.strictObject({
   id,
   receiptNumber: z.string().nullable(),
   amount: money,
-  method: z.enum(PAYMENT_METHODS),
+  method: z.enum(RECORDED_PAYMENT_METHODS),
   reference: z.string().nullable(),
   paidAt: z.string(),
   userName: z.string(),

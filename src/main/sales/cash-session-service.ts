@@ -15,10 +15,11 @@ interface SummaryRow {
   closed_at: string | null;
   opening_float: number;
   cash_in: number;
-  card_in: number;
-  mobile_money_in: number;
-  transfer_in: number;
-  cheque_in: number;
+  orange_money_in: number;
+  moov_money_in: number;
+  telecel_money_in: number;
+  wave_in: number;
+  other_in: number;
   cash_movements_in: number;
   cash_movements_out: number;
   cash_refunds: number;
@@ -58,12 +59,13 @@ export function expectedCash(
 function toSession(row: SummaryRow): CashSession {
   const byMethod: Record<PaymentMethod, number> = {
     cash: row.cash_in,
-    card: row.card_in,
-    mobile_money: row.mobile_money_in,
-    transfer: row.transfer_in,
-    cheque: row.cheque_in,
+    orange_money: row.orange_money_in,
+    moov_money: row.moov_money_in,
+    telecel_money: row.telecel_money_in,
+    wave: row.wave_in,
   };
   return {
+    otherMethods: row.other_in,
     id: row.cash_session_id,
     status: row.status,
     openedAt: row.opened_at,

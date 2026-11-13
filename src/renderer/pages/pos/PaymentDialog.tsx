@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FileText, Printer, ShieldCheck, Truck } from 'lucide-react';
 import { formatMoney } from '@shared/format/money';
 import type { DOCUMENT_KINDS, PaymentInput, SaleDetail } from '@shared/schemas/sales';
+import type { PaymentMethod } from '@shared/schemas/stock';
 import { useSubmit } from '../../auth/use-submit';
 import { Separator } from '../../components/ui/basic';
 import { Button } from '../../components/ui/button';
@@ -24,8 +25,9 @@ import { parseOptionalMoney } from '../products/catalog-ui';
 import { CustomerDialog } from './PosDialogs';
 import { today } from '../stock/stock-ui';
 
-type NonCash = 'card' | 'mobile_money' | 'transfer' | 'cheque';
-const NON_CASH: readonly NonCash[] = ['card', 'mobile_money', 'transfer', 'cheque'];
+/** Paiements mobiles de la boutique (D94), en plus des espèces. */
+type NonCash = Exclude<PaymentMethod, 'cash'>;
+const NON_CASH: readonly NonCash[] = ['orange_money', 'moov_money', 'telecel_money', 'wave'];
 
 /** Échéances mensuelles égales (la dernière absorbe l'arrondi), à partir d'une première date. */
 export function schedule(
@@ -115,10 +117,10 @@ export function PaymentDialog({
   const { error, submit } = useSubmit();
   const [cash, setCash] = useState(String(total));
   const [others, setOthers] = useState<Record<NonCash, string>>({
-    card: '',
-    mobile_money: '',
-    transfer: '',
-    cheque: '',
+    orange_money: '',
+    moov_money: '',
+    telecel_money: '',
+    wave: '',
   });
   const [reference, setReference] = useState('');
   const [installments, setInstallments] = useState('1');
@@ -254,38 +256,17 @@ export function PaymentDialog({
               value={cash}
               onChange={(event) => setCash(event.target.value)}
             />
-            <TextField
-              label={t('pay.mobileMoney')}
-              inputMode="decimal"
-              value={others.mobile_money}
-              onChange={(event) =>
-                setOthers((current) => ({ ...current, mobile_money: event.target.value }))
-              }
-            />
-            <TextField
-              label={t('pay.card')}
-              inputMode="decimal"
-              value={others.card}
-              onChange={(event) =>
-                setOthers((current) => ({ ...current, card: event.target.value }))
-              }
-            />
-            <TextField
-              label={t('pay.transfer')}
-              inputMode="decimal"
-              value={others.transfer}
-              onChange={(event) =>
-                setOthers((current) => ({ ...current, transfer: event.target.value }))
-              }
-            />
-            <TextField
-              label={t('pay.cheque')}
-              inputMode="decimal"
-              value={others.cheque}
-              onChange={(event) =>
-                setOthers((current) => ({ ...current, cheque: event.target.value }))
-              }
-            />
+            {NON_CASH.map((method) => (
+              <TextField
+                key={method}
+                label={t(`payment.${method}`)}
+                inputMode="decimal"
+                value={others[method]}
+                onChange={(event) =>
+                  setOthers((current) => ({ ...current, [method]: event.target.value }))
+                }
+              />
+            ))}
             <TextField
               label={t('pay.reference')}
               maxLength={64}

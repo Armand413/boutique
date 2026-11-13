@@ -459,6 +459,9 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
 - **Sans suivi unitaire, tableau du vendeur** (D93, demandes du client) : plus d'IMEI ni de numéro de série
   (migration 0013), tout se gère par quantité ; le vendeur ne voit que les ventes du jour sur son tableau de bord.
 
+- **Moyens de paiement** (D94, demande du client) : espèces, Orange Money, Moov Money, Telecel Money, Wave
+  (migration 0014) ; anciens moyens gardés pour l'historique.
+
 ### Vérifications de fin de phase
 
 | Contrôle                | Résultat                                                                                                     |
