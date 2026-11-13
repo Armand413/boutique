@@ -140,7 +140,7 @@ app
   .whenReady()
   .then(async () => {
     const markdown = readFileSync(join(docs, 'GUIDE_UTILISATEUR.md'), 'utf8');
-    const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Bouba Store — Guide utilisateur</title><base href="${pathToFileURL(docs).href}/"><style>${STYLE}</style></head><body>${convert(markdown)}</body></html>`;
+    const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Bouba Store — Mode d’emploi</title><base href="${pathToFileURL(docs).href}/"><style>${STYLE}</style></head><body>${convert(markdown)}</body></html>`;
     const page = join(docs, '.guide.html');
     writeFileSync(page, html);
     const window = new BrowserWindow({ show: false, webPreferences: { javascript: false } });
@@ -151,7 +151,7 @@ app
       displayHeaderFooter: true,
       headerTemplate: '<span></span>',
       footerTemplate:
-        '<div style="font-size:8pt;color:#6b7280;width:100%;text-align:center">Bouba Store — Guide utilisateur — <span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+        '<div style="font-size:8pt;color:#6b7280;width:100%;text-align:center">Bouba Store — Mode d’emploi — <span class="pageNumber"></span> / <span class="totalPages"></span></div>',
       margins: { top: 0.6, bottom: 0.7, left: 0.6, right: 0.6 },
     });
     writeFileSync(join(docs, 'GUIDE_UTILISATEUR.pdf'), pdf);

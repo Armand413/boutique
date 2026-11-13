@@ -1,11 +1,21 @@
-# Bouba Store — Guide utilisateur
+# Bouba Store — Mode d'emploi
 
-Ce guide s'adresse au patron, au gérant et aux vendeurs. Il suit l'ordre d'une journée de travail : installer,
-se connecter, vendre, gérer le stock, contrôler, sauvegarder. Les captures viennent de l'application, remplie avec
-les données de démonstration.
+Ce mode d'emploi décrit toutes les fonctions de l'application, pour le patron, le gérant et les vendeurs. Il suit
+l'ordre d'une journée de travail : installer, se connecter, vendre, gérer le stock, contrôler, sauvegarder. Les
+captures viennent de l'application, remplie avec les données de démonstration.
 
 L'application fonctionne **entièrement sans Internet**. Toutes les données restent sur l'ordinateur de la boutique,
 chiffrées.
+
+## En bref : une journée à la caisse
+
+1. **Se connecter** avec son identifiant (ou son code PIN de caisse).
+2. **Caisse › Ouvrir la caisse** avec le fond de caisse compté.
+3. Pour chaque client : choisir les articles dans les listes **Famille › Catégorie › Article** (ou les scanner),
+   ajuster les quantités, saisir un **prix convenu** si le prix se discute, puis **F4** pour encaisser.
+4. **F8** met un client en attente le temps d'en servir un autre.
+5. En fin de journée : **Clôturer la caisse** en saisissant l'argent compté.
+6. Le soir : une **sauvegarde** sur clé USB (Paramètres › Sauvegardes › Sauvegarder maintenant).
 
 ## Sommaire
 
@@ -114,11 +124,11 @@ saisissez la clé de récupération. Une nouvelle clé est alors générée : re
 
 Les trois rôles :
 
-| Rôle               | Ce qu'il peut faire                                                                                                                                                                                                         |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Vendeur**        | Caisse, encaissement, impression, devis, clients, livraisons, garantie, consultation des produits et du stock. Son tableau de bord ne montre que les **ventes du jour**. Ne voit **jamais** les prix d'achat ni les marges. |
-| **Gérant**         | En plus : produits et prix, prix d'achat et marges, entrées et sorties de stock, inventaires, fournisseurs, annulations et retours, rapports et exports.                                                                    |
-| **Administrateur** | Tout, y compris les utilisateurs, les paramètres, les sauvegardes, la mise à jour et le journal d'audit.                                                                                                                    |
+| Rôle               | Ce qu'il peut faire                                                                                                                                                                                                                                         |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Vendeur**        | Caisse, encaissement, impression, devis, clients, consultation des produits et du stock (et livraisons, garantie si ces modules sont activés). Son tableau de bord ne montre que les **ventes du jour**. Ne voit **jamais** les prix d'achat ni les marges. |
+| **Gérant**         | En plus : produits et prix, prix d'achat et marges, entrées et sorties de stock, inventaires, fournisseurs, annulations et retours, rapports et exports.                                                                                                    |
+| **Administrateur** | Tout, y compris les utilisateurs, les paramètres, les sauvegardes, la mise à jour et le journal d'audit.                                                                                                                                                    |
 
 ## 5. Vendre à la caisse
 
@@ -181,8 +191,8 @@ Un client hésite ? **F8** met le panier de côté pour servir le suivant ; **Pa
 ![Ventes](images/ventes.png)
 
 **Ventes** liste toutes les ventes (filtres par période, vendeur, client, état). Le détail montre les articles, les
-numéros de série, les garanties restantes, les paiements, les échéances et les retours. Il permet de **réimprimer**
-les documents.
+prix, les paiements, les échéances et les retours. Il permet de **réimprimer** le ticket, la facture et le bon de
+garantie.
 
 - **Retour** (gérant ou administrateur) : article par article, avec un motif ; l'article revient en stock ou part au
   rebut ; le client est remboursé ou reçoit un avoir. On ne peut pas rendre plus que ce qui a été vendu.
@@ -203,9 +213,9 @@ les documents.
 
 ## 8. Devis et livraisons
 
-- **Devis** : pour les achats importants (installation solaire, téléviseur, sonorisation). Créez le devis, fixez sa
-  date de validité, imprimez-le en PDF. Vous pouvez **réserver** les appareils pendant la validité. Un devis accepté se
-  **transforme en vente** en un clic ; un devis échu expire seul.
+- **Devis** : pour les achats importants (installation solaire, téléviseur, sonorisation). Choisissez les articles dans
+  les listes, fixez la date de validité, imprimez-le en PDF. Un devis accepté se **transforme en vente** en un clic ;
+  un devis échu expire seul.
 - **Livraisons** (module Livraisons activé) : à livrer, livrées, annulées. Marquez une livraison comme faite, imprimez le bon de livraison.
 
 ## 9. Produits, caractéristiques et kits
@@ -237,11 +247,12 @@ caractéristiques de la catégorie affinent encore la liste.
 
 ### Importer et exporter
 
-**Produits › Importer** lit un fichier Excel ou CSV avec les colonnes : Nom, Marque, Catégorie, Type, Suivi, Modèle,
+**Produits › Importer** lit un fichier Excel ou CSV avec les colonnes : Nom, Marque, Catégorie, Type, Modèle,
 Description, Taxe, Seuil d'alerte, Garantie (mois), Poids (kg), Référence, Code-barres, Couleur, Stockage (Go),
 RAM (Go), État, Prix de vente, Prix minimum, Prix d'achat, plus une colonne `attr:<code>` par caractéristique. Le plus
 simple : **exportez** d'abord le catalogue pour obtenir un modèle. L'import montre l'analyse ligne par ligne avant
-confirmation ; il se fait en entier ou pas du tout.
+confirmation ; il se fait en entier ou pas du tout. Une colonne « Suivi » venant d'un ancien fichier est ignorée : tous
+les articles se gèrent par quantité. Les marques absentes sont créées (administrateur).
 
 ### Étiquettes
 
@@ -252,7 +263,7 @@ confirmation ; il se fait en entier ou pas du tout.
 ![Stock](images/stock.png)
 
 **Stock** a trois onglets : l'**état** par article et par emplacement (alertes colorées), l'**historique des
-mouvements** (date, article, numéro, quantité, stock après, motif, document, utilisateur) et la **valorisation**
+mouvements** (date, article, quantité, stock après, motif, document, utilisateur) et la **valorisation**
 (au coût moyen et au prix de vente, par emplacement et par famille ; réservée à qui voit les prix d'achat).
 
 - **Entrée de marchandise** : choisissez l'emplacement, choisissez les articles dans les listes (ou scannez-les), saisissez quantités et prix d'achat. Aucun IMEI
@@ -260,7 +271,7 @@ mouvements** (date, article, numéro, quantité, stock après, motif, document, 
   le coût moyen pondéré est recalculé. Avec le module Fournisseurs, vous pouvez en plus choisir le fournisseur
   (facultatif) et saisir un paiement.
 - **Sortie** (perte, casse, vol, usage interne) et **ajustement** : motif obligatoire.
-- **Transfert** entre emplacements (magasin, dépôt) et **retour au fournisseur**.
+- **Transfert** entre emplacements (magasin, dépôt) ; **retour au fournisseur** avec le module Fournisseurs.
 - **Emplacements** : créez le dépôt, choisissez l'emplacement par défaut.
 - **Fournisseurs** (module Fournisseurs activé) : fiche, historique des entrées, paiements, **reste dû**, retours.
 
@@ -274,8 +285,8 @@ Le stock ne devient jamais négatif : une vente ou une sortie au-delà du stock 
 2. **Comptage** : scannez les articles ou saisissez les quantités comptées.
    Mettez explicitement à zéro ce qui n'a pas été trouvé.
 3. **Écarts** : stock attendu, stock compté, écart, et sa valeur pour qui voit les coûts.
-4. **Validation** (gérant ou administrateur ; double contrôle possible dans les paramètres) : les ajustements sont
-   créés, les appareils manquants sortent du stock, ceux retrouvés y reviennent.
+4. **Validation** (gérant ou administrateur ; double contrôle possible dans les paramètres) : le stock de chaque
+   article est ajusté à la quantité comptée.
 5. **Rapport** PDF et Excel, avec signataires. L'historique des inventaires est conservé.
 
 ## 12. Garantie et SAV
@@ -313,7 +324,7 @@ Pour un **vendeur**, le tableau de bord se limite au total et à la liste des **
 - journal des mouvements ;
 - caisse (sessions, écarts) ;
 - devis et échéances ;
-- **activités sensibles** (administrateur) : annulations, remises inhabituelles, ventes sous le coût, ajustements
+- **activités sensibles** (administrateur) : annulations, baisses de prix inhabituelles, ventes sous le coût, ajustements
   répétés, écarts de caisse.
 
 Chaque rapport s'exporte en **PDF, Excel ou CSV** ; chaque export est inscrit au journal d'audit. Les prix d'achat et
@@ -324,7 +335,7 @@ les marges n'apparaissent jamais dans les rapports ni les exports d'un vendeur.
 - **Utilisateurs** (administrateur) : créer un compte (rôle, mot de passe provisoire), le désactiver, réinitialiser son
   mot de passe. Le dernier administrateur actif ne peut pas être désactivé.
 - **Mon compte** : changer son mot de passe, définir son code PIN de caisse.
-- **Journal d'audit** (administrateur) : qui a fait quoi et quand (connexions, ventes, annulations, remises, prix,
+- **Journal d'audit** (administrateur) : qui a fait quoi et quand (connexions, ventes, annulations, prix négociés, prix,
   mouvements de stock, exports, paramètres, sauvegardes, mises à jour). Les entrées sont **chaînées** : toute
   modification ou suppression est détectée et signalée au démarrage.
 
@@ -338,7 +349,7 @@ les marges n'apparaissent jamais dans les rapports ni les exports d'un vendeur.
 | **Devise, dates et factures** | Devise et symbole (FCFA par défaut), format des dates, préfixe des factures                    |
 | **Taux de taxe**              | Taux proposés sur les fiches produits (Exonéré, TVA 18 %…)                                     |
 | **Impression**                | Imprimante de tickets réseau (ou simulateur), largeur 58 ou 80 mm, ticket d'essai, étiquettes  |
-| **Sécurité et anti-fraude**   | Délai de verrouillage, plafonds de remise par rôle, double contrôle, seuils d'alerte           |
+| **Sécurité et anti-fraude**   | Délai de verrouillage, baisse de prix maximale par rôle, double contrôle, seuils d'alerte      |
 | **Sauvegardes**               | Voir [16](#16-sauvegarde-et-restauration)                                                      |
 | **Mise à jour**               | Voir [17](#17-mettre-à-jour-lapplication)                                                      |
 | **Modules**                   | Fournisseurs, Livraisons, Garantie et SAV : activés ou masqués, données conservées             |
@@ -394,7 +405,7 @@ précédente, puis, si la nouvelle version avait modifié la base, restaurez la 
 | Ordinateur **volé, en panne ou infecté**                | Sur un nouveau poste : installez l'application, choisissez **Restaurer une sauvegarde**, prenez la copie externe la plus récente. Changez ensuite les mots de passe. |
 | « Journal d'audit altéré » au démarrage                 | Quelqu'un a modifié la base hors de l'application. Prévenez votre prestataire ; consultez le journal.                                                                |
 | Imprimante de tickets muette                            | Paramètres › Impression : vérifiez l'adresse, imprimez un ticket d'essai.                                                                                            |
-| Le lecteur de codes-barres n'ajoute rien                | Vérifiez que le curseur est dans le champ de recherche de la caisse ; le lecteur doit être en mode clavier et finir par Entrée.                                      |
+| Le lecteur de codes-barres n'ajoute rien                | Vérifiez que le curseur est dans le champ **Scanner un code-barres** de la caisse ; le lecteur doit être en mode clavier et finir par Entrée.                        |
 
 Les journaux techniques (sans aucune donnée sensible) sont dans `%APPDATA%\Bouba Store\logs` : votre prestataire
 peut vous les demander.
@@ -403,7 +414,7 @@ peut vous les demander.
 
 | Touche     | Action                                            |
 | ---------- | ------------------------------------------------- |
-| **F2**     | Nouvelle vente (ou retour au champ de recherche)  |
+| **F2**     | Nouvelle vente (ou retour au champ de scan)       |
 | **F4**     | Encaisser                                         |
 | **F8**     | Mettre le panier en attente                       |
 | **Échap**  | Annuler / fermer la fenêtre                       |
