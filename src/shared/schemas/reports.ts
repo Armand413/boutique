@@ -11,6 +11,7 @@ export const REPORT_KINDS = [
   'cash',
   'followups',
   'sensitive',
+  'inventory',
 ] as const;
 export type ReportKind = (typeof REPORT_KINDS)[number];
 
@@ -21,6 +22,7 @@ export const PERIOD_REPORTS: readonly ReportKind[] = [
   'movements',
   'cash',
   'sensitive',
+  'inventory',
 ];
 
 /** Rapport d'activités sensibles (B.4b) : administrateur seulement (`audit.view`). */
@@ -73,6 +75,8 @@ export const reportRequestSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('cash'), period }),
   z.strictObject({ kind: z.literal('followups') }),
   z.strictObject({ kind: z.literal('sensitive'), period }),
+  /** Inventaire automatique (D95) : tenu par l'application à partir des mouvements de stock. */
+  z.strictObject({ kind: z.literal('inventory'), period }),
 ]);
 export type ReportRequest = z.infer<typeof reportRequestSchema>;
 

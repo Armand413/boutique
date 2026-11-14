@@ -113,7 +113,11 @@ test('@guide écrans du guide utilisateur', async () => {
     await shot('produits');
     await open('Stock');
     await shot('stock');
-    await open('Inventaire', 'Inventaires');
+    await open('Inventaire');
+    await page
+      .getByText(/Stock restant/)
+      .first()
+      .waitFor();
     await shot('inventaire');
     await open('Ventes');
     await shot('ventes');

@@ -462,6 +462,9 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
 - **Moyens de paiement** (D94, demande du client) : espèces, Orange Money, Moov Money, Telecel Money, Wave
   (migration 0014) ; anciens moyens gardés pour l'historique.
 
+- **Inventaire automatique** (D95, demande du client) : fiche par article calculée à partir des mouvements (début,
+  entrées, ventes, autres sorties, corrections, stock restant, valeur) ; comptage physique gardé en option.
+
 ### Vérifications de fin de phase
 
 | Contrôle                | Résultat                                                                                                     |

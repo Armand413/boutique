@@ -39,6 +39,7 @@ import { QuoteEditorPage, QuotesPage } from '../pages/quotes/QuotesPage';
 import { SaleDetailPage } from '../pages/sales/SaleDetailPage';
 import { SalesPage } from '../pages/sales/SalesPage';
 import { InventoriesPage, InventoryDetailPage } from '../pages/inventory/InventoryPages';
+import { AutoInventoryPage } from '../pages/inventory/AutoInventoryPage';
 import { WarrantyPage } from '../pages/warranty/WarrantyPage';
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
 import { ReportsPage } from '../pages/reports/ReportsPage';
@@ -89,7 +90,8 @@ const PAGES: Readonly<Record<Exclude<RouteName, 'dev.gallery'>, ComponentType>> 
   'quotes.edit': QuoteEditorPage,
   installments: InstallmentsPage,
   deliveries: DeliveriesPage,
-  inventory: InventoriesPage,
+  inventory: AutoInventoryPage,
+  'inventory.physical': InventoriesPage,
   'inventory.detail': InventoryDetailPage,
   warranty: WarrantyPage,
   dashboard: DashboardPage,

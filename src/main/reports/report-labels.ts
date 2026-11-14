@@ -10,6 +10,7 @@ export const KIND_TITLES: Readonly<Record<ReportKind, string>> = {
   cash: 'Rapport de caisse',
   followups: 'Devis et échéances',
   sensitive: 'Activités sensibles',
+  inventory: 'Inventaire automatique',
 };
 
 const GROUP_TITLES: Readonly<Record<string, string>> = {
@@ -39,6 +40,14 @@ export const COLUMN_LABELS: Readonly<Record<string, string>> = {
   brand: 'Marque',
   family: 'Famille',
   stock: 'Stock',
+  opening: 'Stock au début',
+  entries: 'Entrées',
+  sold: 'Vendus',
+  other_out: 'Autres sorties',
+  corrections: 'Corrections',
+  closing: 'Stock restant',
+  alert: 'Alerte',
+  low_stock: 'Articles en stock bas',
   coverage_days: 'Couverture (jours)',
   products: 'Articles',
   retail_value: 'Valeur au prix de vente',

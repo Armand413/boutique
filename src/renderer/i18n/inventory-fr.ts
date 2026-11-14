@@ -1,6 +1,13 @@
 /** Textes de l'inventaire et de la garantie / SAV (phase 6). */
 export const inventoryFr = {
   'nav.inventory': 'Inventaire',
+  'nav.inventory.physical': 'Contrôle physique',
+  'autoInventory.title': 'Inventaire',
+  'autoInventory.description':
+    'Tenu automatiquement : chaque entrée, vente et sortie met le stock à jour, sans comptage.',
+  'autoInventory.physical': 'Contrôle physique',
+  'autoInventory.explanation':
+    'Pour chaque article : stock au début de la période, entrées, ventes, autres sorties (perte, casse…), corrections et stock restant, avec sa valeur. Le contrôle physique sert seulement à corriger un vol ou une casse non déclarés.',
   'nav.inventory.detail': 'Inventaire',
   'nav.warranty': 'Garantie et SAV',
 

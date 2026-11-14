@@ -283,13 +283,35 @@ Le stock ne devient jamais négatif : une vente ou une sortie au-delà du stock 
 
 ![Inventaire](images/inventaire.png)
 
+**L'inventaire est tenu automatiquement.** Chaque entrée de marchandise, vente, retour, perte ou casse met à jour le
+stock de l'article : il n'y a rien à compter pour savoir ce qui reste.
+
+**Inventaire** (gérant ou administrateur) affiche, pour la période choisie (aujourd'hui, cette semaine, ce mois-ci,
+le mois dernier, cette année) et pour chaque article :
+
+- le **stock au début** de la période ;
+- les **entrées** (marchandise reçue, retours de clients) ;
+- les articles **vendus** ;
+- les **autres sorties** (perte, casse, vol, usage interne, retour au fournisseur) ;
+- les **corrections** (ajustements) ;
+- le **stock restant**, avec une **alerte** quand il atteint le seuil d'alerte de l'article ;
+- sa **valeur** au prix de vente et, pour qui voit les prix d'achat, au coût.
+
+Les totaux et le nombre d'articles en stock bas sont en tête. **PDF**, **Excel** et **CSV** exportent la fiche complète
+(par exemple pour l'imprimer en fin de mois). Le même tableau est disponible dans **Rapports › Inventaire
+automatique**.
+
+### Contrôle physique (facultatif)
+
+Si vous soupçonnez un vol ou une casse non déclarés, **Inventaire › Contrôle physique** permet de compter les rayons
+et de corriger le stock :
+
 1. **Nouvel inventaire** : complet, par marque ou par famille/catégorie, pour un emplacement.
-2. **Comptage** : scannez les articles ou saisissez les quantités comptées.
-   Mettez explicitement à zéro ce qui n'a pas été trouvé.
-3. **Écarts** : stock attendu, stock compté, écart, et sa valeur pour qui voit les coûts.
-4. **Validation** (gérant ou administrateur ; double contrôle possible dans les paramètres) : le stock de chaque
-   article est ajusté à la quantité comptée.
-5. **Rapport** PDF et Excel, avec signataires. L'historique des inventaires est conservé.
+2. **Comptage** : scannez les articles ou saisissez les quantités comptées. Mettez à zéro ce qui n'a pas été trouvé.
+3. **Écarts** : stock connu par l'application, stock compté, écart, et sa valeur pour qui voit les coûts.
+4. **Validation** (double contrôle possible dans les paramètres) : le stock de chaque article est ajusté à la quantité
+   comptée ; ces ajustements apparaissent ensuite en « corrections » dans l'inventaire automatique.
+5. **Rapport** PDF et Excel, avec signataires. L'historique des contrôles est conservé.
 
 ## 12. Garantie et SAV
 
@@ -326,6 +348,7 @@ Pour un **vendeur**, le tableau de bord se limite au total et à la liste des **
 - journal des mouvements ;
 - caisse (sessions, écarts) ;
 - devis et échéances ;
+- **inventaire automatique** : stock au début, entrées, ventes, autres sorties et stock restant par article ;
 - **activités sensibles** (administrateur) : annulations, baisses de prix inhabituelles, ventes sous le coût, ajustements
   répétés, écarts de caisse.
 

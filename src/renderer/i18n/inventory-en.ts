@@ -3,6 +3,13 @@ import type { inventoryFr } from './inventory-fr';
 /** Stocktake and warranty texts in English: the type forces every French key to exist here. */
 export const inventoryEn: Readonly<Record<keyof typeof inventoryFr, string>> = {
   'nav.inventory': 'Stocktake',
+  'nav.inventory.physical': 'Physical check',
+  'autoInventory.title': 'Inventory',
+  'autoInventory.description':
+    'Kept automatically: every receipt, sale and outflow updates the stock, without counting.',
+  'autoInventory.physical': 'Physical check',
+  'autoInventory.explanation':
+    'For each item: stock at the start of the period, received, sold, other outflows (loss, breakage…), corrections and remaining stock, with its value. The physical check is only needed to correct an undeclared theft or breakage.',
   'nav.inventory.detail': 'Stocktake',
   'nav.warranty': 'Warranty and after-sales',
 

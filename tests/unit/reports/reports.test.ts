@@ -274,3 +274,65 @@ describe('service des rapports', () => {
     }
   });
 });
+
+describe('inventaire automatique (D95)', () => {
+  it('déduit le stock restant des mouvements, sans comptage', () => {
+    const cable = h.product(
+      { name: 'Câble USB-C', reorderLevel: 7, variants: [variant({ salePrice: 2500 })] },
+      10,
+    );
+    h.sessions.open(h.manager, 0);
+    h.sales.checkout(
+      h.manager,
+      h.checkoutInput({
+        lines: [{ variantId: cable, quantity: 3, discount: null }],
+        payments: cash(7500),
+      }),
+    );
+    const shop = h.test.db
+      .prepare('SELECT id FROM stock_locations WHERE is_default = 1')
+      .pluck()
+      .get() as number;
+    h.stock.exit(h.manager, {
+      variantId: cable,
+      locationId: shop,
+      type: 'loss',
+      direction: 'out',
+      quantity: 1,
+      reason: 'Introuvable',
+    });
+    const result = runReport(h.test.db, { kind: 'inventory', period }, full);
+    const row = result.rows.find((candidate) => candidate.product === 'Câble USB-C');
+    expect(row).toMatchObject({
+      opening: 0,
+      entries: 10,
+      sold: 3,
+      other_out: 1,
+      corrections: 0,
+      closing: 6,
+      alert: 'Stock bas',
+      retail_value: 15_000,
+    });
+    expect(row?.closing).toBe(h.stockOf(cable));
+    // Le lendemain, le stock du début de période est le stock restant de la veille.
+    const tomorrow = new Date(Date.now() + 86_400_000);
+    const next = localDay(tomorrow);
+    const later = runReport(
+      h.test.db,
+      { kind: 'inventory', period: { from: next, to: next } },
+      full,
+    );
+    expect(later.rows.find((candidate) => candidate.product === 'Câble USB-C')).toMatchObject({
+      opening: 6,
+      entries: 0,
+      sold: 0,
+      closing: 6,
+    });
+    const seller = runReport(
+      h.test.db,
+      { kind: 'inventory', period },
+      { ...full, canSeeCost: false },
+    );
+    expect(seller.columns.map((column) => column.key)).not.toContain('stock_value');
+  });
+});

@@ -5,7 +5,7 @@ import { sensitiveReport, sensitiveRows } from './fraud-report';
 import { currentPeriods, daysOf, utcBounds } from './period';
 import type { ReportContext } from './report-kit';
 import { productsReport, salesReport } from './sales-reports';
-import { movementsReport, stockReport } from './stock-reports';
+import { inventoryReport, movementsReport, stockReport } from './stock-reports';
 
 /** Calcul d'un rapport : fonction pure de la base, appelée dans le thread des rapports. */
 export function runReport(db: Db, request: ReportRequest, context: ReportContext): ReportResult {
@@ -26,6 +26,8 @@ export function runReport(db: Db, request: ReportRequest, context: ReportContext
       return followupsReport(db, context);
     case 'sensitive':
       return sensitiveReport(db, request, context);
+    case 'inventory':
+      return inventoryReport(db, request, context);
   }
 }
 

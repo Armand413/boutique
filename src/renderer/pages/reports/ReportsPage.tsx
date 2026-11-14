@@ -77,6 +77,8 @@ function toRequest(filters: Filters): ReportRequest | null {
       return { kind: 'followups' };
     case 'sensitive':
       return { kind: 'sensitive', period };
+    case 'inventory':
+      return { kind: 'inventory', period };
   }
 }
 
@@ -428,14 +430,14 @@ export function ReportsPage() {
           {t('reports.invalidPeriod')}
         </p>
       ) : (
-        <StableReport key={requestKey} request={request} />
+        <ReportPanel key={requestKey} request={request} />
       )}
     </>
   );
 }
 
 /** La demande est figée pour la durée de vie du composant (clé = demande). */
-function StableReport({ request }: { request: ReportRequest }) {
+export function ReportPanel({ request }: { request: ReportRequest }) {
   const [stable] = useState(request);
   return <ReportView request={stable} />;
 }

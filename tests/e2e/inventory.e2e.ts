@@ -136,7 +136,13 @@ test('inventaire : scan, comptage, écarts, validation, ajustement du stock et r
   const { page, app, userData } = launched;
   await seedShop(page);
 
+  // Inventaire automatique (D95) : le stock restant vient des mouvements, sans comptage.
   await openModule(page, 'Inventaire');
+  await expect(page.getByRole('heading', { level: 1, name: 'Inventaire' })).toBeVisible();
+  const auto = page.getByRole('row', { name: /Câble USB-C/ });
+  await expect(auto).toContainText('10');
+  await checkAccessibility(page, 'Inventaire automatique');
+  await page.getByRole('button', { name: 'Contrôle physique' }).click();
   await expect(page.getByText('Aucun inventaire', { exact: true })).toBeVisible();
   await checkAccessibility(page, 'Inventaires (vide)');
   await page.getByRole('button', { name: 'Nouvel inventaire' }).first().click();
@@ -191,6 +197,7 @@ test('inventaire : scan, comptage, écarts, validation, ajustement du stock et r
   expect(await stockOf(page, 'Galaxy A15')).toBe(1);
 
   await openModule(page, 'Inventaire');
+  await page.getByRole('button', { name: 'Contrôle physique' }).click();
   const row = page.getByRole('row', { name: /Inventaire de novembre/ });
   await expect(row).toContainText('Validé');
   await expect(row).toContainText('2 / 2');
