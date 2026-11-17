@@ -58,6 +58,8 @@ export function formSchemas(t: Translate) {
       temporaryPassword: password,
     }),
     editUser: z.object({ fullName: required, role: z.enum(ROLES), isActive: z.boolean() }),
-    resetPassword: z.object({ temporaryPassword: password }),
+    resetPassword: confirmed(
+      z.object({ password, confirmation: z.string(), mustChange: z.boolean() }),
+    ),
   };
 }

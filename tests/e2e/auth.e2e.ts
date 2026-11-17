@@ -152,6 +152,28 @@ test.describe('connexion', () => {
     expect(denied.audit).toMatchObject({ ok: false, error: { code: 'FORBIDDEN' } });
   });
 
+  test('l’administrateur fixe le mot de passe définitif d’un utilisateur', async () => {
+    launched = await launchReady();
+    const { page } = launched;
+    await createSeller(page);
+    await page.getByRole('button', { name: `Actions pour ${SELLER.fullName}` }).click();
+    await page.getByRole('menuitem', { name: 'Modifier le mot de passe' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByLabel('Nouveau mot de passe', { exact: true }).fill(SELLER.password);
+    await dialog.getByLabel('Confirmez le mot de passe').fill(SELLER.password);
+    await dialog.getByLabel('L’obliger à le changer à sa prochaine connexion').uncheck();
+    await checkAccessibility(page, 'Modifier le mot de passe');
+    await dialog.getByRole('button', { name: 'Enregistrer' }).click();
+    await expect(page.getByText('Mot de passe modifié.', { exact: true })).toBeVisible();
+    await logout(page);
+
+    await login(page, SELLER.username, SELLER.password);
+    await expect(nav(page)).toBeVisible();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Choisissez votre mot de passe' }),
+    ).toHaveCount(0);
+  });
+
   test('ouvre la caisse par code PIN avec les seuls droits de caisse', async () => {
     launched = await launchReady();
     const { page } = launched;

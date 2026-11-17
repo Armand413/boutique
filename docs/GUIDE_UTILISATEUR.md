@@ -357,8 +357,12 @@ les marges n'apparaissent jamais dans les rapports ni les exports d'un vendeur.
 
 ## 14. Utilisateurs et journal d'audit
 
-- **Utilisateurs** (administrateur) : créer un compte (rôle, mot de passe provisoire), le désactiver, réinitialiser son
-  mot de passe. Le dernier administrateur actif ne peut pas être désactivé.
+- **Utilisateurs** (administrateur) : créer un compte (rôle, mot de passe provisoire), le modifier, le désactiver.
+  Le dernier administrateur actif ne peut pas être désactivé.
+- **Modifier le mot de passe d'un utilisateur** (oubli, départ d'un employé…) : **Utilisateurs › Actions ›
+  Modifier le mot de passe**. Saisissez le nouveau mot de passe deux fois. Laissez cochée **« L'obliger à le changer à
+  sa prochaine connexion »** pour un mot de passe provisoire, ou décochez-la pour un mot de passe définitif. Si le
+  compte était bloqué après trop d'essais, il est débloqué. Le changement est inscrit au journal d'audit.
 - **Mon compte** : changer son mot de passe, définir son code PIN de caisse.
 - **Journal d'audit** (administrateur) : qui a fait quoi et quand (connexions, ventes, annulations, prix négociés, prix,
   mouvements de stock, exports, paramètres, sauvegardes, mises à jour). Les entrées sont **chaînées** : toute

@@ -102,7 +102,15 @@ export const updateUserInputSchema = z.strictObject({
   role: roleSchema.optional(),
   isActive: z.boolean().optional(),
 });
-export const resetPasswordInputSchema = z.strictObject({ id, temporaryPassword: secret });
+/**
+ * Mot de passe fixé par l'administrateur (D96) : provisoire (à changer à la prochaine connexion)
+ * ou définitif. Le compte est débloqué au passage.
+ */
+export const resetPasswordInputSchema = z.strictObject({
+  id,
+  password: secret,
+  mustChange: z.boolean(),
+});
 export const userIdInputSchema = z.strictObject({ id });
 
 export const auditEntrySchema = z.strictObject({

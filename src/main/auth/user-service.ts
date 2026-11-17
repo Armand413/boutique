@@ -88,18 +88,28 @@ export class UserService {
   }
 
   /** Mot de passe provisoire : l'utilisateur devra le changer à sa prochaine connexion. */
-  async resetPassword(actor: Session, id: number, temporaryPassword: string): Promise<UserSummary> {
+  /**
+   * Nouveau mot de passe d'un utilisateur, fixé par l'administrateur (D96) : provisoire si
+   * `mustChange` (à changer à la prochaine connexion), sinon définitif. Débloque le compte.
+   */
+  async resetPassword(
+    actor: Session,
+    id: number,
+    password: string,
+    mustChange = true,
+  ): Promise<UserSummary> {
     requirePermission(actor, 'user.manage');
     const user = this.existing(id);
-    assertPasswordAcceptable(temporaryPassword, user.username);
-    const passwordHash = await hashSecret(temporaryPassword);
+    assertPasswordAcceptable(password, user.username);
+    const passwordHash = await hashSecret(password);
     this.db.transaction(() => {
-      setPassword(this.db, id, passwordHash, true);
+      setPassword(this.db, id, passwordHash, mustChange);
       appendAudit(this.db, {
         userId: actor.userId,
         action: 'user.password_reset',
         entityType: 'user',
         entityId: id,
+        details: { mustChange },
       });
     })();
     return toSummary(this.existing(id));

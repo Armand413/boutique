@@ -465,6 +465,9 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
 - **Inventaire automatique** (D95, demande du client) : fiche par article calculée à partir des mouvements (début,
   entrées, ventes, autres sorties, corrections, stock restant, valeur) ; comptage physique gardé en option.
 
+- **Mot de passe des utilisateurs** (D96, demande du client) : l'administrateur modifie ou réinitialise le mot de
+  passe d'un utilisateur, provisoire ou définitif, avec déblocage du compte.
+
 ### Vérifications de fin de phase
 
 | Contrôle                | Résultat                                                                                                     |

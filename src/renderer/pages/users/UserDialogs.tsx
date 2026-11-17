@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../components/ui/dialog';
-import { FormError, SecretField, TextField } from '../../components/ui/form-field';
+import { CheckboxField, FormError, SecretField, TextField } from '../../components/ui/form-field';
 import { Select, Switch } from '../../components/ui/radix';
 import { toast } from '../../components/ui/toast';
 import { useT, type Translate } from '../../i18n';
@@ -188,6 +188,7 @@ export function EditUserDialog({
   );
 }
 
+/** Modifier ou réinitialiser le mot de passe d'un utilisateur (administrateur, D96). */
 export function ResetPasswordDialog({
   user,
   onOpenChange,
@@ -198,36 +199,44 @@ export function ResetPasswordDialog({
   const { error, run } = useSubmit();
   const { register, handleSubmit, formState } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { temporaryPassword: '' },
+    defaultValues: { password: '', confirmation: '', mustChange: true },
   });
-  const onSubmit = handleSubmit(async ({ temporaryPassword }) => {
+  const onSubmit = handleSubmit(async ({ password, mustChange }) => {
     if (
       await run(async () => {
-        await invoke('users:resetPassword', { id: user.id, temporaryPassword });
+        await invoke('users:resetPassword', { id: user.id, password, mustChange });
       })
     ) {
-      toast.success(t('users.passwordReset'));
+      toast.success(mustChange ? t('users.passwordReset') : t('users.passwordChanged'));
       onDone();
     }
   });
+  const secret = { showLabel: t('common.showSecret'), hideLabel: t('common.hideSecret') };
   return (
     <Dialog open onOpenChange={onOpenChange}>
       <DialogContent closeLabel={t('common.close')}>
         <DialogHeader>
           <DialogTitle>{t('users.form.resetTitle', { name: user.fullName })}</DialogTitle>
-          <DialogDescription>{t('users.form.temporaryHint')}</DialogDescription>
+          <DialogDescription>{t('users.form.resetHint')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-4" noValidate>
           <SecretField
-            label={t('users.form.temporaryPassword')}
+            label={t('users.form.newPassword')}
             hint={t('setup.passwordHint')}
             autoFocus
             autoComplete="new-password"
-            showLabel={t('common.showSecret')}
-            hideLabel={t('common.hideSecret')}
-            error={formState.errors.temporaryPassword?.message}
-            {...register('temporaryPassword')}
+            error={formState.errors.password?.message}
+            {...secret}
+            {...register('password')}
           />
+          <SecretField
+            label={t('users.form.confirmPassword')}
+            autoComplete="new-password"
+            error={formState.errors.confirmation?.message}
+            {...secret}
+            {...register('confirmation')}
+          />
+          <CheckboxField label={t('users.form.mustChange')} {...register('mustChange')} />
           <FormError message={error} />
           <DialogFooter>
             <Button variant="secondary" onClick={() => onOpenChange(false)}>

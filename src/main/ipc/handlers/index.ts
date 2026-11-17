@@ -68,8 +68,8 @@ export function createHandlers({ preferences, runtime }: HandlerDependencies): I
         ...(changes.role === undefined ? {} : { role: changes.role }),
         ...(changes.isActive === undefined ? {} : { isActive: changes.isActive }),
       }),
-    'users:resetPassword': ({ id, temporaryPassword }, context) =>
-      services().users.resetPassword(actor(context), id, temporaryPassword),
+    'users:resetPassword': ({ id, password, mustChange }, context) =>
+      services().users.resetPassword(actor(context), id, password, mustChange),
     'users:clearPin': ({ id }, context) => services().users.clearPin(actor(context), id),
 
     'audit:list': ({ limit, beforeId }, context) =>

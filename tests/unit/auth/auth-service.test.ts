@@ -270,6 +270,13 @@ describe('gestion des utilisateurs et rôles (B.2)', () => {
     const reset = await h.users.resetPassword(h.current(), seller.id, 'Nouveau-Depart-9');
     expect(reset.mustChangePassword).toBe(true);
     expect(actions()).toEqual(expect.arrayContaining(['user.created', 'user.password_reset']));
+    // Mot de passe définitif fixé par l'administrateur (D96) : utilisable tel quel.
+    const fixed = await h.users.resetPassword(h.current(), seller.id, 'Mangue-Douce-44', false);
+    expect(fixed.mustChangePassword).toBe(false);
+    h.auth.logout();
+    await expect(h.auth.login('awa', 'Mangue-Douce-44')).resolves.toMatchObject({
+      mustChangePassword: false,
+    });
   });
 });
 
