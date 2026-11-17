@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { COPYRIGHT, PUBLISHER } from '@shared/brand';
 import type { AppInfo } from '@shared/ipc/contract';
 import { ErrorState, LoadingState } from '../components/states/states';
 import { Badge, Card, CardContent } from '../components/ui/basic';
@@ -54,6 +55,10 @@ export function AboutPage() {
             <dl className="grid grid-cols-[12rem_1fr] gap-x-6 gap-y-4 text-base">
               <dt className="text-muted-foreground">{t('about.version')}</dt>
               <dd className="tabular font-semibold">{state.info.version}</dd>
+              <dt className="text-muted-foreground">{t('about.publisher')}</dt>
+              <dd className="font-semibold">{PUBLISHER}</dd>
+              <dt className="text-muted-foreground">{t('about.copyright')}</dt>
+              <dd>{COPYRIGHT}</dd>
               <dt className="text-muted-foreground">{t('about.mode')}</dt>
               <dd>
                 <Badge tone={state.info.isPackaged ? 'success' : 'info'}>

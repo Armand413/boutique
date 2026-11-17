@@ -151,7 +151,7 @@ app
       displayHeaderFooter: true,
       headerTemplate: '<span></span>',
       footerTemplate:
-        '<div style="font-size:8pt;color:#6b7280;width:100%;text-align:center">Bouba Store — Mode d’emploi — <span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+        '<div style="font-size:8pt;color:#6b7280;width:100%;text-align:center">Bouba Store — Mode d’emploi — 2KConception — <span class="pageNumber"></span> / <span class="totalPages"></span></div>',
       margins: { top: 0.6, bottom: 0.7, left: 0.6, right: 0.6 },
     });
     writeFileSync(join(docs, 'GUIDE_UTILISATEUR.pdf'), pdf);

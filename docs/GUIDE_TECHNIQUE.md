@@ -131,6 +131,16 @@ silencieuse : `"Uninstall BoubaStore.exe" /S`.
 
 ## 7. Signature du code (configurable)
 
+**Éditeur : 2KConception (D97).** Sans certificat, la paternité est déjà inscrite partout où c'est possible :
+éditeur et copyright de l'exécutable (propriétés du fichier › Détails), éditeur affiché par Windows dans
+« Applications installées », écran de connexion et « À propos » (« Conçu par 2KConception »), métadonnées
+(`creator`, `producer`) de chaque PDF produit. La seule **preuve vérifiable** est une signature Authenticode : le
+certificat de signature de code doit être délivré **au nom de 2KConception** par une autorité reconnue (Sectigo,
+DigiCert, Certum, GlobalSign… ; validation de l'entreprise sur pièces, coût annuel) ou via Azure Trusted Signing.
+Windows affiche alors « Éditeur vérifié : 2KConception » à l'installation. Un certificat auto-signé ne prouve rien
+sur un autre ordinateur (« Éditeur inconnu »). Une fois le certificat obtenu, ajouter `publisherName: 2KConception`
+dans `electron-builder.yml` (section `win`).
+
 Sans certificat, l'installateur n'est pas signé : Windows SmartScreen affiche un avertissement. Pour signer
 (certificat de signature de code au format `.pfx`, jamais versionné) :
 

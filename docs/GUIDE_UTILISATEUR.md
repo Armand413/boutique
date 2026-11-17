@@ -1,5 +1,7 @@
 # Bouba Store — Mode d'emploi
 
+_Logiciel conçu par **2KConception**. © 2026 2KConception. Tous droits réservés._
+
 Ce mode d'emploi décrit toutes les fonctions de l'application, pour le patron, le gérant et les vendeurs. Il suit
 l'ordre d'une journée de travail : installer, se connecter, vendre, gérer le stock, contrôler, sauvegarder. Les
 captures viennent de l'application, remplie avec les données de démonstration.

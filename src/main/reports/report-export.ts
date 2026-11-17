@@ -1,6 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import type { TableCell, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { formatDateTime, isIsoUtc } from '@shared/format/date';
+import { PDF_CREATOR, PUBLISHER } from '@shared/brand';
 import { formatMoney } from '@shared/format/money';
 import type { ReportColumn, ReportRequest, ReportResult, ReportRow } from '@shared/schemas/reports';
 import { writeRows } from '../catalog/catalog-io';
@@ -55,7 +56,7 @@ function reportPdf(request: ReportRequest, result: ReportResult): Promise<Buffer
   const period = periodText(request);
   const wide = result.columns.length > 9;
   const document: TDocumentDefinitions = {
-    info: { title: reportTitle(request), creator: 'Bouba Store' },
+    info: { title: reportTitle(request), creator: PDF_CREATOR, producer: PUBLISHER },
     pageOrientation: 'landscape',
     pageMargins: [24, 28, 24, 28],
     defaultStyle: { font: 'Helvetica', fontSize: wide ? 7 : 9 },

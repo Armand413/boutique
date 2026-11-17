@@ -1,9 +1,10 @@
 # Installateur Windows (phase 10, D82 à D85). `npm run dist` produit dist/Bouba-Store-Setup-<version>.exe.
 # Signature : définir CSC_LINK (certificat .pfx ou chemin) et CSC_KEY_PASSWORD avant `npm run dist:signed`
-# (D84) ; sans certificat, `npm run dist` produit un installateur non signé.
+# (D84, D97) ; le certificat doit être délivré au nom de 2KConception. Sans certificat, `npm run dist`
+# produit un installateur non signé.
 appId: ci.boutique.gestion
 productName: Bouba Store
-copyright: Copyright © 2026 Armand
+copyright: Copyright © 2026 2KConception. Tous droits réservés.
 directories:
   output: dist
   buildResources: build
@@ -31,7 +32,9 @@ win:
   icon: build/icon.ico
   executableName: BoubaStore
   requestedExecutionLevel: asInvoker
-  legalTrademarks: Bouba Store
+  legalTrademarks: Bouba Store — 2KConception
+  # Une fois le certificat de 2KConception obtenu (D97), ajouter `publisherName: 2KConception` : la mise à
+  # jour vérifiera alors que chaque setup est bien signé par 2KConception.
 nsis:
   oneClick: false
   perMachine: false

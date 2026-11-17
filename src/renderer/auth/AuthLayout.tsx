@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Store } from 'lucide-react';
+import { PUBLISHER } from '@shared/brand';
 import { Card, CardContent } from '../components/ui/basic';
 import { useT } from '../i18n';
 import { useSession } from '../stores/session';
@@ -35,6 +36,9 @@ export function AuthLayout({ title, description, children, wide = false }: AuthL
             {children}
           </CardContent>
         </Card>
+        <p className="text-muted-foreground mt-6 text-center text-sm">
+          {t('brand.designedBy', { publisher: PUBLISHER })}
+        </p>
       </div>
     </main>
   );

@@ -1,5 +1,6 @@
 import type { Content, TableCell, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { formatDate, formatDateTime } from '@shared/format/date';
+import { PDF_CREATOR, PUBLISHER } from '@shared/brand';
 import { formatMoney } from '@shared/format/money';
 import type { QuoteDetail, SaleDetail } from '@shared/schemas/sales';
 import { MM, plain, renderPdf } from './pdf';
@@ -124,7 +125,7 @@ export function invoicePdf(sale: SaleDetail, shop: ShopIdentity): Promise<Buffer
       : []),
   ];
   const document: TDocumentDefinitions = {
-    info: { title: `Facture ${sale.invoiceNumber ?? ''}`, creator: 'Bouba Store' },
+    info: { title: `Facture ${sale.invoiceNumber ?? ''}`, creator: PDF_CREATOR, producer: PUBLISHER },
     defaultStyle: { font: 'Helvetica', fontSize: 10 },
     styles: STYLES,
     content: [
@@ -173,7 +174,7 @@ export function warrantyPdf(sale: SaleDetail, shop: ShopIdentity): Promise<Buffe
     (line) => line.serialNumber !== null || line.warrantyEnd !== null,
   );
   const document: TDocumentDefinitions = {
-    info: { title: `Garantie ${sale.invoiceNumber ?? ''}`, creator: 'Bouba Store' },
+    info: { title: `Garantie ${sale.invoiceNumber ?? ''}`, creator: PDF_CREATOR, producer: PUBLISHER },
     defaultStyle: { font: 'Helvetica', fontSize: 10 },
     styles: STYLES,
     content: [
@@ -212,7 +213,7 @@ export function warrantyPdf(sale: SaleDetail, shop: ShopIdentity): Promise<Buffe
 /** Bon de livraison : adresse, articles (sans prix) et signature. */
 export function deliveryNotePdf(sale: SaleDetail, shop: ShopIdentity): Promise<Buffer> {
   const document: TDocumentDefinitions = {
-    info: { title: `Livraison ${sale.invoiceNumber ?? ''}`, creator: 'Bouba Store' },
+    info: { title: `Livraison ${sale.invoiceNumber ?? ''}`, creator: PDF_CREATOR, producer: PUBLISHER },
     defaultStyle: { font: 'Helvetica', fontSize: 10 },
     styles: STYLES,
     content: [
@@ -257,7 +258,7 @@ export function ticketPdf(sale: SaleDetail, shop: ShopIdentity): Promise<Buffer>
     footer: typeof shop.legal === 'string' ? [shop.legal] : [],
   });
   return renderPdf({
-    info: { title: `Ticket ${sale.invoiceNumber ?? ''}`, creator: 'Bouba Store' },
+    info: { title: `Ticket ${sale.invoiceNumber ?? ''}`, creator: PDF_CREATOR, producer: PUBLISHER },
     // Courier 7 pt : environ 8,5 pt par ligne, plus les marges.
     pageSize: { width: 80 * MM, height: lines.length * 8.5 + 8 * MM + 12 },
     pageMargins: [4 * MM, 4 * MM, 4 * MM, 4 * MM],
@@ -273,7 +274,7 @@ export function quotePdf(
   customer: { fullName: string; phone: string | null } | null,
 ): Promise<Buffer> {
   const document: TDocumentDefinitions = {
-    info: { title: `Devis ${quote.quote.number}`, creator: 'Bouba Store' },
+    info: { title: `Devis ${quote.quote.number}`, creator: PDF_CREATOR, producer: PUBLISHER },
     defaultStyle: { font: 'Helvetica', fontSize: 10 },
     styles: STYLES,
     content: [

@@ -468,6 +468,10 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
 - **Mot de passe des utilisateurs** (D96, demande du client) : l'administrateur modifie ou réinitialise le mot de
   passe d'un utilisateur, provisoire ou définitif, avec déblocage du compte.
 
+- **Éditeur 2KConception** (D97) : mention « Logiciel conçu par 2KConception » (connexion, À propos, PDF, setup,
+  exécutable, mode d'emploi). Reste : acheter un certificat de signature de code au nom de 2KConception et lancer
+  `npm run dist:signed`.
+
 ### Vérifications de fin de phase
 
 | Contrôle                | Résultat                                                                                                     |
