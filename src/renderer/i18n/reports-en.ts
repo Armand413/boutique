@@ -23,10 +23,6 @@ export const reportsEn: Readonly<Record<keyof typeof reportsFr, string>> = {
   'dashboard.backupPassword': 'Automatic backups are stopped: set their password.',
   'dashboard.backupOpen': 'Open backups',
   'alert.sensitive': '{count} sensitive activit(y/ies) over the last 7 days.',
-  'dashboard.chart.days': 'Sales over the last 30 days',
-  'dashboard.chart.families': 'This month’s sales by family',
-  'dashboard.chart.noData': 'No sales over the period.',
-  'dashboard.chart.summary': 'Total: {value}. Best day: {best}.',
   'dashboard.latestSales': 'Latest sales',
   'dashboard.todaySales': 'Today’s sales',
   'dashboard.latestMovements': 'Latest stock movements',
@@ -36,8 +32,6 @@ export const reportsEn: Readonly<Record<keyof typeof reportsFr, string>> = {
   'dashboard.newReceipt': 'Goods receipt',
   'dashboard.openReports': 'See reports',
   'dashboard.walkIn': 'Walk-in customer',
-  'dashboard.series.revenue': 'Sales incl. tax',
-  'dashboard.series.margin': 'Profit',
 
   'reports.title': 'Reports',
   'reports.description':

@@ -333,8 +333,11 @@ de chaque produit reste imprimée sur la facture et le bon de garantie.
 
 Le **tableau de bord** montre les ventes du jour, de la semaine et du mois (avec le bénéfice estimé pour qui voit les
 marges), les produits en alerte, les échéances en retard, les réclamations en cours, les activités sensibles (pour
-l'administrateur), les graphiques des 30 derniers jours et des familles, les dernières ventes et les derniers
-mouvements.
+l'administrateur), les dernières ventes et les derniers mouvements.
+
+Ces chiffres se **renouvellent tout seuls** : « Aujourd'hui » repart à zéro chaque jour, « Cette semaine » chaque
+lundi et « Ce mois-ci » le 1ᵉʳ du mois. L'écran se met à jour toutes les minutes et dès qu'on revient sur la fenêtre.
+Les ventes passées ne sont pas perdues : elles restent dans **Rapports** pour n'importe quelle période.
 
 Pour un **vendeur**, le tableau de bord se limite au total et à la liste des **ventes du jour**.
 

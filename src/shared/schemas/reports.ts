@@ -151,16 +151,6 @@ export const dashboardSchema = z.strictObject({
   openClaims: z.number().int(),
   /** Activités sensibles des 7 derniers jours (administrateur seulement). */
   sensitive: z.number().int().nullable(),
-  days: z.array(
-    z.strictObject({ day, revenueTtc: z.number().int(), margin: z.number().int().nullable() }),
-  ),
-  families: z.array(
-    z.strictObject({
-      name: z.string(),
-      revenueTtc: z.number().int(),
-      margin: z.number().int().nullable(),
-    }),
-  ),
   latestSales: z.array(
     z.strictObject({
       saleId: z.number().int(),

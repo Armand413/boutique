@@ -115,7 +115,9 @@ test('tableau de bord et rapports : ventes, marges, stock, caisse et exports', a
   await expect(today).toContainText(/Bénéfice estimé : 9\s000/);
   await expect(page.getByRole('button', { name: /^1\s*Produits en alerte/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /^FAC-\d{4}-000001$/ })).toBeVisible();
-  await expect(page.getByText('Ventes des 30 derniers jours')).toBeVisible();
+  // Graphiques retirés du tableau de bord (D98).
+  await expect(page.getByText('Ventes des 30 derniers jours')).toHaveCount(0);
+  await expect(page.getByText('Ventes du mois par famille')).toHaveCount(0);
   await checkAccessibility(page, 'Tableau de bord');
   await page.getByRole('button', { name: 'Nouvelle vente' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Caisse' })).toBeVisible();

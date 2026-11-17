@@ -84,34 +84,6 @@ function periodTotals(
   return { count, revenueTtc, margin: canSeeCost ? margin : null };
 }
 
-function dailySeries(
-  days: Map<string, DayTotals>,
-  period: { from: string; to: string },
-  canSeeCost: boolean,
-) {
-  return daysOf(period).map((day) => ({
-    day,
-    revenueTtc: days.get(day)?.revenue_ttc ?? 0,
-    margin: canSeeCost ? (days.get(day)?.margin ?? 0) : null,
-  }));
-}
-
-function familySeries(db: Db, period: { from: string; to: string }, canSeeCost: boolean) {
-  const [from, to] = utcBounds(period);
-  return db
-    .prepare<[string, string], { name: string; revenue_ttc: number; margin: number }>(
-      `SELECT family_name AS name, sum(revenue_ttc) AS revenue_ttc, sum(margin) AS margin
-       FROM v_sale_lines_net WHERE completed_at >= ? AND completed_at < ?
-       GROUP BY family_id ORDER BY revenue_ttc DESC`,
-    )
-    .all(from, to)
-    .map((row) => ({
-      name: row.name,
-      revenueTtc: row.revenue_ttc,
-      margin: canSeeCost ? row.margin : null,
-    }));
-}
-
 /** Dernières ventes ; `since` : seulement celles faites depuis cet instant (ventes du jour). */
 function latestSales(db: Db, since: string | null = null): Dashboard['latestSales'] {
   return db
@@ -156,8 +128,9 @@ function count(db: Db, sql: string): number {
 export function dashboard(db: Db, context: DashboardContext): Dashboard {
   if (context.todayOnly === true) return todayDashboard(db, context);
   const periods = currentPeriods(context.now);
-  const earliest =
-    [periods.last30.from, periods.month.from, periods.week.from].sort()[0] ?? periods.today.from;
+  // Calculé à chaque ouverture à partir de la date du jour : le jour, la semaine et le mois
+  // repartent d'eux-mêmes à zéro (D98).
+  const earliest = [periods.month.from, periods.week.from].sort()[0] ?? periods.today.from;
   const days = dailyTotals(db, { from: earliest, to: periods.today.to });
   return {
     todayOnly: false,
@@ -173,8 +146,6 @@ export function dashboard(db: Db, context: DashboardContext): Dashboard {
       db,
       "SELECT count(*) FROM warranty_claims WHERE status NOT IN ('closed', 'rejected')",
     ),
-    days: dailySeries(days, periods.last30, context.canSeeCost),
-    families: familySeries(db, periods.month, context.canSeeCost),
     latestSales: latestSales(db),
     latestMovements: context.canSeeStock ? latestMovements(db) : null,
   };
@@ -194,8 +165,6 @@ function todayDashboard(db: Db, context: DashboardContext): Dashboard {
     overdueInstallments: 0,
     sensitive: null,
     openClaims: 0,
-    days: [],
-    families: [],
     latestSales: latestSales(db, since),
     latestMovements: null,
   };

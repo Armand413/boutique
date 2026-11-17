@@ -472,6 +472,9 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
   exécutable, mode d'emploi). Reste : acheter un certificat de signature de code au nom de 2KConception et lancer
   `npm run dist:signed`.
 
+- **Tableau de bord simplifié** (D98) : graphiques retirés ; chiffres du jour, de la semaine et du mois recalculés
+  automatiquement (rafraîchissement chaque minute).
+
 ### Vérifications de fin de phase
 
 | Contrôle                | Résultat                                                                                                     |

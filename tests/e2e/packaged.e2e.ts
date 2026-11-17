@@ -47,7 +47,7 @@ test('l’application installée démarre, garde ses données dans le profil et 
   await expect(nav(page)).toBeVisible();
   // Tableau de bord calculé par le thread des rapports, chargé depuis l'archive asar.
   await expect(page.getByRole('heading', { level: 1, name: 'Tableau de bord' })).toBeVisible();
-  await expect(page.getByText('Ventes des 30 derniers jours').first()).toBeVisible();
+  await expect(page.getByText('Dernières ventes').first()).toBeVisible();
   await openModule(page, 'Rapports');
   await expect(page.getByText('Marge brute')).toBeVisible();
 

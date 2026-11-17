@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   AlertTriangle,
   CalendarClock,
@@ -12,7 +12,6 @@ import {
 import { formatDateTime } from '@shared/format/date';
 import { formatMoney } from '@shared/format/money';
 import type { Dashboard } from '@shared/schemas/reports';
-import { SimpleChart } from '../../components/charts/charts';
 import { ErrorState, LoadingState } from '../../components/states/states';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/basic';
 import { Button } from '../../components/ui/button';
@@ -78,51 +77,6 @@ function AlertTile({
     <button type="button" className={cn(className, 'hover:bg-muted')} onClick={onOpen}>
       {content}
     </button>
-  );
-}
-
-function DaysChart({ data }: { data: Dashboard['days'] }) {
-  const t = useT();
-  const total = data.reduce((sum, point) => sum + point.revenueTtc, 0);
-  const best = data.reduce<Dashboard['days'][number] | null>(
-    (top, point) => (top === null || point.revenueTtc > top.revenueTtc ? point : top),
-    null,
-  );
-  if (total === 0)
-    return <p className="text-muted-foreground text-sm">{t('dashboard.chart.noData')}</p>;
-  const withMargin = data.some((point) => point.margin !== null);
-  return (
-    <SimpleChart
-      type="bar"
-      data={data}
-      labelKey="day"
-      series={[
-        { key: 'revenueTtc', label: t('dashboard.series.revenue') },
-        ...(withMargin ? [{ key: 'margin', label: t('dashboard.series.margin') }] : []),
-      ]}
-      summary={t('dashboard.chart.summary', {
-        value: formatMoney(total),
-        best: best === null ? '—' : `${best.day} (${formatMoney(best.revenueTtc)})`,
-      })}
-      formatValue={formatMoney}
-      formatLabel={(day) => day.slice(8, 10) + '/' + day.slice(5, 7)}
-    />
-  );
-}
-
-function FamiliesChart({ data }: { data: Dashboard['families'] }) {
-  const t = useT();
-  if (data.length === 0)
-    return <p className="text-muted-foreground text-sm">{t('dashboard.chart.noData')}</p>;
-  return (
-    <SimpleChart
-      type="bar"
-      data={data}
-      labelKey="name"
-      series={[{ key: 'revenueTtc', label: t('dashboard.series.revenue') }]}
-      summary={data.map((row) => `${row.name} : ${formatMoney(row.revenueTtc)}`).join(' ; ')}
-      formatValue={formatMoney}
-    />
   );
 }
 
@@ -252,6 +206,20 @@ function Shortcuts() {
   );
 }
 
+/** Rafraîchissement des chiffres (D98) : toutes les minutes et au retour sur la fenêtre. */
+const REFRESH_MS = 60_000;
+
+function useAutoRefresh(reload: () => void): void {
+  useEffect(() => {
+    const timer = window.setInterval(reload, REFRESH_MS);
+    window.addEventListener('focus', reload);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', reload);
+    };
+  }, [reload]);
+}
+
 /** Tableau de bord (4.8, A.4) : écran d'accueil. */
 export function DashboardPage() {
   const t = useT();
@@ -261,6 +229,7 @@ export function DashboardPage() {
   const warrantyEnabled = usePublicSettings((state) => state.settings?.modules.warranty ?? false);
   const loader = useCallback(() => invoke('dashboard:get'), []);
   const { state, reload } = useRemote<Dashboard>(loader);
+  useAutoRefresh(reload);
   return (
     <>
       <PageHeader
@@ -339,22 +308,6 @@ export function DashboardPage() {
           </section>
           <BackupReminder />
           <div className="grid gap-4 xl:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('dashboard.chart.days')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DaysChart data={state.data.days} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('dashboard.chart.families')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FamiliesChart data={state.data.families} />
-              </CardContent>
-            </Card>
             <Card>
               <CardHeader>
                 <CardTitle>{t('dashboard.latestSales')}</CardTitle>

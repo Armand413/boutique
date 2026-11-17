@@ -135,7 +135,7 @@ describe('ventes et marges', () => {
       now: new Date(),
     });
     expect(board.today).toEqual({ count: 1, revenueTtc: 11_800, margin: null });
-    expect(board.days.every((point) => point.margin === null)).toBe(true);
+    expect(board.month?.margin).toBeNull();
   });
 });
 

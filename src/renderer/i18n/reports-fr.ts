@@ -22,10 +22,6 @@ export const reportsFr = {
     'Les sauvegardes automatiques sont arrêtées : définissez leur mot de passe.',
   'dashboard.backupOpen': 'Ouvrir les sauvegardes',
   'alert.sensitive': '{count} activité(s) sensible(s) ces 7 derniers jours.',
-  'dashboard.chart.days': 'Ventes des 30 derniers jours',
-  'dashboard.chart.families': 'Ventes du mois par famille',
-  'dashboard.chart.noData': 'Aucune vente sur la période.',
-  'dashboard.chart.summary': 'Total : {value}. Meilleur jour : {best}.',
   'dashboard.latestSales': 'Dernières ventes',
   'dashboard.todaySales': 'Ventes du jour',
   'dashboard.latestMovements': 'Derniers mouvements de stock',
@@ -35,8 +31,6 @@ export const reportsFr = {
   'dashboard.newReceipt': 'Entrée de stock',
   'dashboard.openReports': 'Voir les rapports',
   'dashboard.walkIn': 'Client de passage',
-  'dashboard.series.revenue': 'Ventes TTC',
-  'dashboard.series.margin': 'Bénéfice',
 
   'reports.title': 'Rapports',
   'reports.description':
