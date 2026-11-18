@@ -16,6 +16,7 @@ import {
 import { CheckboxField, FormError, SelectField } from '../../components/ui/form-field';
 import { Money } from '../../components/ui/money';
 import { toast } from '../../components/ui/toast';
+import { ArticleSearch } from '../../components/catalog/ArticleSearch';
 import { CascadePicker } from '../../components/catalog/CascadePicker';
 import { useT } from '../../i18n';
 import { invoke } from '../../lib/ipc';
@@ -136,6 +137,7 @@ export function KitDialog({
 }: DetailDialogProps & { kitVariant: VariantDetail }) {
   const t = useT();
   const { error, submit } = useSubmit();
+  const [search, setSearch] = useState('');
   const [lines, setLines] = useState<KitLine[]>(() =>
     kitVariant.components.map((component) => ({
       variantId: component.variantId,
@@ -194,6 +196,7 @@ export function KitDialog({
           <DialogDescription>{t('kit.form.description')}</DialogDescription>
         </DialogHeader>
         <CascadePicker excludeKits onPick={add} />
+        <ArticleSearch excludeKits value={search} onValueChange={setSearch} onPick={add} />
         {lines.length === 0 ? (
           <p className="text-muted-foreground text-sm">{t('detail.kit.empty')}</p>
         ) : (

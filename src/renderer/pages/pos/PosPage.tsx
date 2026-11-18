@@ -16,7 +16,7 @@ import type { ProductRow } from '@shared/schemas/catalog';
 import type { CartPreview, CashSession, Customer } from '@shared/schemas/sales';
 import { useSubmit } from '../../auth/use-submit';
 import { EmptyState, ErrorState, LoadingState } from '../../components/states/states';
-import { Badge, Card, CardContent, Input, Kbd, Label } from '../../components/ui/basic';
+import { Badge, Card, CardContent, Input, Kbd } from '../../components/ui/basic';
 import { Button } from '../../components/ui/button';
 import { ConfirmDialog } from '../../components/ui/dialog';
 import { FormError, TextField } from '../../components/ui/form-field';
@@ -35,6 +35,7 @@ import {
   HeldDialog,
   UnitDialog,
 } from './PosDialogs';
+import { ArticleSearch } from '../../components/catalog/ArticleSearch';
 import { CascadePicker } from '../../components/catalog/CascadePicker';
 import { beep, missingUnits, posLinesFrom } from './pos-ui';
 
@@ -563,20 +564,16 @@ export function PosPage() {
           <h2 className="text-xl font-semibold">{t('pos.chooseArticle')}</h2>
           {/* Choix par listes successives : famille, catégorie, article (D91). */}
           <CascadePicker showPrice onPick={(row) => void addRow(row)} />
-          <div className="border-border flex flex-col gap-2 border-t pt-3">
-            <Label htmlFor="pos-search">{t('cascade.scanLabel')}</Label>
-            <Input
-              ref={searchRef}
-              id="pos-search"
+          {/* Recherche par nom ou code, et lecteur de codes-barres (D99). */}
+          <div className="border-border border-t pt-3">
+            <ArticleSearch
+              inputRef={searchRef}
               autoFocus
-              autoComplete="off"
+              showPrice
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key !== 'Enter') return;
-                event.preventDefault();
-                void scan();
-              }}
+              onValueChange={setQuery}
+              onPick={(row) => void addRow(row)}
+              onEnter={() => void scan()}
             />
           </div>
         </div>

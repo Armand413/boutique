@@ -475,6 +475,9 @@ Toutes les ventes du jeu de charge sont datées du même jour : cas le plus déf
 - **Tableau de bord simplifié** (D98) : graphiques retirés ; chiffres du jour, de la semaine et du mois recalculés
   automatiquement (rafraîchissement chaque minute).
 
+- **Recherche d'article rétablie** (D99) : champ de recherche avec suggestions à la caisse, en stock, aux devis, aux
+  kits et dans la liste des produits, en plus des listes en cascade.
+
 ### Vérifications de fin de phase
 
 | Contrôle                | Résultat                                                                                                     |

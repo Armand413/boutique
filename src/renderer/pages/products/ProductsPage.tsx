@@ -24,7 +24,7 @@ import {
   type ProductSearchInput,
 } from '@shared/schemas/catalog';
 import { EmptyState, ErrorState, LoadingState } from '../../components/states/states';
-import { Badge, Card, Skeleton } from '../../components/ui/basic';
+import { Badge, Card, Input, Label, Skeleton } from '../../components/ui/basic';
 import { Button } from '../../components/ui/button';
 import { CheckboxField, SelectField, TextField } from '../../components/ui/form-field';
 import { Money } from '../../components/ui/money';
@@ -57,6 +57,8 @@ interface AttributeFilterText {
 }
 
 interface Filters {
+  /** Recherche par nom, marque, modèle, référence ou code-barres (D99). */
+  query: string;
   /** Familles et catégories choisies par listes successives (D91), de la plus large à la plus précise. */
   categoryPath: number[];
   brandId: string;
@@ -67,6 +69,7 @@ interface Filters {
 }
 
 const INITIAL_FILTERS: Filters = {
+  query: '',
   categoryPath: [],
   brandId: ALL,
   status: 'active',
@@ -77,6 +80,7 @@ const INITIAL_FILTERS: Filters = {
 
 function hasFilters(filters: Filters): boolean {
   return (
+    filters.query.trim() !== '' ||
     filters.categoryPath.length > 0 ||
     filters.brandId !== ALL ||
     filters.status !== 'active' ||
@@ -106,7 +110,9 @@ function selectedCategory(filters: Filters): number | null {
 function searchInput(filters: Filters, offset: number): ProductSearchInput {
   const attributes = attributeFilters(filters);
   const categoryId = selectedCategory(filters);
+  const query = filters.query.trim();
   return {
+    ...(query === '' ? {} : { query }),
     ...(categoryId === null ? {} : { categoryId }),
     ...(filters.brandId === ALL ? {} : { brandId: Number(filters.brandId) }),
     status: filters.status,
@@ -134,23 +140,26 @@ function useProductPages(filters: Filters) {
     generation.current += 1;
     const current = generation.current;
     requested.current = new Set([0]);
-    const timer = window.setTimeout(() => {
-      invoke('products:search', searchInput(filters, 0)).then(
-        (result) => {
-          if (generation.current === current) {
-            setState({
-              status: 'ready',
-              total: result.total,
-              pages: new Map([[0, result.rows]]),
-            });
-          }
-        },
-        (error: unknown) => {
-          if (generation.current === current)
-            setState({ status: 'error', message: errorMessage(error) });
-        },
-      );
-    }, 0);
+    const timer = window.setTimeout(
+      () => {
+        invoke('products:search', searchInput(filters, 0)).then(
+          (result) => {
+            if (generation.current === current) {
+              setState({
+                status: 'ready',
+                total: result.total,
+                pages: new Map([[0, result.rows]]),
+              });
+            }
+          },
+          (error: unknown) => {
+            if (generation.current === current)
+              setState({ status: 'error', message: errorMessage(error) });
+          },
+        );
+      },
+      filters.query === '' ? 0 : 150,
+    );
     return () => window.clearTimeout(timer);
   }, [filters, attempt]);
 
@@ -642,6 +651,17 @@ export function ProductsPage() {
       {state.status === 'ready' && (
         <>
           <section role="search" className="flex flex-col gap-4" aria-label={t('products.filters')}>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="products-search">{t('products.search')}</Label>
+              <Input
+                id="products-search"
+                type="search"
+                autoComplete="off"
+                placeholder={t('products.searchPlaceholder')}
+                value={filters.query}
+                onChange={(event) => update({ query: event.target.value })}
+              />
+            </div>
             <div className="grid grid-cols-3 gap-4">
               <CategorySelects
                 allowAll

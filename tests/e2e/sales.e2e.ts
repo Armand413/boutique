@@ -241,3 +241,23 @@ test('le vendeur vend dans son plafond de remise et ne peut pas annuler', async 
     page.getByRole('main').getByRole('button', { name: 'Retour', exact: true }),
   ).toHaveCount(0);
 });
+
+test('recherche d’un article par son nom à la caisse, au clavier ou à la souris (D99)', async () => {
+  const { page } = launched;
+  await seedShop(page);
+  await openTill(page);
+  const search = page.getByRole('combobox', { name: /Rechercher un article/ });
+  await search.fill('câble');
+  const suggestions = page.getByRole('listbox', { name: 'Articles trouvés' });
+  await expect(suggestions.getByRole('option', { name: /Câble USB-C/ })).toBeVisible();
+  await checkAccessibility(page, 'Caisse (suggestions)');
+  await search.press('ArrowDown');
+  await search.press('Enter');
+  await expect(page.getByLabel('Quantité de Câble USB-C')).toHaveValue('1');
+  await expect(search).toHaveValue('');
+
+  await search.fill('galax');
+  await suggestions.getByRole('option', { name: /Galaxy A15/ }).click();
+  await expect(page.getByText('Galaxy A15', { exact: true })).toBeVisible();
+  await expect(suggestions).toHaveCount(0);
+});

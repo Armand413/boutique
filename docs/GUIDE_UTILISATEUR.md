@@ -13,7 +13,7 @@ chiffrées.
 
 1. **Se connecter** avec son identifiant (ou son code PIN de caisse).
 2. **Caisse › Ouvrir la caisse** avec le fond de caisse compté.
-3. Pour chaque client : choisir les articles dans les listes **Famille › Catégorie › Article** (ou les scanner),
+3. Pour chaque client : choisir les articles dans les listes **Famille › Catégorie › Article**, les rechercher par leur nom ou les scanner,
    ajuster les quantités, saisir un **prix convenu** si le prix se discute, puis **F4** pour encaisser.
 4. **F8** met un client en attente le temps d'en servir un autre.
 5. En fin de journée : **Clôturer la caisse** en saisissant l'argent compté.
@@ -147,8 +147,13 @@ En début de journée, saisissez le **fond de caisse** compté dans le tiroir et
   (une ligne par variante, avec le prix et le stock). On peut s'arrêter à n'importe quel niveau : la liste des
   articles montre tout ce qu'il contient. La même façon de choisir sert à l'entrée de stock, aux sorties et
   transferts, aux devis et à la composition d'un kit.
-- **Lecteur de codes-barres** : le curseur est dans le petit champ **Scanner un code-barres** ; scannez le
-  code-barres de l'article. Un bip confirme le scan.
+- **Rechercher un article** : tapez quelques lettres du nom, de la marque, du modèle, de la référence ou du
+  code-barres dans le champ **Rechercher un article ou scanner un code-barres** (ex. « galax », « câble »). Les
+  articles trouvés s'affichent dessous : cliquez sur le bon, ou descendez avec les flèches et validez par
+  **Entrée**. **Échap** ferme la liste. Cette recherche existe aussi à l'entrée de stock, aux sorties et transferts,
+  aux devis, dans la composition d'un kit et dans la liste des produits.
+- **Lecteur de codes-barres** : le curseur est dans ce même champ ; scannez le code-barres de l'article. Un bip
+  confirme le scan.
 - **Pas d'IMEI ni de numéro de série** à saisir : téléphones, téléviseurs, panneaux… se vendent par quantité, comme
   n'importe quel article.
 - **Kit** (ex. kit solaire) : il s'ajoute comme un seul article ; ses composants sortent du stock à la validation.
@@ -236,7 +241,8 @@ caractéristiques de leur catégorie.
 
 ### Liste des produits
 
-Choisissez la **Famille**, puis la **Catégorie** et la sous-catégorie : la liste se réduit à chaque choix.
+Tapez un nom, une marque, un modèle, une référence ou un code-barres dans **Rechercher un produit**, ou choisissez
+la **Famille**, puis la **Catégorie** et la sous-catégorie : la liste se réduit à chaque choix.
 « Toutes les familles » remet tout le catalogue. La marque, l'état (actifs, archivés), le tri, le stock bas et les
 caractéristiques de la catégorie affinent encore la liste.
 
@@ -431,15 +437,15 @@ précédente, puis, si la nouvelle version avait modifié la base, restaurez la 
 
 ## 18. En cas de problème
 
-| Situation                                               | Que faire                                                                                                                                                            |
-| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| « La base de données est endommagée »                   | Restaurez la dernière sauvegarde depuis cet écran. La base endommagée est mise de côté, pas effacée.                                                                 |
-| « Base verrouillée » (Windows réinstallé, autre compte) | Saisissez la clé de récupération.                                                                                                                                    |
-| Mot de passe administrateur oublié                      | Écran de connexion › Récupérer le compte administrateur, avec la clé de récupération.                                                                                |
-| Ordinateur **volé, en panne ou infecté**                | Sur un nouveau poste : installez l'application, choisissez **Restaurer une sauvegarde**, prenez la copie externe la plus récente. Changez ensuite les mots de passe. |
-| « Journal d'audit altéré » au démarrage                 | Quelqu'un a modifié la base hors de l'application. Prévenez votre prestataire ; consultez le journal.                                                                |
-| Imprimante de tickets muette                            | Paramètres › Impression : vérifiez l'adresse, imprimez un ticket d'essai.                                                                                            |
-| Le lecteur de codes-barres n'ajoute rien                | Vérifiez que le curseur est dans le champ **Scanner un code-barres** de la caisse ; le lecteur doit être en mode clavier et finir par Entrée.                        |
+| Situation                                               | Que faire                                                                                                                                                              |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| « La base de données est endommagée »                   | Restaurez la dernière sauvegarde depuis cet écran. La base endommagée est mise de côté, pas effacée.                                                                   |
+| « Base verrouillée » (Windows réinstallé, autre compte) | Saisissez la clé de récupération.                                                                                                                                      |
+| Mot de passe administrateur oublié                      | Écran de connexion › Récupérer le compte administrateur, avec la clé de récupération.                                                                                  |
+| Ordinateur **volé, en panne ou infecté**                | Sur un nouveau poste : installez l'application, choisissez **Restaurer une sauvegarde**, prenez la copie externe la plus récente. Changez ensuite les mots de passe.   |
+| « Journal d'audit altéré » au démarrage                 | Quelqu'un a modifié la base hors de l'application. Prévenez votre prestataire ; consultez le journal.                                                                  |
+| Imprimante de tickets muette                            | Paramètres › Impression : vérifiez l'adresse, imprimez un ticket d'essai.                                                                                              |
+| Le lecteur de codes-barres n'ajoute rien                | Vérifiez que le curseur est dans le champ **Rechercher un article ou scanner un code-barres** de la caisse ; le lecteur doit être en mode clavier et finir par Entrée. |
 
 Les journaux techniques (sans aucune donnée sensible) sont dans `%APPDATA%\Bouba Store\logs` : votre prestataire
 peut vous les demander.
@@ -452,7 +458,7 @@ peut vous les demander.
 | **F4**     | Encaisser                                         |
 | **F8**     | Mettre le panier en attente                       |
 | **Échap**  | Annuler / fermer la fenêtre                       |
-| **Entrée** | Ajouter l'article scanné (caisse)                 |
+| **Entrée** | Ajouter l'article scanné ou choisi dans la liste  |
 | **Ctrl+K** | Recherche globale                                 |
 | **Ctrl+L** | Verrouiller la session                            |
 | **Tab**    | Passer au champ suivant (tout se fait au clavier) |

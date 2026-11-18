@@ -315,6 +315,10 @@ export const catalogEn: Readonly<Record<keyof typeof catalogFr, string>> = {
   'search.device': '{serial} · {product} · {status}',
   'search.searching': 'Searching…',
 
+  'search.label': 'Search for an item or scan a barcode',
+  'search.placeholder': 'Name, brand, model, reference or barcode',
+  'search.suggestions': 'Matching items',
+  'search.noResult': 'No item matches this search.',
   'cascade.family': 'Family',
   'cascade.category': 'Category',
   'cascade.subcategory': 'Subcategory',

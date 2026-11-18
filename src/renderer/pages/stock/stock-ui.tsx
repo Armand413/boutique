@@ -1,8 +1,8 @@
-import { useCallback, useId, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { ProductRow } from '@shared/schemas/catalog';
 import { MOVEMENT_TYPES, PAYMENT_METHODS, type AvailableUnit } from '@shared/schemas/stock';
+import { ArticleSearch } from '../../components/catalog/ArticleSearch';
 import { CascadePicker } from '../../components/catalog/CascadePicker';
-import { Input, Label } from '../../components/ui/basic';
 import type { SelectOption } from '../../components/ui/radix';
 import { toast } from '../../components/ui/toast';
 import { useT, type Translate } from '../../i18n';
@@ -68,7 +68,6 @@ export function VariantPicker({
   includeAll?: boolean;
 }) {
   const t = useT();
-  const inputId = useId();
   const [code, setCode] = useState('');
 
   const scan = async (): Promise<void> => {
@@ -102,21 +101,15 @@ export function VariantPicker({
     <div className="flex flex-col gap-3">
       <p className="text-base font-semibold">{t('picker.label')}</p>
       <CascadePicker onPick={onPick} stockedOnly={!includeAll} showPrice={includeAll} />
-      <div className="flex flex-col gap-2">
-        <Label htmlFor={inputId}>{t('picker.scanLabel')}</Label>
-        <Input
-          id={inputId}
-          autoComplete="off"
-          autoFocus={autoFocus}
-          value={code}
-          onChange={(event) => setCode(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key !== 'Enter') return;
-            event.preventDefault();
-            void scan();
-          }}
-        />
-      </div>
+      <ArticleSearch
+        autoFocus={autoFocus ?? false}
+        stockedOnly={!includeAll}
+        showPrice={includeAll}
+        value={code}
+        onValueChange={setCode}
+        onPick={onPick}
+        onEnter={() => void scan()}
+      />
     </div>
   );
 }
