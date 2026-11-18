@@ -122,7 +122,7 @@ export function ArticleSearch({
     const only = rows.length === 1 ? rows[0] : undefined;
     const chosen = exact ?? only;
     if (chosen !== undefined) pick(chosen);
-    else toast.error(t('search.noResult'));
+    else toast.error(t('articleSearch.noResult'));
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
@@ -147,7 +147,7 @@ export function ArticleSearch({
 
   return (
     <div className="relative flex flex-col gap-2">
-      <Label htmlFor={id}>{t('search.label')}</Label>
+      <Label htmlFor={id}>{t('articleSearch.label')}</Label>
       <Input
         ref={inputRef}
         id={id}
@@ -159,7 +159,7 @@ export function ArticleSearch({
         {...(open && active >= 0 ? { 'aria-activedescendant': `${listId}-${String(active)}` } : {})}
         autoComplete="off"
         autoFocus={autoFocus}
-        placeholder={t('search.placeholder')}
+        placeholder={t('articleSearch.placeholder')}
         value={value}
         onChange={(event) => {
           setClosed(false);
@@ -173,12 +173,12 @@ export function ArticleSearch({
         <ul
           id={listId}
           role="listbox"
-          aria-label={t('search.suggestions')}
+          aria-label={t('articleSearch.suggestions')}
           className="border-border bg-surface absolute top-full right-0 left-0 z-20 mt-1 max-h-80 overflow-y-auto rounded-md border shadow-lg"
         >
           {rows.length === 0 ? (
             <li role="presentation" className="text-muted-foreground px-3 py-2 text-sm">
-              {t('search.noResult')}
+              {t('articleSearch.noResult')}
             </li>
           ) : (
             rows.map((row, index) => {

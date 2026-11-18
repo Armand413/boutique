@@ -28,7 +28,7 @@ export const fr = {
   'nav.breadcrumb': 'Fil d’Ariane',
 
   'search.open': 'Rechercher ou aller à…',
-  'search.placeholder': 'Écran, produit, code-barres, IMEI…',
+  'search.placeholder': 'Écran, produit, code-barres…',
   'search.title': 'Recherche rapide',
   'search.description': 'Utilisez les flèches pour choisir, Entrée pour ouvrir, Échap pour fermer.',
   'search.empty': 'Aucun résultat pour « {query} ».',

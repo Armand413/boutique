@@ -29,7 +29,7 @@ export const en: Readonly<Record<TranslationKey, string>> = {
   'nav.breadcrumb': 'Breadcrumb',
 
   'search.open': 'Search or go to…',
-  'search.placeholder': 'Screen, product, barcode, IMEI…',
+  'search.placeholder': 'Screen, product, barcode…',
   'search.title': 'Quick search',
   'search.description': 'Use the arrow keys to choose, Enter to open, Escape to close.',
   'search.empty': 'No results for “{query}”.',
